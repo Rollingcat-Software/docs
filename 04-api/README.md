@@ -33,11 +33,12 @@ uvicorn app.main:app --reload --port 8001
 
 ## Reference Documentation
 
-- **[RUNNING_SERVICES_CAPABILITIES.md](RUNNING_SERVICES_CAPABILITIES.md)** - Overview of service capabilities
-- **[BACKEND_ANALYSIS.md](BACKEND_ANALYSIS.md)** - Backend analysis
-- **[BACKEND_CODE_REVIEW.md](BACKEND_CODE_REVIEW.md)** - Backend code review
-- **[BACKEND_REVIEW_SUMMARY.md](BACKEND_REVIEW_SUMMARY.md)** - Backend review summary
-- **[BIOMETRIC_SERVICE_RUNNING.md](BIOMETRIC_SERVICE_RUNNING.md)** - Biometric service status
+- **[SERVICES_OVERVIEW.md](SERVICES_OVERVIEW.md)** - Overview of service capabilities
+- **[BACKEND_REVIEW.md](BACKEND_REVIEW.md)** - Backend code review
+
+### Implementation Guides
+- **[backend-api/SPRINGDOC_SETUP.md](backend-api/SPRINGDOC_SETUP.md)** - SpringDoc OpenAPI setup for backend
+- **[biometric-service/FASTAPI_SETUP.md](biometric-service/FASTAPI_SETUP.md)** - FastAPI documentation setup
 
 ## API Features
 

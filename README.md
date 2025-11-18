@@ -12,27 +12,31 @@
 
 | I want to... | Go to... |
 |-------------|----------|
-| **Get started quickly** | [Quick Start Guide](01-getting-started/QUICK_START.md) |
-| **Run the applications** | [How to Run Apps](01-getting-started/HOW_TO_RUN_APPS.md) |
+| **Get started quickly** | [Getting Started](01-getting-started/GETTING_STARTED.md) |
+| **Run the applications** | [Running Apps](01-getting-started/RUNNING_APPS.md) |
 | **Explore the API** | [Backend API](http://localhost:8080/swagger-ui.html) · [Biometric Service](http://localhost:8001/docs) |
 | **Understand architecture** | [Architecture Analysis](02-architecture/ARCHITECTURE_ANALYSIS.md) |
 | **Start developing** | [Developer Guide (CLAUDE.md)](03-development/CLAUDE.md) ⭐ |
 | **Run tests** | [Testing Guide](05-testing/TESTING_GUIDE.md) |
-| **Check project status** | [Current Status](07-status/PROJECT_STATUS_NOW.md) |
+| **Check project status** | [Project Status](07-status/PROJECT_STATUS.md) |
 
 ---
 
 ## 📚 Documentation Structure
 
+### 0️⃣ [Meta Documentation](00-meta/)
+**Documentation about documentation**
+- [Module Design](00-meta/module-design/) - Documentation module design and analysis
+- [Project Artifacts](00-meta/project-artifacts/) - PSD, proposals, original documents
+
 ### 1️⃣ [Getting Started](01-getting-started/)
 **New to FIVUCSAS? Start here!**
-- [QUICK_START.md](01-getting-started/QUICK_START.md) - Quick start guide
-- [HOW_TO_RUN_APPS.md](01-getting-started/HOW_TO_RUN_APPS.md) - Running all applications
-- [HOW_TO_RUN_AND_TEST.md](01-getting-started/HOW_TO_RUN_AND_TEST.md) - Running and testing
+- [GETTING_STARTED.md](01-getting-started/GETTING_STARTED.md) - Complete getting started guide
+- [RUNNING_APPS.md](01-getting-started/RUNNING_APPS.md) - Running all applications
 
 ### 2️⃣ [Architecture](02-architecture/)
 **System design and architectural decisions**
-- [ARCHITECTURE_ANALYSIS.md](02-architecture/ARCHITECTURE_ANALYSIS.md) - Complete architecture analysis (1,339 lines)
+- [ARCHITECTURE_ANALYSIS.md](02-architecture/ARCHITECTURE_ANALYSIS.md) - Complete architecture analysis
 - [SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md](02-architecture/SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md) - Design decisions
 - [Diagrams](02-architecture/diagrams/) - 35+ professional UML/PlantUML diagrams
 
@@ -40,8 +44,8 @@
 **Developer guides and implementation documentation**
 - [CLAUDE.md](03-development/CLAUDE.md) - ⭐ **Main developer guide - START HERE**
 - [KOTLIN_MULTIPLATFORM_GUIDE.md](03-development/KOTLIN_MULTIPLATFORM_GUIDE.md) - Mobile app development
-- [COMPLETE_IMPLEMENTATION_GUIDE.md](03-development/COMPLETE_IMPLEMENTATION_GUIDE.md) - Implementation details
-- [CODE_REVIEW_ACTION_GUIDE.md](03-development/CODE_REVIEW_ACTION_GUIDE.md) - Code review process
+- [IMPLEMENTATION_GUIDE.md](03-development/IMPLEMENTATION_GUIDE.md) - Implementation details
+- [TECHNOLOGY_DECISIONS.md](03-development/TECHNOLOGY_DECISIONS.md) - Technology stack decisions
 
 ### 4️⃣ [API Documentation](04-api/)
 **Interactive API documentation (auto-generated from code)**
@@ -57,7 +61,10 @@
 - **OpenAPI JSON:** [http://localhost:8001/openapi.json](http://localhost:8001/openapi.json)
 
 #### Reference Documentation
-- [RUNNING_SERVICES_CAPABILITIES.md](04-api/RUNNING_SERVICES_CAPABILITIES.md) - Service capabilities overview
+- [SERVICES_OVERVIEW.md](04-api/SERVICES_OVERVIEW.md) - Service capabilities overview
+- [BACKEND_REVIEW.md](04-api/BACKEND_REVIEW.md) - Backend code review
+- [Backend SpringDoc Setup](04-api/backend-api/SPRINGDOC_SETUP.md) - SpringDoc OpenAPI implementation
+- [Biometric FastAPI Setup](04-api/biometric-service/FASTAPI_SETUP.md) - FastAPI documentation setup
 
 ### 5️⃣ [Testing](05-testing/)
 **Testing guides and test reports**
@@ -72,9 +79,10 @@
 
 ### 7️⃣ [Project Status](07-status/)
 **Current project status and roadmaps**
-- [PROJECT_STATUS_NOW.md](07-status/PROJECT_STATUS_NOW.md) - ⭐ **Current status (Updated: Nov 3, 2025)**
-- [IMPLEMENTATION_STATUS.md](07-status/IMPLEMENTATION_STATUS.md) - Detailed implementation progress
+- [PROJECT_STATUS.md](07-status/PROJECT_STATUS.md) - ⭐ **Authoritative project status**
 - [FINAL_COMPLETION_REPORT.md](07-status/FINAL_COMPLETION_REPORT.md) - Completion summary
+- [KMP_IMPLEMENTATION_STATUS.md](07-status/KMP_IMPLEMENTATION_STATUS.md) - Kotlin Multiplatform status
+- [MOBILE_APP_STATUS.md](07-status/MOBILE_APP_STATUS.md) - Mobile app status
 
 ---
 
@@ -134,7 +142,7 @@ Web Dashboard:   ░░░░░░░░░░░░░░░░░░░░  0
 Deployment:      ░░░░░░░░░░░░░░░░░░░░  0% ❌ Not started
 ```
 
-**Details:** [Project Status Now](07-status/PROJECT_STATUS_NOW.md)
+**Details:** [Project Status](07-status/PROJECT_STATUS.md)
 
 ---
 
@@ -144,8 +152,8 @@ Deployment:      ░░░░░░░░░░░░░░░░░░░░  0
 - **Department:** Computer Engineering
 - **Course:** Engineering Project (CSE4297)
 - **Project Type:** Multi-tenant Biometric SaaS Platform
-- **Proposal:** [CSE4297_Project_Proposal.pdf](CSE4297_Project_Proposal.pdf)
-- **Specification:** [PSD.docx](PSD.docx)
+- **Proposal:** [CSE4297_Project_Proposal.pdf](00-meta/project-artifacts/CSE4297_Project_Proposal.pdf)
+- **Specification:** [PSD.docx](00-meta/project-artifacts/PSD.docx)
 
 ---
 
@@ -188,14 +196,14 @@ cd mobile-app && ./gradlew :shared:test
 ## 📖 Key Documents
 
 **For New Developers:**
-1. [Quick Start](01-getting-started/QUICK_START.md)
+1. [Getting Started](01-getting-started/GETTING_STARTED.md)
 2. [CLAUDE.md (Developer Guide)](03-development/CLAUDE.md) ⭐
 3. [Architecture Overview](02-architecture/ARCHITECTURE_ANALYSIS.md)
 
 **For API Integration:**
 1. [Backend API Docs](http://localhost:8080/swagger-ui.html)
 2. [Biometric Service Docs](http://localhost:8001/docs)
-3. [Services Capabilities](04-api/RUNNING_SERVICES_CAPABILITIES.md)
+3. [Services Overview](04-api/SERVICES_OVERVIEW.md)
 
 **For Testing:**
 1. [Testing Guide](05-testing/TESTING_GUIDE.md)
@@ -207,8 +215,8 @@ cd mobile-app && ./gradlew :shared:test
 
 This is a university engineering project. For development:
 - Read [CLAUDE.md](03-development/CLAUDE.md) for development guidelines
-- Follow [Code Review Guide](03-development/CODE_REVIEW_ACTION_GUIDE.md)
-- Use [Refactoring Checklist](03-development/REFACTORING_CHECKLIST.md)
+- Check [Implementation Guide](03-development/IMPLEMENTATION_GUIDE.md)
+- Review [Technology Decisions](03-development/TECHNOLOGY_DECISIONS.md)
 
 ---
 
@@ -223,12 +231,12 @@ This documentation follows professional software engineering principles:
 - **Automation** - API docs auto-generated from code (always accurate, zero maintenance)
 
 See design documentation:
-- [Design Analysis](DOCS_MODULE_DESIGN_ANALYSIS.md)
-- [Professional Design](DOCS_MODULE_PROFESSIONAL_DESIGN.md)
-- [Implementation Plan](DOCS_MODULE_IMPLEMENTATION_PLAN.md)
+- [Design Analysis](00-meta/module-design/DOCS_MODULE_DESIGN_ANALYSIS.md)
+- [Professional Design](00-meta/module-design/DOCS_MODULE_PROFESSIONAL_DESIGN.md)
+- [Implementation Plan](00-meta/module-design/DOCS_MODULE_IMPLEMENTATION_PLAN.md)
 
 ---
 
-**Documentation Last Updated:** 2025-11-17
-**Documentation Version:** 2.0 (Professional Organization)
+**Documentation Last Updated:** 2025-11-18
+**Documentation Version:** 2.1 (Refactored and Optimized)
 **Project Version:** 1.0.0-SNAPSHOT
