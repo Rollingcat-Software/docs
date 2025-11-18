@@ -4,18 +4,15 @@ This folder contains guides for getting started with the FIVUCSAS platform.
 
 ## Documents
 
-- **[QUICK_START.md](QUICK_START.md)** - Quick start guide for developers
-- **[HOW_TO_RUN_APPS.md](HOW_TO_RUN_APPS.md)** - How to run all applications
-- **[HOW_TO_RUN_AND_TEST.md](HOW_TO_RUN_AND_TEST.md)** - Running and testing guide
-- **[HOW_TO_RUN.md](HOW_TO_RUN.md)** - Basic running instructions
-- **[QUICKSTART.md](QUICKSTART.md)** - Alternative quick start
-- **[START_HERE.md](START_HERE.md)** - Where to begin
+| File | Description |
+|------|-------------|
+| [GETTING_STARTED.md](GETTING_STARTED.md) | Complete getting started guide with prerequisites and setup |
+| [RUNNING_APPS.md](RUNNING_APPS.md) | Detailed guide for running all applications |
 
 ## Recommended Reading Order
 
-1. Start with [QUICK_START.md](QUICK_START.md) or [START_HERE.md](START_HERE.md)
-2. Then read [HOW_TO_RUN_APPS.md](HOW_TO_RUN_APPS.md)
-3. For testing, see [HOW_TO_RUN_AND_TEST.md](HOW_TO_RUN_AND_TEST.md)
+1. Start with [GETTING_STARTED.md](GETTING_STARTED.md)
+2. Then read [RUNNING_APPS.md](RUNNING_APPS.md) for detailed app instructions
 
 ## Next Steps
 
@@ -26,4 +23,4 @@ After getting started, proceed to:
 
 ---
 
-[← Back to Main Documentation](../README.md)
+[Back to Main Documentation](../README.md)

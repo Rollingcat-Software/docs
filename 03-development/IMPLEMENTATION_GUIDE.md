@@ -1,497 +1,681 @@
-# FIVUCSAS Implementation Guide
+# COMPLETE IMPLEMENTATION GUIDE - FIVUCSAS Mobile/Desktop Apps
 
-## 🎯 Quick Start Implementation Checklist
+## Quick Start
 
-This guide will help you implement the FIVUCSAS platform step-by-step based on all the configurations and recommendations we've set up.
-
----
-
-## ✅ Phase 0: Setup & Verification (Week 1)
-
-### Day 1-2: Environment Setup
-
-- [ ] **Install Required Tools**
-  - [ ] Docker Desktop
-  - [ ] Java 21 JDK
-  - [ ] Python 3.11+
-  - [ ] Node.js 18+
-  - [ ] Flutter 3.24+
-  - [ ] PostgreSQL client (pgAdmin or DBeaver)
-  - [ ] Postman or Insomnia (API testing)
-  - [ ] Git
-
-- [ ] **Verify Docker Compose**
-  ```bash
-  cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS
-  docker-compose up postgres redis
-  ```
-  - [ ] PostgreSQL running on port 5432
-  - [ ] Redis running on port 6379
-  - [ ] pgvector extension enabled
-
-- [ ] **Test Database Connection**
-  ```bash
-  psql -h localhost -U postgres -d identity_core_db
-  # Should connect successfully
-  # Run: SELECT version();
-  # Run: CREATE EXTENSION IF NOT EXISTS vector;
-  ```
-
-### Day 3-5: Initial Code Structure
-
-- [ ] **Identity Core API**
-  - [ ] Create Spring Boot project structure
-  - [ ] Add dependencies (see README)
-  - [ ] Configure `application.yml`
-  - [ ] Test Flyway migrations run successfully
-  - [ ] Verify tables created in PostgreSQL
-
-- [ ] **Biometric Processor**
-  - [ ] Create FastAPI project structure
-  - [ ] Set up Python virtual environment
-  - [ ] Install requirements.txt
-  - [ ] Test DeepFace model download
-  - [ ] Verify MediaPipe works
+This document provides step-by-step instructions to fix all issues and implement all missing features.
 
 ---
 
-## ✅ Phase 1: Backend Foundation (Weeks 2-4)
+## Part 1: IMMEDIATE FIXES (Already Done ✅)
 
-### Week 2: Identity Core API - Authentication
+### 1.1 Fix Kotlin Version Compatibility ✅
+- Changed from Kotlin 1.9.21 to 1.9.20 (compatible with Compose 1.5.11)
+- File: `mobile-app/build.gradle.kts`
 
-**Goal: Working JWT authentication**
+### 1.2 Create Error Model ✅
+- Created `AppError.kt` sealed class hierarchy
+- File: `shared/src/commonMain/kotlin/com/fivucsas/mobile/domain/model/errors/AppError.kt`
 
-- [ ] **Domain Layer**
-  ```
-  Create entities:
-  - User.java
-  - Tenant.java
-  - Role.java
-  - Permission.java
-  ```
+### 1.3 Create TokenRepository Interface ✅
+- Separated token concerns
+- File: `shared/src/commonMain/kotlin/com/fivucsas/mobile/domain/repository/TokenRepository.kt`
 
-- [ ] **Repository Layer**
-  ```
-  Create JPA repositories:
-  - UserRepository.java
-  - TenantRepository.java
-  - RoleRepository.java
-  ```
+---
 
-- [ ] **Service Layer**
-  ```
-  Implement services:
-  - AuthenticationService.java
-  - UserService.java
-  - JwtService.java
-  - TenantService.java
-  ```
+## Part 2: REFACTORING EXISTING CODE (Next Steps)
 
-- [ ] **Controller Layer**
-  ```
-  Create REST controllers:
-  - AuthController.java (/api/v1/auth/*)
-  - UserController.java (/api/v1/users/*)
-  ```
+### 2.1 Refactor AuthRepository (Remove token methods)
 
-- [ ] **Security Configuration**
-  ```
-  - SecurityConfig.java (Spring Security)
-  - JwtAuthenticationFilter.java
-  - PasswordEncoder configuration
-  ```
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/domain/repository/AuthRepository.kt`
 
-**Testing:**
-```bash
-# Register new user
-POST http://localhost:8080/api/v1/auth/register
-{
-  "email": "test@test.com",
-  "password": "Test@123",
-  "firstName": "Test",
-  "lastName": "User"
+```kotlin
+package com.fivucsas.mobile.domain.repository
+
+import com.fivucsas.mobile.domain.model.AuthToken
+import com.fivucsas.mobile.domain.model.User
+import com.fivucsas.mobile.domain.model.errors.AppError
+
+interface AuthRepository {
+    suspend fun register(
+        email: String,
+        password: String,
+        firstName: String,
+        lastName: String
+    ): Result<Pair<User, AuthToken>>
+
+    suspend fun login(email: String, password: String): Result<Pair<User, AuthToken>>
+
+    suspend fun logout(): Result<Unit>
+}
+```
+
+### 2.2 Implement TokenRepository
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/data/repository/TokenRepositoryImpl.kt`
+
+```kotlin
+package com.fivucsas.mobile.data.repository
+
+import com.fivucsas.mobile.data.local.TokenStorage
+import com.fivucsas.mobile.domain.repository.TokenRepository
+
+class TokenRepositoryImpl(
+    private val tokenStorage: TokenStorage
+) : TokenRepository {
+    
+    override fun getToken(): String? = tokenStorage.getToken()
+    
+    override fun saveToken(token: String) = tokenStorage.saveToken(token)
+    
+    override fun clearToken() = tokenStorage.clearToken()
+    
+    override fun hasToken(): Boolean = tokenStorage.getToken() != null
+}
+```
+
+### 2.3 Create DTO Mappers
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/data/remote/mapper/AuthMapper.kt`
+
+```kotlin
+package com.fivucsas.mobile.data.remote.mapper
+
+import com.fivucsas.mobile.data.remote.AuthResponse
+import com.fivucsas.mobile.domain.model.AuthToken
+import com.fivucsas.mobile.domain.model.User
+import kotlinx.datetime.Instant
+
+object AuthMapper {
+    
+    fun mapToUser(dto: AuthResponse.UserDto): User {
+        return User(
+            id = dto.id,
+            email = dto.email,
+            firstName = dto.firstName,
+            lastName = dto.lastName,
+            isBiometricEnrolled = dto.isBiometricEnrolled,
+            createdAt = Instant.parse(dto.createdAt)
+        )
+    }
+    
+    fun mapToAuthToken(dto: AuthResponse): AuthToken {
+        return AuthToken(
+            accessToken = dto.accessToken,
+            tokenType = dto.tokenType
+        )
+    }
+    
+    fun mapResponse(dto: AuthResponse): Pair<User, AuthToken> {
+        return Pair(mapToUser(dto.user), mapToAuthToken(dto))
+    }
+}
+```
+
+### 2.4 Split ApiClient into Specialized Clients
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/data/remote/factory/HttpClientFactory.kt`
+
+```kotlin
+package com.fivucsas.mobile.data.remote.factory
+
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
+
+object HttpClientFactory {
+    
+    fun create(
+        baseUrl: String,
+        tokenProvider: () -> String? = { null },
+        enableLogging: Boolean = true
+    ): HttpClient {
+        return HttpClient {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                    prettyPrint = true
+                })
+            }
+
+            if (enableLogging) {
+                install(Logging) {
+                    logger = Logger.SIMPLE
+                    level = LogLevel.ALL
+                }
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30000
+                connectTimeoutMillis = 30000
+            }
+
+            defaultRequest {
+                url(baseUrl)
+                contentType(ContentType.Application.Json)
+
+                tokenProvider()?.let { token ->
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/data/remote/client/AuthApiClient.kt`
+
+```kotlin
+package com.fivucsas.mobile.data.remote.client
+
+import com.fivucsas.mobile.data.remote.AuthResponse
+import com.fivucsas.mobile.data.remote.LoginRequest
+import com.fivucsas.mobile.data.remote.RegisterRequest
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+
+class AuthApiClient(private val httpClient: HttpClient) {
+    
+    suspend fun login(request: LoginRequest): AuthResponse {
+        return httpClient.post("/auth/login") {
+            setBody(request)
+        }.body()
+    }
+
+    suspend fun register(request: RegisterRequest): AuthResponse {
+        return httpClient.post("/auth/register") {
+            setBody(request)
+        }.body()
+    }
+}
+```
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/data/remote/client/BiometricApiClient.kt`
+
+```kotlin
+package com.fivucsas.mobile.data.remote.client
+
+import com.fivucsas.mobile.data.remote.BiometricVerificationResponse
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
+
+class BiometricApiClient(private val httpClient: HttpClient) {
+    
+    suspend fun enrollFace(userId: String, imageBytes: ByteArray): BiometricVerificationResponse {
+        return httpClient.submitFormWithBinaryData(
+            url = "/biometric/enroll/$userId",
+            formData = formData {
+                append("image", imageBytes, Headers.build {
+                    append(HttpHeaders.ContentType, "image/jpeg")
+                    append(HttpHeaders.ContentDisposition, "filename=face.jpg")
+                })
+            }
+        ).body()
+    }
+
+    suspend fun verifyFace(userId: String, imageBytes: ByteArray): BiometricVerificationResponse {
+        return httpClient.submitFormWithBinaryData(
+            url = "/biometric/verify/$userId",
+            formData = formData {
+                append("image", imageBytes, Headers.build {
+                    append(HttpHeaders.ContentType, "image/jpeg")
+                    append(HttpHeaders.ContentDisposition, "filename=face.jpg")
+                })
+            }
+        ).body()
+    }
+}
+```
+
+### 2.5 Add Environment Configuration
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/util/config/EnvironmentConfig.kt`
+
+```kotlin
+package com.fivucsas.mobile.util.config
+
+data class EnvironmentConfig(
+    val apiBaseUrl: String,
+    val enableLogging: Boolean,
+    val requestTimeout: Long
+) {
+    companion object {
+        fun development(): EnvironmentConfig {
+            return EnvironmentConfig(
+                apiBaseUrl = "http://10.0.2.2:8080/api/v1", // Android emulator
+                enableLogging = true,
+                requestTimeout = 30000
+            )
+        }
+        
+        fun staging(): EnvironmentConfig {
+            return EnvironmentConfig(
+                apiBaseUrl = "https://staging-api.fivucsas.com/api/v1",
+                enableLogging = true,
+                requestTimeout = 30000
+            )
+        }
+        
+        fun production(): EnvironmentConfig {
+            return EnvironmentConfig(
+                apiBaseUrl = "https://api.fivucsas.com/api/v1",
+                enableLogging = false,
+                requestTimeout = 30000
+            )
+        }
+    }
 }
 
-# Login
-POST http://localhost:8080/api/v1/auth/login
-{
-  "email": "test@test.com",
-  "password": "Test@123"
+// Platform-specific: get current environment
+expect fun getCurrentEnvironment(): EnvironmentConfig
+```
+
+**File**: `shared/src/androidMain/kotlin/com/fivucsas/mobile/util/config/EnvironmentConfig.android.kt`
+
+```kotlin
+package com.fivucsas.mobile.util.config
+
+actual fun getCurrentEnvironment(): EnvironmentConfig {
+    // In production, read from BuildConfig
+    return EnvironmentConfig.development()
 }
-# Should receive JWT tokens
-
-# Access protected endpoint
-GET http://localhost:8080/api/v1/users/me
-Authorization: Bearer <access_token>
 ```
 
-### Week 3: Biometric Processor - Face Recognition
+**File**: `shared/src/desktopMain/kotlin/com/fivucsas/mobile/util/config/EnvironmentConfig.desktop.kt`
 
-**Goal: Working face recognition API**
+```kotlin
+package com.fivucsas.mobile.util.config
 
-- [ ] **Core Modules**
-  ```python
-  app/
-  ├── core/
-  │   ├── face_recognition.py
-  │   ├── quality_assessment.py
-  │   └── vector_operations.py
-  ├── services/
-  │   └── deepface_service.py
-  └── api/
-      └── endpoints/
-          └── face.py
-  ```
-
-- [ ] **Implement Face Enrollment**
-  ```python
-  POST /api/v1/face/enroll
-  - Accept image file
-  - Detect face using DeepFace
-  - Generate 2622-d embedding (VGG-Face)
-  - Return embedding + quality score
-  ```
-
-- [ ] **Implement Face Verification (1:1)**
-  ```python
-  POST /api/v1/face/verify
-  - Accept user_id + image
-  - Retrieve stored embedding from database
-  - Calculate cosine similarity
-  - Return verified: true/false + confidence
-  ```
-
-**Testing:**
-```bash
-# Enroll face
-curl -X POST http://localhost:8001/api/v1/face/enroll \
-  -F "user_id=<uuid>" \
-  -F "image=@face.jpg"
-
-# Verify face
-curl -X POST http://localhost:8001/api/v1/face/verify \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "<uuid>",
-    "image_base64": "<base64_image>"
-  }'
+actual fun getCurrentEnvironment(): EnvironmentConfig {
+    val env = System.getProperty("APP_ENV") ?: "development"
+    return when (env) {
+        "production" -> EnvironmentConfig.production()
+        "staging" -> EnvironmentConfig.staging()
+        else -> EnvironmentConfig.development()
+    }
+}
 ```
-
-### Week 4: Integration & Multi-Tenancy
-
-- [ ] **Implement Row-Level Security (RLS)**
-  ```java
-  @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
-  ```
-
-- [ ] **Tenant Context Provider**
-  ```java
-  - TenantContext.java (ThreadLocal)
-  - TenantInterceptor.java (Extract from X-Tenant-ID header)
-  ```
-
-- [ ] **Redis Integration**
-  ```java
-  - Configure RedisTemplate
-  - Implement caching for user data
-  - Set up message queue channels
-  ```
-
-- [ ] **Biometric Data Storage**
-  ```java
-  - BiometricData entity with pgvector
-  - Store embeddings from Biometric Processor
-  - Implement vector similarity search
-  ```
 
 ---
 
-## ✅ Phase 2: Mobile App (Weeks 5-8)
+## Part 3: DEPENDENCY INJECTION WITH KOIN
 
-### Week 5: Flutter Project Setup
+### 3.1 Add Koin Dependency
 
-- [ ] **Initialize Project**
-  ```bash
-  flutter create --org com.fivucsas mobile_app
-  cd mobile_app
-  flutter pub add flutter_bloc dio camera google_mlkit_face_detection
-  ```
+**File**: `shared/build.gradle.kts`
 
-- [ ] **Project Structure**
-  ```
-  lib/
-  ├── core/
-  ├── features/
-  │   ├── auth/
-  │   ├── biometric/
-  │   └── profile/
-  └── main.dart
-  ```
-
-- [ ] **Authentication Feature**
-  ```
-  - LoginPage
-  - RegisterPage
-  - AuthBloc (state management)
-  - AuthRepository (API calls)
-  ```
-
-### Week 6: Camera Integration
-
-- [ ] **Camera Service**
-  ```dart
-  - Initialize camera
-  - Capture frames
-  - Display camera preview
-  ```
-
-- [ ] **Face Detection**
-  ```dart
-  - Integrate Google ML Kit
-  - Detect faces in real-time
-  - Draw bounding boxes
-  ```
-
-### Week 7-8: Biometric Puzzle
-
-- [ ] **Facial Landmarks Detection**
-  ```dart
-  - Use MediaPipe Face Mesh
-  - Calculate EAR (Eye Aspect Ratio)
-  - Calculate MAR (Mouth Aspect Ratio)
-  ```
-
-- [ ] **Puzzle Logic**
-  ```dart
-  - Fetch puzzle from backend
-  - Display instructions to user
-  - Detect each action in sequence
-  - Show progress indicator
-  - Submit result to backend
-  ```
-
-- [ ] **Enrollment Flow**
-  ```dart
-  1. User registers account
-  2. Completes Biometric Puzzle (liveness check)
-  3. Captures final face image
-  4. Sends to backend for enrollment
-  5. Receives confirmation
-  ```
-
----
-
-## ✅ Phase 3: Web Dashboard (Weeks 9-10)
-
-### Week 9: React Setup
-
-- [ ] **Initialize Project**
-  ```bash
-  npm create vite@latest web-app -- --template react-ts
-  cd web-app
-  npm install @reduxjs/toolkit react-router-dom @mui/material axios
-  ```
-
-- [ ] **Core Features**
-  - [ ] Login page
-  - [ ] Dashboard with statistics
-  - [ ] User list with DataGrid
-  - [ ] User details page
-  - [ ] Role management
-
-### Week 10: Analytics & Reports
-
-- [ ] **Dashboard Widgets**
-  - [ ] Total users chart
-  - [ ] Authentication attempts (line chart)
-  - [ ] Success/failure rates (pie chart)
-  - [ ] Recent activity table
-
----
-
-## ✅ Phase 4: Testing & Documentation (Weeks 11-12)
-
-### Week 11: Testing
-
-- [ ] **Backend Tests**
-  ```bash
-  # Identity Core API
-  - Unit tests for services
-  - Integration tests with TestContainers
-  - API endpoint tests with RestAssured
-
-  # Biometric Processor
-  - Unit tests for core functions
-  - Integration tests for DeepFace
-  ```
-
-- [ ] **Frontend Tests**
-  ```bash
-  # Mobile App
-  - Widget tests
-  - Integration tests
-
-  # Web App
-  - Component tests with Jest
-  - E2E tests with Cypress
-  ```
-
-### Week 12: Documentation & Demo
-
-- [ ] **Update All READMEs**
-- [ ] **Create API Documentation**
-- [ ] **Write User Manual**
-- [ ] **Prepare Demo Scenarios**
-- [ ] **Create Demo Video**
-
----
-
-## 🚀 Quick Commands Reference
-
-### Start Everything
-
-```bash
-# Full stack
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop all
-docker-compose down
-
-# Rebuild after changes
-docker-compose up -d --build
+Add to commonMain dependencies:
+```kotlin
+// Koin for Dependency Injection
+val koinVersion = "3.5.0"
+implementation("io.insert-koin:koin-core:$koinVersion")
+implementation("io.insert-koin:koin-test:$koinVersion")
 ```
 
-### Database
-
-```bash
-# Connect to PostgreSQL
-docker exec -it fivucsas-postgres psql -U postgres -d identity_core_db
-
-# Run migration
-cd identity-core-api
-./gradlew flywayMigrate
-
-# Reset database
-./gradlew flywayClean flywayMigrate
+Add to androidMain dependencies:
+```kotlin
+implementation("io.insert-koin:koin-android:3.5.0")
 ```
 
-### Individual Services
+### 3.2 Create Koin Modules
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/di/NetworkModule.kt`
+
+```kotlin
+package com.fivucsas.mobile.di
+
+import com.fivucsas.mobile.data.remote.client.AuthApiClient
+import com.fivucsas.mobile.data.remote.client.BiometricApiClient
+import com.fivucsas.mobile.data.remote.factory.HttpClientFactory
+import com.fivucsas.mobile.domain.repository.TokenRepository
+import com.fivucsas.mobile.util.config.getCurrentEnvironment
+import org.koin.dsl.module
+
+val networkModule = module {
+    single {
+        val config = getCurrentEnvironment()
+        val tokenRepo: TokenRepository = get()
+        
+        HttpClientFactory.create(
+            baseUrl = config.apiBaseUrl,
+            tokenProvider = { tokenRepo.getToken() },
+            enableLogging = config.enableLogging
+        )
+    }
+    
+    single { AuthApiClient(get()) }
+    single { BiometricApiClient(get()) }
+}
+```
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/di/RepositoryModule.kt`
+
+```kotlin
+package com.fivucsas.mobile.di
+
+import com.fivucsas.mobile.data.local.TokenStorage
+import com.fivucsas.mobile.data.repository.AuthRepositoryImpl
+import com.fivucsas.mobile.data.repository.BiometricRepositoryImpl
+import com.fivucsas.mobile.data.repository.TokenRepositoryImpl
+import com.fivucsas.mobile.domain.repository.AuthRepository
+import com.fivucsas.mobile.domain.repository.BiometricRepository
+import com.fivucsas.mobile.domain.repository.TokenRepository
+import org.koin.dsl.module
+
+val repositoryModule = module {
+    single<TokenStorage> { TokenStorage() }
+    single<TokenRepository> { TokenRepositoryImpl(get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    single<BiometricRepository> { BiometricRepositoryImpl(get()) }
+}
+```
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/di/UseCaseModule.kt`
+
+```kotlin
+package com.fivucsas.mobile.di
+
+import com.fivucsas.mobile.domain.usecase.EnrollFaceUseCase
+import com.fivucsas.mobile.domain.usecase.LoginUseCase
+import com.fivucsas.mobile.domain.usecase.RegisterUseCase
+import com.fivucsas.mobile.domain.usecase.VerifyFaceUseCase
+import org.koin.dsl.module
+
+val useCaseModule = module {
+    factory { LoginUseCase(get()) }
+    factory { RegisterUseCase(get()) }
+    factory { EnrollFaceUseCase(get()) }
+    factory { VerifyFaceUseCase(get()) }
+}
+```
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/di/ViewModelModule.kt`
+
+```kotlin
+package com.fivucsas.mobile.di
+
+import com.fivucsas.mobile.presentation.biometric.BiometricViewModel
+import com.fivucsas.mobile.presentation.login.LoginViewModel
+import com.fivucsas.mobile.presentation.register.RegisterViewModel
+import org.koin.dsl.module
+
+val viewModelModule = module {
+    factory { LoginViewModel(get()) }
+    factory { RegisterViewModel(get()) }
+    factory { BiometricViewModel(get(), get()) }
+}
+```
+
+**File**: `shared/src/commonMain/kotlin/com/fivucsas/mobile/di/KoinInitializer.kt`
+
+```kotlin
+package com.fivucsas.mobile.di
+
+import org.koin.core.context.startKoin
+import org.koin.dsl.KoinAppDeclaration
+
+fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
+    startKoin {
+        appDeclaration()
+        modules(
+            networkModule,
+            repositoryModule,
+            useCaseModule,
+            viewModelModule
+        )
+    }
+}
+```
+
+---
+
+## Part 4: HOW TO RUN THE APPS
+
+### 4.1 Build the Project
 
 ```bash
-# Identity Core API
-cd identity-core-api
-./gradlew bootRun
-
-# Biometric Processor
-cd biometric-processor
-uvicorn app.main:app --reload --port 8001
-
-# Mobile App
 cd mobile-app
-flutter run
 
-# Web App
-cd web-app
-npm run dev
+# Clean build
+./gradlew clean
+
+# Build all
+./gradlew build
 ```
 
----
+### 4.2 Run Android App
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Docker Compose fails to start:**
+**Option 1: Command Line**
 ```bash
-# Remove old volumes
-docker-compose down -v
-docker-compose up -d
+./gradlew :androidApp:installDebug
+# Then run on device/emulator
 ```
 
-**Flyway migration fails:**
+**Option 2: Android Studio**
+1. Open `mobile-app` folder in Android Studio
+2. Wait for Gradle sync
+3. Select `androidApp` configuration
+4. Click Run ▶️
+
+**Requirements:**
+- Android SDK 24+ (Android 7.0+)
+- Android Studio Hedgehog or later
+- Physical device or emulator
+
+### 4.3 Run Desktop App
+
+**Option 1: Command Line**
 ```bash
-# Check database connection
-psql -h localhost -U postgres -d identity_core_db
-
-# Repair Flyway
-cd identity-core-api
-./gradlew flywayRepair
+./gradlew :desktopApp:run
 ```
 
-**DeepFace model download fails:**
+**Option 2: Package as Executable**
 ```bash
-# Manual download
-python -c "from deepface import DeepFace; DeepFace.build_model('VGG-Face')"
+# Windows (.msi)
+./gradlew :desktopApp:packageMsi
+
+# macOS (.dmg)
+./gradlew :desktopApp:packageDmg
+
+# Linux (.deb)
+./gradlew :desktopApp:packageDeb
 ```
 
-**Flutter build fails:**
+**Requirements:**
+- JDK 21+
+- Minimum: Windows 10, macOS 10.14, Ubuntu 20.04
+
+### 4.4 Run iOS App (macOS only)
+
 ```bash
-flutter clean
-flutter pub get
-flutter run
+# Generate iOS framework
+./gradlew :shared:linkDebugFrameworkIosArm64
+
+# Install CocoaPods dependencies
+cd iosApp
+pod install
+
+# Open in Xcode
+open iosApp.xcworkspace
+```
+
+Then build and run in Xcode.
+
+**Requirements:**
+- macOS 12.0+
+- Xcode 14.0+
+- CocoaPods
+- iOS 14.0+ device or simulator
+
+---
+
+## Part 5: TESTING
+
+### 5.1 Run Unit Tests
+
+```bash
+# All tests
+./gradlew test
+
+# Android tests
+./gradlew :androidApp:testDebugUnitTest
+
+# iOS tests
+./gradlew :shared:iosX64Test
+
+# Desktop tests
+./gradlew :desktopApp:test
+```
+
+### 5.2 Run Integration Tests
+
+```bash
+# Android instrumented tests (requires device/emulator)
+./gradlew :androidApp:connectedAndroidTest
+```
+
+### 5.3 Manual Testing Checklist
+
+**Android App:**
+- [ ] Register new user
+- [ ] Login with credentials
+- [ ] Enroll face (camera access)
+- [ ] Verify face
+- [ ] Logout
+
+**Desktop App:**
+- [ ] Admin dashboard loads
+- [ ] Kiosk mode works
+- [ ] User management
+- [ ] Reports generation
+
+**iOS App:**
+- [ ] All Android features
+- [ ] Native camera integration
+- [ ] Biometric enrollment
+
+---
+
+## Part 6: TROUBLESHOOTING
+
+### Issue: Kotlin version incompatibility
+**Solution**: Already fixed - using Kotlin 1.9.20
+
+### Issue: Gradle sync fails
+**Solution**:
+```bash
+./gradlew --stop
+rm -rf .gradle build
+./gradlew clean build
+```
+
+### Issue: Android app can't reach API
+**Solution**:
+- Use `http://10.0.2.2:8080` for emulator
+- Use `http://YOUR_IP:8080` for physical device
+- Check backend is running
+
+### Issue: Desktop camera not working
+**Solution**:
+- Grant camera permissions in system settings
+- Check webcam is connected
+- Only one app can use camera at a time
+
+### Issue: iOS build fails
+**Solution**:
+```bash
+cd iosApp
+pod deintegrate
+pod install
 ```
 
 ---
 
-## 📝 Daily Development Workflow
+## Part 7: NEXT MODULES TO IMPLEMENT
 
-### Morning Routine
-1. Pull latest changes: `git pull origin develop`
-2. Start services: `docker-compose up -d`
-3. Check logs: `docker-compose logs -f`
-4. Run tests: `./run-tests.sh`
+### Module 1: Liveness Detection (Priority 1)
+- MediaPipe integration
+- Blink detection (EAR)
+- Smile detection (MAR)
+- Head movement tracking
+- Challenge generation
 
-### Before Committing
-1. Run linters
-2. Run tests
-3. Update documentation if needed
-4. Create meaningful commit message
+### Module 2: Biometric Puzzle (Priority 1)
+- Random challenge generator
+- Active liveness flow
+- Challenge validation
+- Result aggregation
 
-### End of Day
-1. Push changes to your branch
-2. Create/update PR if ready
-3. Stop services: `docker-compose down`
+### Module 3: Camera Module (Priority 2)
+- Platform-specific implementations
+- Frame capture
+- Image preprocessing
+- Quality checks
 
----
+### Module 4: Desktop Admin Features (Priority 2)
+- User management UI
+- Reports dashboard
+- System settings
+- Bulk operations
 
-## 🎓 Learning Resources
-
-### Spring Boot
-- [Official Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
-- [Spring Security](https://docs.spring.io/spring-security/reference/index.html)
-
-### FastAPI
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [DeepFace GitHub](https://github.com/serengil/deepface)
-
-### Flutter
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [BLoC Pattern](https://bloclibrary.dev/)
-
-### PostgreSQL
-- [pgvector Documentation](https://github.com/pgvector/pgvector)
+### Module 5: Offline Support (Priority 3)
+- SQLDelight database
+- Sync mechanism
+- Conflict resolution
 
 ---
 
-## 🎯 Success Metrics
+## Part 8: DEPLOYMENT
 
-Track your progress:
+### Android
+```bash
+# Build release APK
+./gradlew :androidApp:assembleRelease
 
-- [ ] All services start without errors
-- [ ] User can register and login
-- [ ] JWT authentication works
-- [ ] Face can be enrolled
-- [ ] Face can be verified
-- [ ] Biometric Puzzle works on mobile
-- [ ] Admin can view users in dashboard
-- [ ] Tests pass with >80% coverage
-- [ ] Documentation is complete
+# Build AAB for Play Store
+./gradlew :androidApp:bundleRelease
+```
+
+### Desktop
+```bash
+# Package for distribution
+./gradlew :desktopApp:packageDistributionForCurrentOS
+```
+
+### iOS
+Build in Xcode for App Store distribution.
 
 ---
 
-**Good luck with your implementation!** 🚀
+## SUMMARY
 
-For questions or issues, refer to individual component READMEs or create a GitHub issue.
+**Status**: ✅ Kotlin version fixed, architecture analysis complete
+**Next Step**: Implement refactored repositories with Koin DI
+**Timeline**: 
+- Week 1: Complete refactoring
+- Week 2-3: Implement new modules
+- Week 4: Testing and integration
+- Week 5: Documentation and deployment
+
+**Key Files Modified**:
+1. ✅ `build.gradle.kts` - Kotlin version
+2. ✅ `AppError.kt` - Error model
+3. ✅ `TokenRepository.kt` - Repository interface
+4. 🔄 All other files in implementation plan
+
+**To Build Immediately**:
+```bash
+cd mobile-app
+./gradlew :desktopApp:run    # Desktop app
+./gradlew :androidApp:installDebug  # Android app
+```
+
