@@ -1,7 +1,7 @@
-# Mobile App - Module Implementation Plan
+# Client Apps - Module Implementation Plan
 
-**Module Name**: mobile-app (includes Desktop + Mobile)
-**Repository**: https://github.com/Rollingcat-Software/mobile-app
+**Module Name**: client-apps (Cross-Platform Applications)
+**Repository**: https://github.com/Rollingcat-Software/client-apps
 **Technology**: Kotlin Multiplatform + Compose Multiplatform
 **Purpose**: Cross-platform kiosk mode and admin dashboard for Desktop, Android, and iOS
 **Status**: ⚠️ Desktop 96% Complete (UI), Mobile Not Started
@@ -25,7 +25,7 @@
 ## 🎯 Module Overview
 
 ### Purpose
-The mobile-app repository contains **both desktop and mobile applications** using Kotlin Multiplatform. It provides:
+The client-apps repository contains **both desktop and mobile applications** using Kotlin Multiplatform. It provides:
 
 **Desktop App** (Kiosk Mode + Admin Dashboard):
 - Kiosk mode for enrollment and verification
@@ -149,7 +149,7 @@ Build: Gradle 8+
 
 ### Project Structure (Kotlin Multiplatform)
 ```
-mobile-app/
+client-apps/
 ├── shared/                    # 90% shared code
 │   ├── src/
 │   │   ├── commonMain/        # Shared across all platforms
@@ -812,11 +812,11 @@ GET /api/v1/statistics → DashboardStats { totalUsers, activeUsers, ... }
 
 ```bash
 # Clone repository
-git clone https://github.com/Rollingcat-Software/mobile-app.git
-cd mobile-app
+git clone https://github.com/Rollingcat-Software/client-apps.git
+cd client-apps
 
 # Open in IntelliJ IDEA
-# File → Open → Select mobile-app folder
+# File → Open → Select client-apps folder
 
 # Run desktop app
 ./gradlew desktopApp:run
@@ -833,8 +833,8 @@ open iosApp/iosApp.xcodeproj
 
 ---
 
-**Document Version**: 1.0
+**Document Version**: 1.1
 **Created**: 2025-11-17
-**Last Updated**: 2025-11-17
-**Owner**: Mobile/Desktop Team
+**Last Updated**: 2025-12-28
+**Owner**: Client Apps Team
 **Review Date**: Weekly during implementation

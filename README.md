@@ -180,7 +180,7 @@ uvicorn app.main:app --reload --port 8001
 
 ### Start Desktop App
 ```bash
-cd mobile-app
+cd client-apps
 ./gradlew :desktopApp:run
 ```
 
@@ -190,7 +190,7 @@ cd mobile-app
 cd identity-core-api && ./gradlew test
 
 # Mobile
-cd mobile-app && ./gradlew :shared:test
+cd client-apps && ./gradlew :shared:test
 ```
 
 ---

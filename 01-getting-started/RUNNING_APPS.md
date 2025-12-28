@@ -10,7 +10,7 @@
 ### **Desktop App (Windows/Linux/Mac)**
 
 ```powershell
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\mobile-app
+cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\client-apps
 .\gradlew.bat :desktopApp:run
 ```
 
@@ -22,7 +22,7 @@ cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\mobile-app
 ### **Android App**
 
 ```powershell
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\mobile-app
+cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\client-apps
 .\gradlew.bat :androidApp:assembleDebug
 
 # Install on connected device/emulator
@@ -30,7 +30,7 @@ adb install androidApp\build\outputs\apk\debug\androidApp-debug.apk
 ```
 
 **Or use Android Studio:**
-1. Open `mobile-app` folder
+1. Open `client-apps` folder
 2. Select `androidApp` run configuration
 3. Click Run ▶️
 
@@ -249,7 +249,7 @@ java -version  # Should be 17, 21, or 23
 ## 🏗️ Project Structure
 
 ```
-mobile-app/
+client-apps/
 ├── androidApp/          # Android-specific code
 │   └── src/
 │       └── main/
@@ -335,7 +335,7 @@ if (fullName.length < 3) {
 
 ```powershell
 # Navigate to project
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\mobile-app
+cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\client-apps
 
 # Run desktop app
 .\gradlew.bat :desktopApp:run
@@ -386,7 +386,7 @@ All build issues have been resolved. The app compiles successfully and launches 
 
 **Just run this:**
 ```powershell
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\mobile-app
+cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\client-apps
 .\gradlew.bat :desktopApp:run
 ```
 

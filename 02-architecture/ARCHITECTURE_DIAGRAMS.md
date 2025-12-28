@@ -124,13 +124,13 @@ graph TD
     ROOT --> BP["biometric-processor<br/>🐍 FastAPI ML Service"]
     ROOT --> ICA["identity-core-api<br/>☕ Spring Boot API"]
     ROOT --> WA["web-app<br/>⚛️ React Admin Dashboard"]
-    ROOT --> MA["mobile-app → client-apps<br/>📱 KMP Cross-Platform"]
+    ROOT --> CA["client-apps<br/>📱 KMP Cross-Platform"]
     ROOT --> DOCS["docs<br/>📚 Documentation"]
     ROOT --> PT["practice-and-test<br/>🧪 R&D / NFC Readers"]
 
-    MA --> SHARED["shared/<br/>Common Code (90%)"]
-    MA --> ANDROID["androidApp/<br/>Android Client"]
-    MA --> DESKAPP["desktopApp/<br/>Desktop Client"]
+    CA --> SHARED["shared/<br/>Common Code (90%)"]
+    CA --> ANDROID["androidApp/<br/>Android Client"]
+    CA --> DESKAPP["desktopApp/<br/>Desktop Client"]
 
     BP --> DEMOGUI["demo-ui/<br/>Next.js Demo"]
 
@@ -139,7 +139,7 @@ graph TD
     PT --> MLEXP["ML Experiments"]
 
     style ROOT fill:#e1f5fe
-    style MA fill:#fff3e0
+    style CA fill:#fff3e0
     style BP fill:#e8f5e9
     style ICA fill:#fce4ec
 ```
@@ -152,7 +152,7 @@ graph LR
         BP[biometric-processor]
         ICA[identity-core-api]
         WA[web-app]
-        MA[mobile-app]
+        CA[client-apps]
         DOCS[docs]
         PT[practice-and-test]
     end
@@ -163,7 +163,7 @@ graph LR
     end
 
     WA -->|REST API| ICA
-    MA -->|REST API| ICA
+    CA -->|REST API| ICA
     ICA -->|gRPC/REST| BP
     ICA --> PG
     ICA --> RD
