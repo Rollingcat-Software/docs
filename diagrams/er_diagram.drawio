@@ -1,0 +1,244 @@
+<mxfile host="app.diagrams.net" modified="2025-12-30T12:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram name="ER Diagram" id="er-diagram">
+    <mxGraphModel dx="1434" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="FIVUCSAS Database Schema - Entity Relationship Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#1a365d;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="PostgreSQL 16 + pgvector Extension | Multi-Tenant Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#718096;" vertex="1" parent="1">
+          <mxGeometry x="450" y="45" width="500" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- TENANTS Table -->
+        <mxCell id="tenants" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4299e1;strokeColor=#2b6cb0;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="220" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="tenants-header" value="TENANTS" style="text;html=1;strokeColor=none;fillColor=#2b6cb0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tenants-fields" value="PK  id UUID&#xa;    name VARCHAR(100)&#xa;    slug VARCHAR(50) UNIQUE&#xa;    subscription_plan ENUM&#xa;    is_active BOOLEAN&#xa;    settings JSONB&#xa;    max_users INTEGER&#xa;    max_enrollments INTEGER&#xa;    created_at TIMESTAMP&#xa;    updated_at TIMESTAMP&#xa;    deleted_at TIMESTAMP" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="130" width="220" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- USERS Table -->
+        <mxCell id="users" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#48bb78;strokeColor=#276749;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="320" y="100" width="240" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="users-header" value="USERS" style="text;html=1;strokeColor=none;fillColor=#276749;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="320" y="100" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="users-fields" value="PK  id UUID&#xa;FK  tenant_id UUID NOT NULL&#xa;    email VARCHAR(255)&#xa;    password_hash VARCHAR(255)&#xa;    first_name VARCHAR(100)&#xa;    last_name VARCHAR(100)&#xa;    is_active BOOLEAN&#xa;    is_email_verified BOOLEAN&#xa;    failed_login_attempts INT&#xa;    last_login_at TIMESTAMP&#xa;    created_at TIMESTAMP&#xa;    updated_at TIMESTAMP&#xa;    deleted_at TIMESTAMP&#xa;    UNIQUE(tenant_id, email)" style="text;html=1;strokeColor=none;fillColor=#c6f6d5;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="130" width="240" height="230" as="geometry" />
+        </mxCell>
+
+        <!-- ROLES Table -->
+        <mxCell id="roles" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#9f7aea;strokeColor=#6b46c1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="620" y="100" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="roles-header" value="ROLES" style="text;html=1;strokeColor=none;fillColor=#6b46c1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="620" y="100" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="roles-fields" value="PK  id UUID&#xa;FK  tenant_id UUID&#xa;    name VARCHAR(50)&#xa;    description TEXT&#xa;    is_system_role BOOLEAN&#xa;    created_at TIMESTAMP&#xa;    UNIQUE(tenant_id, name)" style="text;html=1;strokeColor=none;fillColor=#e9d8fd;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="620" y="130" width="200" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- PERMISSIONS Table -->
+        <mxCell id="permissions" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#9f7aea;strokeColor=#6b46c1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="880" y="100" width="200" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="permissions-header" value="PERMISSIONS" style="text;html=1;strokeColor=none;fillColor=#6b46c1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="880" y="100" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="permissions-fields" value="PK  id UUID&#xa;    name VARCHAR(100) UNIQUE&#xa;    description TEXT&#xa;    resource VARCHAR(50)&#xa;    action VARCHAR(50)&#xa;    created_at TIMESTAMP" style="text;html=1;strokeColor=none;fillColor=#e9d8fd;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="130" width="200" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- USER_ROLES Junction -->
+        <mxCell id="user_roles" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ed8936;strokeColor=#c05621;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="620" y="320" width="200" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="user_roles-header" value="USER_ROLES" style="text;html=1;strokeColor=none;fillColor=#c05621;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="620" y="320" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="user_roles-fields" value="PK  id UUID&#xa;FK  user_id UUID NOT NULL&#xa;FK  role_id UUID NOT NULL&#xa;    UNIQUE(user_id, role_id)" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="620" y="350" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ROLE_PERMISSIONS Junction -->
+        <mxCell id="role_permissions" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ed8936;strokeColor=#c05621;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="880" y="320" width="200" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="role_permissions-header" value="ROLE_PERMISSIONS" style="text;html=1;strokeColor=none;fillColor=#c05621;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="880" y="320" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="role_permissions-fields" value="PK  id UUID&#xa;FK  role_id UUID NOT NULL&#xa;FK  permission_id UUID NOT NULL&#xa;    UNIQUE(role_id, permission_id)" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="350" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- BIOMETRIC_DATA Table -->
+        <mxCell id="biometric" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e53e3e;strokeColor=#c53030;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="280" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="biometric-header" value="BIOMETRIC_DATA" style="text;html=1;strokeColor=none;fillColor=#c53030;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="biometric-fields" value="PK  id UUID&#xa;FK  user_id UUID NOT NULL&#xa;FK  tenant_id UUID NOT NULL&#xa;    biometric_type ENUM&#xa;    embedding VECTOR(2622) [pgvector]&#xa;    quality_score DECIMAL(5,4)&#xa;    is_primary BOOLEAN&#xa;    capture_device VARCHAR(100)&#xa;    capture_metadata JSONB&#xa;    liveness_score DECIMAL(5,4)&#xa;    liveness_verified BOOLEAN&#xa;    image_hash VARCHAR(64)&#xa;    enrolled_at TIMESTAMP&#xa;    expires_at TIMESTAMP&#xa;    created_at TIMESTAMP&#xa;    updated_at TIMESTAMP&#xa;    deleted_at TIMESTAMP&#xa;    &#xa;INDEX: IVFFlat(embedding, cosine)" style="text;html=1;strokeColor=none;fillColor=#fed7d7;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="430" width="280" height="310" as="geometry" />
+        </mxCell>
+
+        <!-- LIVENESS_ATTEMPTS Table -->
+        <mxCell id="liveness" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#38a169;strokeColor=#276749;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="360" y="460" width="220" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="liveness-header" value="LIVENESS_ATTEMPTS" style="text;html=1;strokeColor=none;fillColor=#276749;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="360" y="460" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="liveness-fields" value="PK  id UUID&#xa;FK  user_id UUID NOT NULL&#xa;FK  tenant_id UUID NOT NULL&#xa;    session_id VARCHAR(100)&#xa;    challenge_type VARCHAR(50)&#xa;    challenge_sequence TEXT[]&#xa;    is_completed BOOLEAN&#xa;    is_passed BOOLEAN&#xa;    passive_score DECIMAL&#xa;    active_score DECIMAL&#xa;    attempt_count INTEGER&#xa;    device_info JSONB&#xa;    started_at TIMESTAMP&#xa;    completed_at TIMESTAMP" style="text;html=1;strokeColor=none;fillColor=#c6f6d5;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="360" y="490" width="220" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- VERIFICATION_LOGS Table -->
+        <mxCell id="verification" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4299e1;strokeColor=#2b6cb0;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="620" y="460" width="240" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="verification-header" value="VERIFICATION_LOGS" style="text;html=1;strokeColor=none;fillColor=#2b6cb0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="620" y="460" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="verification-fields" value="PK  id UUID&#xa;FK  user_id UUID&#xa;FK  tenant_id UUID NOT NULL&#xa;FK  biometric_id UUID&#xa;    verification_type VARCHAR(20)&#xa;    similarity_score DECIMAL(5,4)&#xa;    threshold_used DECIMAL(5,4)&#xa;    is_match BOOLEAN&#xa;    processing_time_ms INTEGER&#xa;    model_used VARCHAR(50)&#xa;    request_ip VARCHAR(45)&#xa;    user_agent TEXT&#xa;    error_code VARCHAR(50)&#xa;    error_message TEXT&#xa;    created_at TIMESTAMP" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="620" y="490" width="240" height="230" as="geometry" />
+        </mxCell>
+
+        <!-- AUDIT_LOGS Table -->
+        <mxCell id="audit" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#718096;strokeColor=#4a5568;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="900" y="460" width="220" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="audit-header" value="AUDIT_LOGS" style="text;html=1;strokeColor=none;fillColor=#4a5568;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="900" y="460" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="audit-fields" value="PK  id UUID&#xa;FK  tenant_id UUID&#xa;FK  user_id UUID&#xa;    action VARCHAR(100)&#xa;    entity_type VARCHAR(50)&#xa;    entity_id UUID&#xa;    old_values JSONB&#xa;    new_values JSONB&#xa;    ip_address VARCHAR(45)&#xa;    user_agent TEXT&#xa;    created_at TIMESTAMP" style="text;html=1;strokeColor=none;fillColor=#e2e8f0;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="900" y="490" width="220" height="170" as="geometry" />
+        </mxCell>
+
+        <!-- REFRESH_TOKENS Table -->
+        <mxCell id="tokens" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d69e2e;strokeColor=#b7791f;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="100" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="tokens-header" value="REFRESH_TOKENS" style="text;html=1;strokeColor=none;fillColor=#b7791f;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="100" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tokens-fields" value="PK  id UUID&#xa;FK  user_id UUID NOT NULL&#xa;    token_hash VARCHAR(255)&#xa;    expires_at TIMESTAMP&#xa;    is_revoked BOOLEAN&#xa;    device_info JSONB&#xa;    created_at TIMESTAMP&#xa;    revoked_at TIMESTAMP" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="130" width="200" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <!-- Tenant -> Users (1:N) -->
+        <mxCell id="rel1" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="260" y="200" as="sourcePoint" />
+            <mxPoint x="320" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Users -> User_Roles (1:N) -->
+        <mxCell id="rel2" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="280" as="sourcePoint" />
+            <mxPoint x="620" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Roles -> User_Roles (1:N) -->
+        <mxCell id="rel3" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="720" y="280" as="sourcePoint" />
+            <mxPoint x="720" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Roles -> Role_Permissions (1:N) -->
+        <mxCell id="rel4" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="200" as="sourcePoint" />
+            <mxPoint x="880" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Permissions -> Role_Permissions (1:N) -->
+        <mxCell id="rel5" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="980" y="260" as="sourcePoint" />
+            <mxPoint x="980" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Users -> Biometric_Data (1:N) -->
+        <mxCell id="rel6" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="320" y="360" as="sourcePoint" />
+            <mxPoint x="320" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Users -> Liveness_Attempts (1:N) -->
+        <mxCell id="rel7" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="500" y="360" as="sourcePoint" />
+            <mxPoint x="500" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Users -> Verification_Logs (1:N) -->
+        <mxCell id="rel8" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="320" as="sourcePoint" />
+            <mxPoint x="740" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Users -> Refresh_Tokens (1:N) -->
+        <mxCell id="rel9" value="" style="endArrow=ERmany;startArrow=ERone;endFill=0;startFill=0;html=1;strokeWidth=2;strokeColor=#2d3748;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="180" as="sourcePoint" />
+            <mxPoint x="1140" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7fafc;strokeColor=#a0aec0;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="320" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="LEGEND" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="325" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-pk" value="PK = Primary Key" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="350" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-fk" value="FK = Foreign Key" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="370" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-1n" value="1 ──── N (One-to-Many)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="390" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-vec" value="VECTOR(2622) = pgvector" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="410" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-idx" value="IVFFlat = ANN Index" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="430" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-tables" value="10 Tables Total&#xa;6 Flyway Migrations" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#2d3748;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="460" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Caption -->
+        <mxCell id="caption" value="Figure: FIVUCSAS Entity-Relationship Diagram - Multi-Tenant PostgreSQL Schema with pgvector" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="400" y="760" width="600" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36" version="29.0.3">
+  <diagram name="Use Case Diagram" id="use-case-diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="FIVUCSAS - Use Case Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#1a365d;" parent="1" vertex="1">
+          <mxGeometry x="450" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7fafc;strokeColor=#2b6cb0;strokeWidth=3;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="80" width="800" height="850" as="geometry" />
+        </mxCell>
+        <mxCell id="system-title" value="FIVUCSAS - Face and Identity Verification System" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontStyle=1;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="450" y="90" width="500" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Actors -->
+        <!-- End User Actor -->
+        <mxCell id="actor-user" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#4299e1;strokeColor=#2b6cb0;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="120" y="200" width="50" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-user-label" value="End User&#xa;(Mobile App)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="95" y="300" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Tenant Admin Actor -->
+        <mxCell id="actor-admin" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#48bb78;strokeColor=#276749;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="120" y="450" width="50" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-admin-label" value="Tenant&#xa;Administrator" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="95" y="550" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Super Admin Actor -->
+        <mxCell id="actor-super" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#9f7aea;strokeColor=#6b46c1;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="120" y="700" width="50" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-super-label" value="Platform&#xa;Super Admin" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="95" y="800" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- External System Actor -->
+        <mxCell id="actor-external" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ed8936;strokeColor=#c05621;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="350" width="50" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-external-label" value="External&#xa;System (API)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#c05621;" parent="1" vertex="1">
+          <mxGeometry x="1195" y="450" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- NFC Card Actor -->
+        <mxCell id="actor-nfc" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fc8181;strokeColor=#c53030;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1210" y="580" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-nfc-icon" value="NFC" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1210" y="590" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-nfc-label" value="e-Passport&#xa;(NFC Chip)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#c53030;" parent="1" vertex="1">
+          <mxGeometry x="1195" y="630" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Enrollment Group -->
+        <mxCell id="uc-group-enroll" value="Enrollment" style="text;html=1;strokeColor=none;fillColor=#e9d8fd;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="130" width="80" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-enroll-face" value="Enroll Face&#xa;Biometrics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#4299e1;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="330" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-capture-selfie" value="Capture Selfie&#xa;with Liveness" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#4299e1;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="330" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-read-nfc" value="Read NFC&#xa;e-Passport" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#4299e1;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="330" y="320" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Verification Group -->
+        <mxCell id="uc-group-verify" value="Verification" style="text;html=1;strokeColor=none;fillColor=#c6f6d5;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="530" y="130" width="80" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-1to1-verify" value="1:1 Face&#xa;Verification" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-1toN-search" value="1:N Face&#xa;Search" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-liveness" value="Perform Liveness&#xa;Detection" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="320" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Analysis Group -->
+        <mxCell id="uc-group-analysis" value="Analysis" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#975a16;" parent="1" vertex="1">
+          <mxGeometry x="710" y="130" width="80" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-quality" value="Assess Face&#xa;Quality" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-detect-spoof" value="Detect Spoofing&#xa;Attacks" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-demographics" value="Analyze&#xa;Demographics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="320" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Document Group -->
+        <mxCell id="uc-group-doc" value="Document" style="text;html=1;strokeColor=none;fillColor=#fed7d7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#c53030;" parent="1" vertex="1">
+          <mxGeometry x="890" y="130" width="80" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-scan-id" value="Scan ID&#xa;Document" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#fc8181;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="870" y="160" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-ocr" value="Extract OCR&#xa;Data" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#fc8181;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="870" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-verify-doc" value="Verify Document&#xa;Authenticity" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#fc8181;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="870" y="320" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Admin Group -->
+        <mxCell id="uc-group-admin" value="Administration" style="text;html=1;strokeColor=none;fillColor=#c6f6d5;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="350" y="420" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-manage-users" value="Manage&#xa;Users" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="330" y="455" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-manage-roles" value="Manage Roles&#xa;&amp; Permissions" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="330" y="535" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-view-audit" value="View Audit&#xa;Logs" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="330" y="615" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-config-tenant" value="Configure&#xa;Tenant Settings" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="330" y="695" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Platform Admin Group -->
+        <mxCell id="uc-group-platform" value="Platform Mgmt" style="text;html=1;strokeColor=none;fillColor=#e9d8fd;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="530" y="420" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-manage-tenants" value="Manage&#xa;Tenants" style="ellipse;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#9f7aea;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="455" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-monitor-system" value="Monitor System&#xa;Health" style="ellipse;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#9f7aea;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="535" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-manage-models" value="Manage ML&#xa;Models" style="ellipse;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#9f7aea;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="615" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-config-security" value="Configure&#xa;Security Policies" style="ellipse;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#9f7aea;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="695" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - API Group -->
+        <mxCell id="uc-group-api" value="API Integration" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#975a16;" parent="1" vertex="1">
+          <mxGeometry x="710" y="420" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-batch-process" value="Batch&#xa;Processing" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="455" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-webhook" value="Configure&#xa;Webhooks" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="535" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-api-key" value="Manage&#xa;API Keys" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="615" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Reporting Group -->
+        <mxCell id="uc-group-report" value="Reporting" style="text;html=1;strokeColor=none;fillColor=#bee3f8;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=11;fontStyle=1;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="890" y="420" width="80" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-analytics" value="View Analytics&#xa;Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#4299e1;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="870" y="455" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-export" value="Export&#xa;Reports" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#4299e1;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="870" y="535" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-usage" value="Track API&#xa;Usage" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#4299e1;strokeWidth=2;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="870" y="615" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Associations - End User -->
+        <mxCell id="assoc-user-1" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#4299e1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="250" as="sourcePoint" />
+            <mxPoint x="330" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-user-2" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#4299e1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="250" as="sourcePoint" />
+            <mxPoint x="330" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-user-3" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#4299e1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="250" as="sourcePoint" />
+            <mxPoint x="330" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-user-4" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="250" as="sourcePoint" />
+            <mxPoint x="510" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-user-5" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="250" as="sourcePoint" />
+            <mxPoint x="510" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-user-6" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="250" as="sourcePoint" />
+            <mxPoint x="510" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Associations - Tenant Admin -->
+        <mxCell id="assoc-admin-1" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="330" y="485" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-admin-2" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="330" y="565" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-admin-3" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="330" y="645" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-admin-4" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="330" y="725" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-admin-5" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#4299e1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="870" y="485" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-admin-6" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#4299e1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="870" y="565" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-admin-7" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#ed8936;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="690" y="565" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-admin-8" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#ed8936;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="500" as="sourcePoint" />
+            <mxPoint x="690" y="645" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Associations - Super Admin -->
+        <mxCell id="assoc-super-1" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#9f7aea;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="750" as="sourcePoint" />
+            <mxPoint x="510" y="485" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-super-2" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#9f7aea;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="750" as="sourcePoint" />
+            <mxPoint x="510" y="565" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-super-3" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#9f7aea;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="750" as="sourcePoint" />
+            <mxPoint x="510" y="645" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-super-4" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#9f7aea;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="750" as="sourcePoint" />
+            <mxPoint x="510" y="725" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-super-5" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#4299e1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="750" as="sourcePoint" />
+            <mxPoint x="870" y="645" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Associations - External System -->
+        <mxCell id="assoc-ext-1" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#ed8936;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1220" y="400" as="sourcePoint" />
+            <mxPoint x="810" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-ext-2" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#ed8936;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1220" y="400" as="sourcePoint" />
+            <mxPoint x="810" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-ext-3" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#ed8936;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1220" y="400" as="sourcePoint" />
+            <mxPoint x="810" y="485" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Associations - NFC -->
+        <mxCell id="assoc-nfc-1" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#fc8181;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1210" y="605" as="sourcePoint" />
+            <mxPoint x="990" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc-nfc-2" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#fc8181;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1210" y="605" as="sourcePoint" />
+            <mxPoint x="990" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Include/Extend relationships -->
+        <mxCell id="include-1" value="" style="endArrow=open;html=1;strokeWidth=1;strokeColor=#718096;dashed=1;endFill=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="240" as="sourcePoint" />
+            <mxPoint x="560" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="include-1-label" value="&lt;&lt;include&gt;&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=2;fontColor=#718096;" parent="1" vertex="1">
+          <mxGeometry x="430" y="280" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="include-2" value="" style="endArrow=open;html=1;strokeWidth=1;strokeColor=#718096;dashed=1;endFill=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="570" y="220" as="sourcePoint" />
+            <mxPoint x="570" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="include-2-label" value="&lt;&lt;include&gt;&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=2;fontColor=#718096;" parent="1" vertex="1">
+          <mxGeometry x="575" y="260" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="extend-1" value="" style="endArrow=open;html=1;strokeWidth=1;strokeColor=#718096;dashed=1;endFill=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="690" y="270" as="sourcePoint" />
+            <mxPoint x="630" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="extend-1-label" value="&lt;&lt;extend&gt;&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=2;fontColor=#718096;" parent="1" vertex="1">
+          <mxGeometry x="640" y="250" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7fafc;strokeColor=#a0aec0;strokeWidth=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="790" width="660" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="LEGEND" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="350" y="800" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Legend Actors -->
+        <mxCell id="legend-actor" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#a0aec0;strokeColor=#718096;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="830" width="20" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-actor-text" value="Actor" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="375" y="840" width="50" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-usecase" value="Use Case" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f7fafc;strokeColor=#a0aec0;strokeWidth=1;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="440" y="835" width="70" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-system" value="System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#a0aec0;strokeWidth=1;fontSize=9;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="530" y="835" width="60" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-assoc" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#a0aec0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="610" y="852" as="sourcePoint" />
+            <mxPoint x="670" y="852" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-assoc-text" value="Association" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="675" y="842" width="70" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-include" value="" style="endArrow=open;html=1;strokeWidth=1;strokeColor=#a0aec0;dashed=1;endFill=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="760" y="852" as="sourcePoint" />
+            <mxPoint x="820" y="852" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-include-text" value="Include/Extend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="825" y="842" width="90" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Actor Color Legend -->
+        <mxCell id="legend-blue" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4299e1;strokeColor=#2b6cb0;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="880" width="15" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-blue-text" value="End User" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="370" y="877" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-green" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#48bb78;strokeColor=#276749;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="880" width="15" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-green-text" value="Tenant Admin" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="460" y="877" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-purple" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9f7aea;strokeColor=#6b46c1;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="550" y="880" width="15" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-purple-text" value="Super Admin" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="570" y="877" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-orange" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ed8936;strokeColor=#c05621;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="660" y="880" width="15" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-orange-text" value="External API" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="680" y="877" width="70" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-red" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fc8181;strokeColor=#c53030;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="760" y="880" width="15" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-red-text" value="NFC Device" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="780" y="877" width="70" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Caption -->
+        <mxCell id="caption" value="Figure: Use Case Diagram - FIVUCSAS System Actors and Functional Requirements" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="350" y="930" width="600" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

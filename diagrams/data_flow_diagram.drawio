@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36" version="29.0.3">
+  <diagram name="Data Flow Diagram" id="data-flow-diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="FIVUCSAS - Data Flow Diagram (DFD Level 1)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#1a365d;" parent="1" vertex="1">
+          <mxGeometry x="500" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Showing Data Flow Through Face Verification and Identity Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#718096;" parent="1" vertex="1">
+          <mxGeometry x="500" y="55" width="600" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- External Entities -->
+        <!-- Mobile User -->
+        <mxCell id="ext-mobile" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#3182ce;strokeWidth=3;" parent="1" vertex="1">
+          <mxGeometry x="40" y="150" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-mobile-icon" value="📱" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;" parent="1" vertex="1">
+          <mxGeometry x="80" y="160" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-mobile-text" value="Mobile App&#xa;User" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="55" y="195" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Web User -->
+        <mxCell id="ext-web" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#38a169;strokeWidth=3;" parent="1" vertex="1">
+          <mxGeometry x="40" y="300" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-web-icon" value="💻" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;" parent="1" vertex="1">
+          <mxGeometry x="80" y="310" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-web-text" value="Web Dashboard&#xa;Admin" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="55" y="345" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- External API -->
+        <mxCell id="ext-api" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=3;" parent="1" vertex="1">
+          <mxGeometry x="40" y="450" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-api-icon" value="🔌" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;" parent="1" vertex="1">
+          <mxGeometry x="80" y="460" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-api-text" value="External&#xa;API Client" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#c05621;" parent="1" vertex="1">
+          <mxGeometry x="55" y="495" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- NFC Document -->
+        <mxCell id="ext-nfc" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#9f7aea;strokeWidth=3;" parent="1" vertex="1">
+          <mxGeometry x="40" y="600" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-nfc-icon" value="🪪" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;" parent="1" vertex="1">
+          <mxGeometry x="80" y="610" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-nfc-text" value="e-Passport&#xa;NFC Chip" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="55" y="645" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Process 1: API Gateway -->
+        <mxCell id="p1-gateway" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4299e1;strokeColor=#2b6cb0;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="280" y="340" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-num" value="1.0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="310" y="350" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p1-text" value="API Gateway&#xa;&amp; Auth" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="300" y="375" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Process 2: Identity Core -->
+        <mxCell id="p2-identity" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#48bb78;strokeColor=#276749;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="520" y="200" width="160" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-num" value="2.0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="560" y="215" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-text" value="Identity Core&#xa;Processing" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="545" y="240" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Process 3: Biometric Processor -->
+        <mxCell id="p3-biometric" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9f7aea;strokeColor=#6b46c1;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="520" y="470" width="160" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p3-num" value="3.0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="560" y="485" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p3-text" value="Biometric&#xa;Processor (ML)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="540" y="510" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Process 4: Liveness Detection -->
+        <mxCell id="p4-liveness" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ed8936;strokeColor=#c05621;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="780" y="380" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p4-num" value="4.0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="810" y="395" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p4-text" value="Liveness&#xa;Detection" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="800" y="420" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Process 5: Face Recognition -->
+        <mxCell id="p5-recognition" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fc8181;strokeColor=#c53030;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="780" y="540" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p5-num" value="5.0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="810" y="555" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p5-text" value="Face&#xa;Recognition" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="800" y="580" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Process 6: NFC Reader -->
+        <mxCell id="p6-nfc" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f687b3;strokeColor=#d53f8c;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="280" y="600" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p6-num" value="6.0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="310" y="615" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p6-text" value="NFC Reader&#xa;BAC Auth" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="295" y="640" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Data Stores -->
+        <!-- D1: User Database -->
+        <mxCell id="d1-users" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ebf8ff;strokeColor=#4299e1;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="180" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="d1-text" value="D1: Users &amp;&#xa;Tenants DB" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="1055" y="210" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- D2: Biometric Database -->
+        <mxCell id="d2-biometric" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#faf5ff;strokeColor=#9f7aea;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="300" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="d2-text" value="D2: Biometric&#xa;Embeddings" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="1055" y="330" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- D3: Vector Store -->
+        <mxCell id="d3-vector" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="420" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="d3-text" value="D3: pgvector&#xa;Index (ANN)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="1055" y="450" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- D4: Cache -->
+        <mxCell id="d4-cache" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fff5f5;strokeColor=#fc8181;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="540" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="d4-text" value="D4: Redis&#xa;Cache" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#c53030;" parent="1" vertex="1">
+          <mxGeometry x="1055" y="570" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- D5: Audit Logs -->
+        <mxCell id="d5-audit" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fffbeb;strokeColor=#ed8936;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="660" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="d5-text" value="D5: Audit&#xa;Logs" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#c05621;" parent="1" vertex="1">
+          <mxGeometry x="1055" y="690" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Data Flows -->
+        <!-- Mobile to Gateway -->
+        <mxCell id="df1" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4299e1;curved=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="180" y="200" as="sourcePoint" />
+            <mxPoint x="280" y="360" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="230" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df1-label" value="Face Image,&#xa;Video Stream" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="180" y="270" width="70" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Web to Gateway -->
+        <mxCell id="df2" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="180" y="350" as="sourcePoint" />
+            <mxPoint x="280" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df2-label" value="Admin&#xa;Requests" style="text;html=1;strokeColor=none;fillColor=#f0fff4;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="200" y="340" width="55" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- API to Gateway -->
+        <mxCell id="df3" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#ed8936;curved=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="180" y="500" as="sourcePoint" />
+            <mxPoint x="280" y="420" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="230" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df3-label" value="API Key,&#xa;Batch Data" style="text;html=1;strokeColor=none;fillColor=#fffbeb;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#c05621;" parent="1" vertex="1">
+          <mxGeometry x="195" y="450" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- NFC to NFC Reader -->
+        <mxCell id="df4" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#9f7aea;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="180" y="650" as="sourcePoint" />
+            <mxPoint x="280" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df4-label" value="APDU&#xa;Commands" style="text;html=1;strokeColor=none;fillColor=#faf5ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="620" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Gateway to Identity Core -->
+        <mxCell id="df5" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="350" as="sourcePoint" />
+            <mxPoint x="520" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df5-label" value="Auth Token,&#xa;User Data" style="text;html=1;strokeColor=none;fillColor=#f0fff4;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="430" y="285" width="65" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Gateway to Biometric -->
+        <mxCell id="df6" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#9f7aea;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="420" as="sourcePoint" />
+            <mxPoint x="520" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df6-label" value="Face Image,&#xa;Tenant ID" style="text;html=1;strokeColor=none;fillColor=#faf5ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="430" y="450" width="65" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Biometric to Liveness -->
+        <mxCell id="df7" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#ed8936;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="500" as="sourcePoint" />
+            <mxPoint x="780" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df7-label" value="Video&#xa;Frames" style="text;html=1;strokeColor=none;fillColor=#fffbeb;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#c05621;" parent="1" vertex="1">
+          <mxGeometry x="700" y="440" width="55" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Biometric to Recognition -->
+        <mxCell id="df8" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#fc8181;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="540" as="sourcePoint" />
+            <mxPoint x="780" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df8-label" value="Aligned&#xa;Face" style="text;html=1;strokeColor=none;fillColor=#fff5f5;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#c53030;" parent="1" vertex="1">
+          <mxGeometry x="700" y="525" width="55" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Identity Core to D1 -->
+        <mxCell id="df9" value="" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=2;strokeColor=#4299e1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="240" as="sourcePoint" />
+            <mxPoint x="1040" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df9-label" value="User Records,&#xa;Permissions" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="820" y="195" width="75" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Recognition to D2 -->
+        <mxCell id="df10" value="" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=2;strokeColor=#9f7aea;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920" y="570" as="sourcePoint" />
+            <mxPoint x="1040" y="360" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="980" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df10-label" value="Store/Query&#xa;Embedding" style="text;html=1;strokeColor=none;fillColor=#faf5ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#6b46c1;" parent="1" vertex="1">
+          <mxGeometry x="930" y="380" width="70" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Recognition to D3 -->
+        <mxCell id="df11" value="" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=2;strokeColor=#48bb78;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920" y="600" as="sourcePoint" />
+            <mxPoint x="1040" y="480" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="980" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df11-label" value="ANN Search&#xa;(1:N)" style="text;html=1;strokeColor=none;fillColor=#f0fff4;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="960" y="500" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Gateway to D4 -->
+        <mxCell id="df12" value="" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=2;strokeColor=#fc8181;curved=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420" y="400" as="sourcePoint" />
+            <mxPoint x="1040" y="580" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="500" y="650" />
+              <mxPoint x="700" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df12-label" value="Session,&#xa;Rate Limit" style="text;html=1;strokeColor=none;fillColor=#fff5f5;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#c53030;" parent="1" vertex="1">
+          <mxGeometry x="480" y="680" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- All to D5 (Audit) -->
+        <mxCell id="df13" value="" style="endArrow=classic;html=1;strokeWidth=1;strokeColor=#ed8936;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="310" as="sourcePoint" />
+            <mxPoint x="1040" y="700" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="600" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df13-label" value="Audit Events" style="text;html=1;strokeColor=none;fillColor=#fffbeb;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#c05621;" parent="1" vertex="1">
+          <mxGeometry x="570" y="720" width="70" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- NFC Reader to Biometric -->
+        <mxCell id="df14" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#f687b3;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420" y="640" as="sourcePoint" />
+            <mxPoint x="520" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df14-label" value="Chip Photo,&#xa;MRZ Data" style="text;html=1;strokeColor=none;fillColor=#fef5f8;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#d53f8c;" parent="1" vertex="1">
+          <mxGeometry x="450" y="590" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Liveness Result back -->
+        <mxCell id="df15" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#ed8936;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="380" as="sourcePoint" />
+            <mxPoint x="640" y="310" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="720" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df15-label" value="Liveness&#xa;Score" style="text;html=1;strokeColor=none;fillColor=#fffbeb;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#c05621;" parent="1" vertex="1">
+          <mxGeometry x="720" y="315" width="55" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Recognition Result back -->
+        <mxCell id="df16" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#fc8181;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="780" y="600" as="sourcePoint" />
+            <mxPoint x="600" y="580" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="700" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df16-label" value="Match&#xa;Result" style="text;html=1;strokeColor=none;fillColor=#fff5f5;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#c53030;" parent="1" vertex="1">
+          <mxGeometry x="665" y="605" width="50" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Response back to Gateway -->
+        <mxCell id="df17" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#48bb78;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="520" y="280" as="sourcePoint" />
+            <mxPoint x="400" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df17-label" value="Response&#xa;Data" style="text;html=1;strokeColor=none;fillColor=#f0fff4;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#276749;" parent="1" vertex="1">
+          <mxGeometry x="440" y="325" width="55" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Response back to Mobile -->
+        <mxCell id="df18" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4299e1;dashed=1;curved=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="280" y="380" as="sourcePoint" />
+            <mxPoint x="180" y="220" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="220" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="df18-label" value="Verification&#xa;Result" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontColor=#2b6cb0;" parent="1" vertex="1">
+          <mxGeometry x="200" y="205" width="65" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7fafc;strokeColor=#a0aec0;strokeWidth=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1200" y="150" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="LEGEND" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="160" width="80" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- External Entity -->
+        <mxCell id="legend-ext" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#3182ce;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="195" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-ext-text" value="External Entity&#xa;(Actor/System)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="1310" y="200" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Process -->
+        <mxCell id="legend-proc" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#48bb78;strokeColor=#276749;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="250" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-proc-text" value="Process&#xa;(numbered)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="1310" y="260" width="80" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Data Store -->
+        <mxCell id="legend-store" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#f0fff4;strokeColor=#48bb78;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="315" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-store-text" value="Data Store&#xa;(Database)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="1310" y="325" width="80" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Data Flow -->
+        <mxCell id="legend-flow" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4a5568;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1220" y="395" as="sourcePoint" />
+            <mxPoint x="1300" y="395" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-flow-text" value="Data Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="1310" y="385" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Response Flow -->
+        <mxCell id="legend-resp" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4a5568;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1220" y="425" as="sourcePoint" />
+            <mxPoint x="1300" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-resp-text" value="Response Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="1310" y="415" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Key Metrics Box -->
+        <mxCell id="metrics-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7fafc;strokeColor=#a0aec0;strokeWidth=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1200" y="470" width="350" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="metrics-title" value="KEY DATA METRICS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="480" width="150" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="metrics-content" value="• Face Embedding: 2622-D vector (VGG-Face)&#xa;• Vector Search: IVFFlat index, cosine similarity&#xa;• Liveness Score: 0.0 - 1.0 (threshold: 0.5)&#xa;• Match Score: 0.0 - 1.0 (threshold: 0.6)&#xa;• EAR Threshold: 0.2 (blink detection)&#xa;• MAR Threshold: 0.6 (smile detection)&#xa;• Video Stream: 30 FPS via WebSocket&#xa;• NFC: ISO 7816-4 APDU commands" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;spacingLeft=5;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="505" width="320" height="115" as="geometry" />
+        </mxCell>
+
+        <!-- Caption -->
+        <mxCell id="caption" value="Figure: Data Flow Diagram (DFD Level 1) - FIVUCSAS Face Verification and Identity Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#4a5568;" parent="1" vertex="1">
+          <mxGeometry x="450" y="780" width="700" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
