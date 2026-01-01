@@ -17,6 +17,7 @@
 4. [Technical Diagrams](#4-technical-diagrams)
 5. [Q&A Preparation](#5-qa-preparation)
 6. [Checklist Before Presentation](#6-checklist-before-presentation)
+7. [Demo Appendix](#7-demo-appendix-for-live-demonstration)
 
 ---
 
@@ -26,28 +27,32 @@
 
 | Section | Slides | Time | Presenter |
 |---------|--------|------|-----------|
-| Opening (Title + Outline) | 1-2 | 0:45 | **Ahmet** |
-| Problem & Motivation | 3 | 0:55 | **Ahmet** |
-| Related Work & Gap | 4 | 0:50 | **Ahmet** |
-| Scope & Constraints | 5 | 0:35 | **Ahmet** |
-| *[TRANSITION 1]* | - | 0:10 | Ahmet → Aysenur |
-| System Architecture | 6 | 1:00 | **Aysenur** |
-| Biometric Puzzle (Liveness) | 7 | 1:15 | **Aysenur** |
-| ML Pipeline & Vector Search | 8 | 0:45 | **Aysenur** |
-| NFC & Standards | 9 | 0:45 | **Aysenur** |
-| *[TRANSITION 2]* | - | 0:10 | Aysenur → Gulsum |
-| Tasks Accomplished | 10 | 0:50 | **Gulsum** |
-| Challenges & Solutions | 11 | 0:50 | **Gulsum** |
-| Implementation Status | 12 | 0:40 | **Gulsum** |
-| Future Work & B-Plan | 13 | 0:50 | **Gulsum** |
-| References & Thank You | 14 | 0:25 | **All** |
-| **TOTAL** | **14** | **~11:45** | |
+| Opening (Title + Outline) | 1-2 | 0:50 | **Aysenur** |
+| Problem & Motivation | 3 | 1:00 | **Aysenur** |
+| Related Work & Gap | 4 | 1:10 | **Aysenur** |
+| Scope & Constraints | 5 | 0:50 | **Aysenur** |
+| *[TRANSITION 1]* | - | 0:10 | Aysenur → Ahmet |
+| System Architecture | 6 | 0:50 | **Ahmet** |
+| Biometric Puzzle (Liveness) | 7 | 1:00 | **Ahmet** |
+| **Biometric Processor Demo** | 8 | 0:50 | **Ahmet** |
+| ML Pipeline & Vector Search | 9 | 0:45 | **Ahmet** |
+| Card Detection & NFC | 10 | 0:45 | **Ahmet** |
+| *[TRANSITION 2]* | - | 0:10 | Ahmet → Gulsum |
+| **Document Verification Demo** | 11 | 0:45 | **Gulsum** |
+| Tasks Accomplished | 12 | 0:50 | **Gulsum** |
+| Challenges & Solutions | 13 | 0:40 | **Gulsum** |
+| Future Work & B-Plan | 14 | 0:40 | **Gulsum** |
+| Thank You | 15 | 0:25 | **Gulsum** |
+| References | 16 | 0:20 | **Gulsum** |
+| Q&A | 17 | 3:00 | **All** |
+| **TOTAL** | **17** | **~12:00 + 3:00 Q&A** | |
 
-> **Structure:** Ahmet (Slides 1-5) → Aysenur (Slides 6-9) → Gulsum (Slides 10-13) → All (Slide 14)
+> **Structure:** Aysenur (Slides 1-5, ~4:00) → Ahmet (Slides 6-10, ~4:10) → Gulsum (Slides 11-16, ~3:40) → All (17)
+> **BALANCED: Each presenter ~4 minutes**
 
 ### Slide Count Compliance
 - Required: 12-18 slides
-- Our count: 14 slides (within limit)
+- Our count: 17 slides (within limit)
 
 ---
 
@@ -57,61 +62,56 @@
 
 ### SLIDE 1: Title Slide
 
-**Time:** 0:20
-**Presenter:** Ahmet Abdullah Gultekin
+**Time:** 0:25
+**Presenter:** Aysenur Arici
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│     [Marmara University Logo - Top Left]                        │
-│                                                                 │
-│                         FIVUCSAS                                │
-│     ─────────────────────────────────────────────               │
-│     Face and Identity Verification Using                        │
-│     Cloud-Based SaaS Models                                     │
-│                                                                 │
-│     CSE4197 Engineering Project - Fall 2025                     │
-│                                                                 │
-│     ┌─────────┐  ┌─────────┐  ┌─────────┐                       │
-│     │  Photo  │  │  Photo  │  │  Photo  │                       │
-│     │ Ahmet   │  │ Gulsum  │  │ Aysenur │                       │
-│     └─────────┘  └─────────┘  └─────────┘                       │
-│     150121025    150120005    150123825                         │
-│                                                                 │
-│     Supervisor: Assoc. Prof. Dr. Mustafa Agaoglu                │
-│                                                                 │
-│     Marmara University, Faculty of Engineering                  │
-│     Computer Engineering Department                             │
-│                                                                 │
-│                                               1/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│                                                                           │
+│  [Marmara University Logo]                              [468 Landmarks    │
+│                                                          Demo Screenshot] │
+│                          FIVUCSAS                                         │
+│         ─────────────────────────────────────────────                     │
+│         Face and Identity Verification Using                              │
+│         Cloud-Based SaaS Models                                           │
+│                                                                           │
+│         CSE4197 Engineering Project - Fall 2025                           │
+│                                                                           │
+│         Team:                                                             │
+│         • Ahmet Abdullah Gultekin (150121025)                             │
+│         • Ayse Gulsum Eren (150120005)                                    │
+│         • Aysenur Arici (150123825)                                       │
+│                                                                           │
+│         Supervisor: Assoc. Prof. Dr. Mustafa Agaoglu                      │
+│                                                                           │
+│         Marmara University - Computer Engineering                         │
+│                                                                     1/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
 - **Title:** FIVUCSAS (large, bold)
 - **Subtitle:** Face and Identity Verification Using Cloud-Based SaaS Models
 - **Course:** CSE4197 Engineering Project - Fall 2025
-- **Team members:** Names with student IDs (use real photos or remove photos entirely)
+- **Team members:** Names with student IDs (text only, no photos)
 - **Supervisor:** Full academic title required
-- **Institution:** Marmara University, Faculty of Engineering, Computer Engineering Department
-- **Page number:** 1/14 (bottom right)
+- **Institution:** Marmara University - Computer Engineering
+- **Visual:** 468 facial landmarks screenshot from demo (right side)
+- **Page number:** 1/17 (bottom right)
 
 #### Image Requirements
-- Marmara University official logo (upload real logo)
-- Team member photos (real photos or remove entirely - NO AI-generated faces)
+- Marmara University official logo (top left)
+- **468 Facial Landmarks Screenshot** from your demo - shows MediaPipe face mesh visualization
 
 #### Speech Script
 ```
-"Good morning, esteemed professors and fellow students. We are presenting
-FIVUCSAS - Face and Identity Verification Using Cloud-Based SaaS Models.
+"Hello everyone. We are presenting FIVUCSAS - Face and Identity Verification
+Using Cloud-Based SaaS Models.
 
-I am Ahmet Abdullah Gultekin, and with me are my teammates Ayse Gulsum
-Eren and Aysenur Arici. Our project is supervised by Associate Professor
-Doctor Mustafa Agaoglu.
-
-Today, we will present our cloud-native biometric authentication platform
-designed to address critical security challenges in identity verification."
+I am Aysenur Arici. My teammates are Ahmet Abdullah Gultekin and Ayse Gulsum
+Eren. Our advisor is Associate Professor Doctor Mustafa Agaoglu."
 ```
 
 ---
@@ -119,376 +119,308 @@ designed to address critical security challenges in identity verification."
 ### SLIDE 2: Presentation Outline
 
 **Time:** 0:25
-**Presenter:** Ahmet Abdullah Gultekin
+**Presenter:** Aysenur Arici
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│     OUTLINE                                                     │
-│     ────────                                                    │
-│                                                                 │
-│     1. Problem Statement & Motivation                           │
-│     2. Related Work & Gap Analysis                              │
-│     3. Scope & Engineering Constraints                          │
-│     4. System Architecture (Hexagonal DDD)                      │
-│     5. The Biometric Puzzle (Hybrid Liveness)                   │
-│     6. ML Pipeline & Vector Search                              │
-│     7. NFC & Standards Compliance                               │
-│     8. Tasks Accomplished                                       │
-│     9. Technical Challenges & Solutions                         │
-│     10. Implementation Status                                   │
-│     11. Future Work & Contingency Plan                          │
-│     12. References                                              │
-│                                                                 │
-│                                               2/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│                                                                           │
+│     OUTLINE                                                               │
+│     ────────                                                              │
+│                                                                           │
+│     WHY THIS MATTERS                                                      │
+│     ─────────────────                                                     │
+│     1. Problem Statement & Motivation                                     │
+│     2. Related Work & Gap Analysis                                        │
+│     3. Scope & Engineering Constraints                                    │
+│                                                                           │
+│     HOW WE SOLVE IT                                                       │
+│     ────────────────                                                      │
+│     4. System Architecture                                                │
+│     5. The Biometric Puzzle (Hybrid Liveness)                             │
+│     6. ML Pipeline & Vector Search                                        │
+│     7. Card Detection & NFC Verification                                  │
+│                                                                           │
+│     WHAT WE BUILT                                                         │
+│     ──────────────                                                        │
+│     8. Tasks Accomplished                                                 │
+│     9. Technical Challenges & Solutions                                   │
+│     10. Future Work & Contingency Plan                                    │
+│                                                                           │
+│                                                                     2/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
-- Clean numbered list (12 items)
-- Use consistent formatting
-- No images needed - text-only slide
-- Page number: 2/14
+- Structured in 3 parts: WHY / HOW / WHAT
+- **Numbered items** (1-10) for clear progression
+- Visual grouping makes flow clear
+- Page number: 2/17
 
 #### Speech Script
 ```
-"Our presentation follows this structure: We will begin with the problem
-definition and motivation, then review related work and identify the gap
-our system addresses.
+"Our presentation has three parts:
 
-We will explain our scope and constraints, followed by a detailed look at
-our system architecture using Hexagonal Design principles.
+First, WHY - the problem of identity fraud and where existing solutions
+fall short.
 
-The technical core - our Biometric Puzzle liveness detection, ML pipeline,
-and NFC integration - will follow. We will then present our accomplishments,
-challenges faced, current implementation status, and our plan for semester two."
+Second, HOW - our architecture, liveness detection, and document verification.
+
+Third, WHAT - our accomplishments, challenges, and semester two plans."
 ```
 
 ---
 
 ### SLIDE 3: Problem Statement & Motivation
 
-**Time:** 0:55
-**Presenter:** Ahmet Abdullah Gultekin
+**Time:** 1:00
+**Presenter:** Aysenur Arici
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     PROBLEM STATEMENT & MOTIVATION                              │
-│     ──────────────────────────────                              │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  "In 2024, a deepfake of a CFO authorized a $25M         │   │
-│  │   wire transfer via video call. The employee was fooled."│   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  THE NUMBERS:                                                   │
-│  • Identity fraud: $23B global losses (2024)                    │
-│  • Deepfake attacks: 400% increase since 2023                   │
-│  • 26% of people cannot distinguish deepfakes from real video   │
-│                                                                 │
-│  ┌─────────────────────┐    VS    ┌─────────────────────┐       │
-│  │  THE PROBLEM        │          │    OUR GOAL         │       │
-│  │  ─────────────────  │          │    ────────         │       │
-│  │                     │          │                     │       │
-│  │  [Video Call Icon]  │          │  [Shield Icon]      │       │
-│  │  • Deepfake CEO     │          │  • Prove you are    │       │
-│  │  • Fake interview   │          │    LIVE and REAL    │       │
-│  │                     │          │                     │       │
-│  │  [Exam Icon]        │          │  [NFC Chip Icon]    │       │
-│  │  • Someone else     │          │  • Prove your ID    │       │
-│  │    takes your exam  │          │    is AUTHENTIC     │       │
-│  │                     │          │                     │       │
-│  │  [Bank Icon]        │          │  [Puzzle Icon]      │       │
-│  │  • Account opened   │          │  • Make spoofing    │       │
-│  │    in your name     │          │    IMPOSSIBLE       │       │
-│  └─────────────────────┘          └─────────────────────┘       │
-│                                                                 │
-│  Figure 1: Real-World Threats and Our Security Goals            │
-│                                               3/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     WHY THIS MATTERS                                                      │
+│     ────────────────                                                      │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │  "2024: Deepfake CFO video call → $25 Million stolen"               │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                  │
+│  │             │     │             │     │             │                  │
+│  │   $23B      │     │   +400%     │     │    1/4      │                  │
+│  │             │     │             │     │             │                  │
+│  │  [Money     │     │  [Graph     │     │  [Eye       │                  │
+│  │   Icon]     │     │   Icon]     │     │   Icon]     │                  │
+│  │             │     │             │     │             │                  │
+│  │  Identity   │     │  Deepfake   │     │  People     │                  │
+│  │  Fraud      │     │  Attacks    │     │  Fooled     │                  │
+│  │  (2024)     │     │  (YoY)      │     │             │                  │
+│  └─────────────┘     └─────────────┘     └─────────────┘                  │
+│                                                                           │
+│  OUR GOAL: Prove LIVE + AUTHENTIC + IMPOSSIBLE to spoof                   │
+│                                                                     3/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
-- **Opening Hook** (top of slide - real incident):
-  - 2024 Hong Kong deepfake incident: $25M stolen via fake video call
-- **Statistics that matter:**
-  - Identity fraud: $23B global losses in 2024 (Javelin Strategy)
-  - Deepfake attacks: 400% increase in attempts (2023-2024)
-  - 26% of people fail to identify deepfakes (University of Waterloo study)
-- **Relatable threats** (left column):
-  1. Video call scams - fake CEO/interviewer
-  2. Online exam fraud - someone else takes your exam
-  3. Identity theft - accounts opened in your name
-- **Our security goals** (right column):
-  1. Prove you are LIVE and REAL (not a recording)
-  2. Prove your ID document is AUTHENTIC (not forged)
-  3. Make spoofing attacks IMPOSSIBLE (not just difficult)
-- Figure caption required
-- Page number: 3/14
-
-#### Key Points to Emphasize
-- **This affects YOU:** Online exams, job interviews, banking - all vulnerable
-- **AI made it worse:** Anyone with ChatGPT can try social engineering; anyone with Stable Diffusion can generate fake IDs
-- **Existing systems are broken:** Password + photo = not enough anymore
-- **Why NOW:** This is the moment where biometrics need to evolve
+- **Hook:** 2024 Hong Kong deepfake incident ($25M)
+- **Three large visual statistics:**
+  1. $23B - Identity fraud losses (2024)
+  2. +400% - Deepfake attack increase (YoY)
+  3. 1/4 - People who cannot detect deepfakes
+- **Goal statement:** LIVE + AUTHENTIC + IMPOSSIBLE to spoof
+- **Minimal text, maximum visual impact**
+- Page number: 3/17
 
 #### Speech Script
 ```
-"Let me start with a real incident. In 2024, in Hong Kong, an employee received
-a video call from his CFO and colleagues - all of them deepfakes. He authorized
-a 25 million dollar transfer. The technology to do this is now accessible to
-anyone.
+"Let me start with a real incident from 2024. In Hong Kong, a deepfake video call
+impersonated the CFO of a company and convinced employees to transfer 25 million
+dollars. This is not science fiction - this happened last year.
 
-[PAUSE - let it sink in]
+Look at the numbers: 23 billion dollars lost to identity fraud in 2024 alone.
+Deepfake attacks have increased 400 percent year over year. And here is the
+scary part: one in four people cannot distinguish a deepfake from a real person.
 
-Twenty-three billion dollars lost to identity fraud last year. Deepfake attacks
-up 400% in just one year. And here is the scary part - one in four people CANNOT
-tell a deepfake from a real video.
-
-Think about this: What if someone takes your online exam using your ID? What if
-someone opens a bank account in your name? What if you interview for a job -
-but it is not actually you?
-
-These are not hypothetical scenarios - they are happening NOW.
-
-This is our motivation: We need systems that can prove three things:
-First, that you are LIVE - not a recording or a deepfake.
-Second, that your ID document is AUTHENTIC - cryptographically verified.
-Third, that spoofing is not just difficult - but IMPOSSIBLE.
-
-Traditional passwords and static photos cannot do this. We built FIVUCSAS to
-solve exactly this problem."
+This is why we built FIVUCSAS. Our goal is simple but critical: prove the person
+is LIVE and present, their identity document is AUTHENTIC and untampered, and
+spoofing is IMPOSSIBLE through our hybrid detection system."
 ```
-
-#### Why This Matters to Our Audience
-- **For students:** Online proctored exams are becoming standard - what stops cheating?
-- **For professors:** How do you verify the person on Zoom is actually your student?
-- **For everyone:** Job interviews, banking, government services are going digital
 
 ---
 
 ### SLIDE 4: Related Work & Gap Analysis
 
-**Time:** 0:50
-**Presenter:** Ahmet Abdullah Gultekin
+**Time:** 1:00
+**Presenter:** Aysenur Arici
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     RELATED WORK & GAP ANALYSIS                                 │
-│     ───────────────────────────                                 │
-│                                                                 │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │ Feature        │ Azure │ AWS    │ Sodec │ BioGATE│ FIVUCSAS│ │
-│  ├────────────────┼───────┼────────┼───────┼────────┼─────────┤ │
-│  │ Open Source    │   ✗   │   ✗    │   ✗   │   ✗    │    ✓    │ │
-│  │ Liveness       │   ✓   │   ✓    │   ✗   │   ✓    │    ✓    │ │
-│  │ Offline Support│   ✗   │   ✗    │   ✓   │   ✗    │    ✓    │ │
-│  │ Multi-Tenant   │   ✓   │   ✓    │   ✗   │   ✗    │    ✓    │ │
-│  │ Multi-Platform │   ✓   │   ✓    │   ✓   │   ✗    │    ✓    │ │
-│  │ NFC ICAO       │   ✗   │   ✗    │   ✗   │   ✓    │    ✓    │ │
-│  │ Hybrid Liveness│   ✗   │   ✗    │   ✗   │   ✗    │    ✓    │ │
-│  └────────────────────────────────────────────────────────────┘ │
-│                                                                 │
-│  KEY DIFFERENTIATOR:                                            │
-│  "The Biometric Puzzle" - Randomized Active Challenge-Response  │
-│  combined with Passive Texture Analysis                         │
-│                                                                 │
-│  Table 1: Comparison with Industrial Solutions                  │
-│                                               4/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     RELATED WORK & GAP ANALYSIS                                           │
+│     ───────────────────────────                                           │
+│                                                                           │
+│  ┌──────────────────────────────────────────────────────────────────────┐ │
+│  │ Feature        │ Azure │ AWS    │ Sodec │ BioGATE│ FIVUCSAS          │ │
+│  ├────────────────┼───────┼────────┼───────┼────────┼───────────────────┤ │
+│  │ Open Source    │   ✗   │   ✗    │   ✗   │   ✗    │    ✓              │ │
+│  │ Liveness       │   ✓   │   ✓    │   ✗   │   ✓    │    ✓              │ │
+│  │ Multi-Tenant   │   ✓   │   ✓    │   ✗   │   ✗    │    ✓              │ │
+│  │ Multi-Platform │   ✓   │   ✓    │   ✓   │   ✗    │    ✓              │ │
+│  │ NFC ICAO       │   ✗   │   ✗    │   ✗   │   ✓    │    ✓              │ │
+│  │ Card Detection │   ✗   │   ✗    │   ✗   │   ✗    │    ✓              │ │
+│  │ Hybrid Liveness│   ✗   │   ✗    │   ✗   │   ✗    │    ✓              │ │
+│  └──────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│  GAP: No open-source solution with hybrid liveness + NFC + card detection │
+│                                                                     4/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
-- Comparison table with 5 competitors:
-  - Azure Face Liveness
-  - AWS Rekognition
-  - Sodec Technologies
-  - BioGATE Pass
-  - FIVUCSAS (our system)
-- Features compared:
-  - Open Source
-  - Liveness Detection
-  - Offline Support
-  - Multi-Tenant SaaS
-  - Multi-Platform
-  - NFC ICAO Compliance
-  - Hybrid Liveness (Active + Passive)
-- Key differentiator callout
-- Table caption required
-- Page number: 4/14
+- Comparison table with 5 competitors
+- Features: Open Source, Liveness, Multi-Tenant, Multi-Platform, NFC, Card Detection, Hybrid Liveness
+- **Gap statement:** Clear visual showing the market gap we fill
+- Page number: 4/17
 
 #### Speech Script
 ```
-"We analyzed both academic literature and industrial solutions. Azure and AWS
-offer PAD-compliant liveness but are proprietary and cloud-only with no offline
-capability. Sodec provides regional ID verification but lacks advanced liveness.
-BioGATE offers NFC compliance but not multi-tenant SaaS.
+"Let me show you how FIVUCSAS compares to existing solutions in the market.
 
-This is the gap we identified: no existing solution combines ALL of these -
-open-source flexibility, hybrid active-plus-passive liveness, multi-tenant cloud
-architecture, and ICAO-compliant NFC document verification.
+Microsoft Azure Face and Amazon Rekognition are powerful, but they are proprietary -
+you cannot host them yourself, and they do not support NFC chip reading or automatic
+card type detection. For banks and government institutions that need data sovereignty,
+this is a serious limitation.
 
-FIVUCSAS is designed to fill exactly this gap. Our key technical contribution
-is the Biometric Puzzle - a randomized challenge-response mechanism that prevents
-spoofing even from sophisticated deepfakes."
+Sodec and BioGATE are Turkish solutions we studied. Sodec lacks liveness detection
+entirely - a critical vulnerability. BioGATE has liveness but is not multi-tenant
+and cannot automatically detect card types.
+
+Here is the gap we identified: no open-source solution combines hybrid liveness
+detection, NFC chip verification, and automatic document type recognition.
+FIVUCSAS fills exactly this gap."
 ```
 
 ---
 
 ### SLIDE 5: Scope & Engineering Constraints
 
-**Time:** 0:35
-**Presenter:** Ahmet Abdullah Gultekin
+**Time:** 0:40
+**Presenter:** Aysenur Arici
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     SCOPE & ENGINEERING CONSTRAINTS                             │
-│     ───────────────────────────────                             │
-│                                                                 │
-│  IN SCOPE                          OUT OF SCOPE                 │
-│  ────────                          ────────────                 │
-│  ✓ Cloud-Native SaaS Platform      ✗ Hardware Manufacturing     │
-│  ✓ Hybrid Liveness Detection       ✗ Custom Camera Firmware     │
-│  ✓ NFC Document Reading            ✗ Embedded/Edge Devices      │
-│  ✓ Multi-Tenant Admin Dashboard    ✗ Fingerprint/Iris Biometrics│
-│  ✓ Cross-Platform Mobile App       ✗ Offline-First Mode         │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │              ENGINEERING CONSTRAINTS                        ││
-│  │  ─────────────────────────────────────────────────────────  ││
-│  │                                                             ││
-│  │  [Camera Icon]     [Clock Icon]      [Document Icon]        ││
-│  │  Image Quality     Latency           NFC Standard           ││
-│  │  > 480p required   < 200ms target    ISO 14443              ││
-│  │                                                             ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  Figure 2: Project Scope and Constraints                        │
-│                                               5/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     SCOPE & ENGINEERING CONSTRAINTS                                       │
+│     ───────────────────────────────                                       │
+│                                                                           │
+│  IN SCOPE (MVP)                         OUT OF SCOPE                      │
+│  ──────────────                         ────────────                      │
+│  ✓ Cloud-Native SaaS Platform           ✗ Hardware Manufacturing          │
+│  ✓ Hybrid Liveness Detection                                              │
+│  ✓ Card Detection (ML Model)                                              │
+│  ✓ NFC Document Reading                                                   │
+│  ✓ Multi-Tenant Admin Dashboard                                           │
+│  ✓ Cross-Platform Client Apps                                             │
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │              ENGINEERING CONSTRAINTS                              │    │
+│  │  [Camera]           [Clock]              [Document]               │    │
+│  │  > 480p             < 200ms              ISO 14443                │    │
+│  │  Image Quality      API Latency          NFC Standard             │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                                                           │
+│                                                                     5/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
-- Two columns: In Scope / Out of Scope
-- Three engineering constraints with icons:
-  1. Image Quality: > 480p required for reliable face detection
-  2. Latency: < 200ms target for real-time verification
-  3. NFC Standard: ISO 14443 compliance required
-- Figure caption required
-- Page number: 5/14
+- **In Scope:** 6 core deliverables
+- **Out of Scope:** Only hardware manufacturing (other items moved to Future Work)
+- **Constraints:** Image quality, latency, NFC standard
+- Page number: 5/17
 
 #### Speech Script
 ```
-"Our scope focuses on the Minimum Viable Product. We are building a cloud-native
-SaaS platform with hybrid liveness detection, NFC document reading, and a
-multi-tenant admin dashboard.
+"Our MVP scope includes cloud-native SaaS, hybrid liveness, card detection,
+NFC reading, multi-tenant dashboard, and cross-platform apps.
 
-What is OUT of scope: hardware manufacturing, embedded devices, fingerprint or
-iris biometrics, and offline-first operation. These remain as potential directions
-for future research.
+As for out of scope, hardware manufacturing is beyond this project.
 
-Our engineering constraints are critical: images must exceed 480p for reliable
-face detection, API response must be under 200 milliseconds for acceptable user
-experience, and NFC operations must comply with ISO 14443 standards."
+Regarding our constraints: images must exceed 480p, API response under 200ms,
+and NFC must comply with ISO 14443.
+
+Now, Ahmet will show you how we built our solution."
 ```
 
 ---
 
 ### SLIDE 6: System Architecture
 
-**Time:** 1:00
-**Presenter:** Aysenur Arici
+**Time:** 1:10
+**Presenter:** Ahmet Abdullah Gultekin
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     SYSTEM ARCHITECTURE                                         │
-│     ───────────────────                                         │
-│                                                                 │
-│           ┌─────────────────────────────────────────┐           │
-│           │            API GATEWAY (NGINX)          │           │
-│           │         Rate Limiting, Routing          │           │
-│           └─────────────────┬───────────────────────┘           │
-│                             │                                   │
-│         ┌───────────────────┼───────────────────┐               │
-│         │                   │                   │               │
-│         ▼                   ▼                   ▼               │
-│  ┌─────────────┐    ┌─────────────────┐   ┌───────────┐         │
-│  │IDENTITY CORE│◄──►│BIOMETRIC PROC.  │◄─►│PROCTORING │         │
-│  │(Spring Boot)│    │   (FastAPI)     │   │(WebSocket)│         │
-│  │             │    │                 │   │           │         │
-│  │• JWT Auth   │    │• 9 ML Models    │   │• Real-time│         │
-│  │• Multi-Tenant│   │• 40+ Endpoints  │   │• Sessions │         │
-│  │• RBAC       │    │• Liveness       │   │• Incidents│         │
-│  └──────┬──────┘    └────────┬────────┘   └─────┬─────┘         │
-│         │                    │                  │               │
-│         └────────────────────┼──────────────────┘               │
-│                              ▼                                  │
-│    ┌────────────────────────────────────────────────────┐       │
-│    │  PostgreSQL 16 + pgvector     │     Redis          │       │
-│    │  • 512/2622-D Embeddings      │  • Cache           │       │
-│    │  • IVFFlat Indexing           │  • Event Bus       │       │
-│    └────────────────────────────────────────────────────┘       │
-│                                                                 │
-│  Architecture: Hexagonal (Ports & Adapters) + DDD               │
-│  Figure 3: High-Level System Architecture                       │
-│                                               6/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     SYSTEM ARCHITECTURE                                                   │
+│     ───────────────────                                                   │
+│                                                                           │
+│                       ┌─────────────────────┐                             │
+│                       │   NGINX API GATEWAY │                             │
+│                       │  Rate Limiting      │                             │
+│                       │  Routing & LB       │                             │
+│                       └─────────┬───────────┘                             │
+│                                 │                                         │
+│         ┌───────────────────────┼───────────────────────┐                 │
+│         │                       │                       │                 │
+│         ▼                       ▼                       ▼                 │
+│  ┌─────────────┐       ┌─────────────────┐      ┌───────────────┐         │
+│  │IDENTITY CORE│       │BIOMETRIC PROC.  │      │ CLIENT APPS   │         │
+│  │Spring Boot  │◄─────►│   FastAPI       │◄────►│ Kotlin MP     │         │
+│  │  Java 21    │       │  Python 3.11    │      │ Android/iOS   │         │
+│  │             │       │                 │      │ Desktop       │         │
+│  │• JWT Auth   │       │• Face Detection │      │• Camera/NFC   │         │
+│  │• Multi-Tenant│      │• 40+ Endpoints  │      │• Card Detect  │         │
+│  │• RBAC       │       │• Liveness       │      │• Liveness     │         │
+│  └──────┬──────┘       └────────┬────────┘      └───────────────┘         │
+│         │                       │                                         │
+│         └───────────────────────┼───────────────────────                  │
+│                                 ▼                                         │
+│       ┌────────────────────────────────────────────────────┐              │
+│       │  PostgreSQL 16 + pgvector     │     Redis          │              │
+│       │  • Vector Embeddings          │  • Cache           │              │
+│       │  • IVFFlat Indexing           │  • Event Bus       │              │
+│       └────────────────────────────────────────────────────┘              │
+│                                                                           │
+│  Architecture: Hexagonal (Ports & Adapters) + DDD                   6/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
 - Three-tier architecture diagram:
-  1. API Gateway (NGINX) - rate limiting, routing
-  2. Microservices layer:
-     - Identity Core (Spring Boot 3.2, Java 21) - 130 Java files
-     - Biometric Processor (FastAPI, Python 3.11) - 254 Python files
-     - **Proctoring Module** (WebSocket) - real-time exam monitoring
-  3. Database layer:
-     - PostgreSQL 16 + pgvector (embeddings, IVFFlat index)
-     - Redis (cache + event bus for inter-service communication)
-- Key features for each service
+  1. API Gateway (NGINX) - rate limiting, routing, load balancing
+  2. Microservices: Identity Core, Biometric Processor, Client Apps
+  3. Database: PostgreSQL + pgvector, Redis
 - Architecture pattern: Hexagonal + DDD
-- Figure caption required
-- Page number: 6/14
-
-#### Image Requirements
-- **MUST CREATE MANUALLY** using Draw.io or similar
-- Do NOT let Gamma generate this - text will be misspelled
+- Page number: 6/17
 
 #### Speech Script
 ```
-"Our system follows a microservices architecture with Hexagonal design principles.
+"Thank you. Let me walk you through our system architecture.
 
-At the top, NGINX API Gateway handles rate limiting and request routing.
+We built FIVUCSAS using microservices with Hexagonal Architecture - also known as
+Ports and Adapters. This design keeps our business logic independent from external
+concerns like databases and APIs.
 
-The Identity Core API, built with Spring Boot 3.2 and Java 21, manages
-authentication, multi-tenancy, and role-based access control with 130 Java
-source files following Hexagonal Architecture.
+At the top, NGINX serves as our API Gateway, handling rate limiting to prevent
+abuse, request routing, and load balancing across service instances.
 
-The Biometric Processor, implemented with FastAPI and Python 3.11, handles
-compute-intensive ML operations. It integrates 9 face recognition models and
-provides over 40 REST endpoints for face enrollment, verification, liveness
-detection, quality analysis, and demographics estimation.
+We have three main components: Identity Core is our Spring Boot service written
+in Java 21 - it handles JWT authentication, multi-tenant isolation, and role-based
+access control. The Biometric Processor is a FastAPI service in Python 3.11 - this
+is where face detection, liveness analysis, and over 40 API endpoints live.
 
-We also have a real-time Proctoring Module using WebSocket connections for
-exam monitoring - it can track sessions, detect incidents, and verify
-identity continuously during exams.
+Our client applications use Kotlin Multiplatform, allowing us to share code
+between Android, iOS, and Desktop applications.
 
-Both services communicate via REST APIs and event-driven messaging through Redis.
-PostgreSQL 16 with pgvector stores embeddings - 512 dimensions for ArcFace or
-2622 for VGG-Face - with IVFFlat indexing for sub-millisecond similarity search."
+At the data layer, PostgreSQL 16 with pgvector stores face embeddings, and Redis
+provides caching and an event bus for service communication."
 ```
 
 ---
 
 ### SLIDE 7: The Biometric Puzzle (Liveness Detection)
 
-**Time:** 1:15
-**Presenter:** Aysenur Arici
+**Time:** 1:30
+**Presenter:** Ahmet Abdullah Gultekin
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
@@ -515,8 +447,7 @@ PostgreSQL 16 with pgvector stores embeddings - 512 dimensions for ArcFace or
 │  ACTIVE: EAR (Eye Aspect Ratio), MAR (Mouth), Head Pose         │
 │  PASSIVE: LBP Texture, Color Distribution, Frequency Domain     │
 │                                                                 │
-│  Figure 4: Biometric Puzzle Challenge-Response Protocol         │
-│                                               7/14              │
+│  Figure 4: Biometric Puzzle Challenge-Response Protocol               7/17  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -530,7 +461,7 @@ PostgreSQL 16 with pgvector stores embeddings - 512 dimensions for ArcFace or
   - ACTIVE: EAR, MAR, Head Pose (pitch/yaw/roll)
   - PASSIVE: LBP texture, color distribution, frequency domain, moire pattern
 - Figure caption required
-- Page number: 7/14
+- Page number: 7/17
 
 #### Key Technical Metrics
 - Eye Aspect Ratio threshold: EAR < 0.2 (blink detection)
@@ -563,884 +494,819 @@ printed photos, and video replay attacks."
 
 ---
 
-### SLIDE 8: ML Pipeline & Vector Search
+### SLIDE 8: Biometric Processor Demo
 
-**Time:** 0:50
-**Presenter:** Aysenur Arici
+**Time:** 0:45
+**Presenter:** Ahmet Abdullah Gultekin
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     ML PIPELINE & VECTOR SEARCH                                 │
-│     ───────────────────────────                                 │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │                    RECOGNITION PIPELINE                     ││
-│  │                                                             ││
-│  │  [Input]     [Detect]    [Align]    [Extract]    [Search]   ││
-│  │     │           │           │           │            │      ││
-│  │     ▼           ▼           ▼           ▼            ▼      ││
-│  │   Image  →  Face Box  →  Aligned  →  Embedding  →  Match   ││
-│  │            MediaPipe    5-Point     2622-D        Cosine    ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  9 FACE RECOGNITION MODELS:                                     │
-│  ┌────────────┬────────────┬────────────┬────────────┐          │
-│  │ DeepFace   │ FaceNet128 │ FaceNet512 │  ArcFace   │          │
-│  │ (4096-D)   │  (128-D)   │  (512-D)   │  (512-D)   │          │
-│  ├────────────┼────────────┼────────────┼────────────┤          │
-│  │ VGG-Face   │   Dlib     │  OpenFace  │   SFace    │          │
-│  │ (2622-D)*  │  (128-D)   │  (128-D)   │  (128-D)   │          │
-│  └────────────┴────────────┴────────────┴────────────┘          │
-│  * Default model for production                                 │
-│                                                                 │
-│  VECTOR DATABASE: PostgreSQL + pgvector + IVFFlat → O(log n)    │
-│                                                                 │
-│  Figure 5: ML Pipeline and Model Architecture                   │
-│                                               8/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     BIOMETRIC PROCESSOR IN ACTION                                         │
+│     ─────────────────────────────                                         │
+│                                                                           │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐        │
+│  │                  │  │                  │  │                  │        │
+│  │   [AHMET'S      │  │   [AYŞENUR'S     │  │   [GÜLSÜM'S      │        │
+│  │    FACE with    │  │    FACE with     │  │    FACE with     │        │
+│  │    468 MESH     │  │    468 MESH      │  │    468 MESH      │        │
+│  │    OVERLAY]     │  │    OVERLAY]      │  │    OVERLAY]      │        │
+│  │                  │  │                  │  │                  │        │
+│  │  ┌────────────┐ │  │  ┌────────────┐  │  │  ┌────────────┐  │        │
+│  │  │EAR: 0.28   │ │  │  │EAR: 0.31   │  │  │  │EAR: 0.29   │  │        │
+│  │  │Quality: 94%│ │  │  │Quality: 96%│  │  │  │Quality: 95%│  │        │
+│  │  │✓ LIVE      │ │  │  │✓ LIVE      │  │  │  │✓ LIVE      │  │        │
+│  │  └────────────┘ │  │  └────────────┘  │  │  └────────────┘  │        │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘        │
+│                                                                           │
+│  All team members verified with 468 facial landmarks + liveness detection │
+│                                                                     8/17  │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Content Elements
+- **Three team member photos** with MediaPipe 468-landmark mesh overlay
+- **Real-time metrics** for each face: EAR value, quality score, liveness status
+- **All showing "LIVE" status** proving Biometric Puzzle works
+- Visual proof that the system works on real people
+- Page number: 8/17
+
+#### Image Requirements
+- **Capture screenshots** from web demo showing each team member
+- Each photo should display the green face mesh overlay (468 landmarks)
+- Include the metrics panel showing EAR, quality, and liveness status
+
+#### Speech Script
+```
+"Here is our Biometric Processor in action with all three team members.
+
+You can see the 468 facial landmarks being tracked in real-time - that is the
+green mesh overlay on each face. Below each photo, you see the Eye Aspect Ratio,
+the frame quality score, and the liveness status.
+
+All three of us passed the Biometric Puzzle challenge and are verified as LIVE.
+A photo or deepfake would fail this test because it cannot respond to random
+challenges like 'blink your left eye' or 'turn your head right.'"
+```
+
+---
+
+### SLIDE 9: ML Pipeline & Vector Search
+
+**Time:** 0:45
+**Presenter:** Ahmet Abdullah Gultekin
+**Aspect Ratio:** 16:9
+
+#### Visual Design
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│     ML PIPELINE & VECTOR SEARCH                                           │
+│     ───────────────────────────                                           │
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │                    RECOGNITION PIPELINE                           │    │
+│  │                                                                   │    │
+│  │  [Input]     [Detect]      [Align]      [Extract]     [Search]    │    │
+│  │     │           │             │             │             │       │    │
+│  │     ▼           ▼             ▼             ▼             ▼       │    │
+│  │   Image  →  Face Box  →   Aligned   →  Embedding  →   Match      │    │
+│  │            MediaPipe      5-Point       Vector       Cosine       │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │  VECTOR DATABASE                                                  │    │
+│  │  PostgreSQL + pgvector + IVFFlat → O(log n) sub-ms queries        │    │
+│  │  Threshold: cosine distance < 0.68 = match                        │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                                                           │
+│                                                                     9/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
 - Pipeline diagram: Input → Detection → Alignment → Extraction → Search
-- Model grid showing 9 face recognition models with embedding dimensions
-- Vector database specification:
-  - PostgreSQL 16 + pgvector extension
-  - IVFFlat indexing for O(log n) search
-  - 2622-dimensional embeddings (VGG-Face default)
-- Figure caption required
-- Page number: 8/14
+- Vector database: PostgreSQL + pgvector + IVFFlat
+- Threshold info: cosine distance < 0.68 = match
+- Page number: 9/17
 
 #### Speech Script
 ```
-"Our ML pipeline processes face images through five stages: detection, alignment,
-embedding extraction, and similarity search.
+"Our ML pipeline has five stages for face recognition.
 
-We integrated 9 face recognition models through the DeepFace framework. VGG-Face,
-producing 2622-dimensional embeddings, is our default for production due to its
-high accuracy. ArcFace and FaceNet provide alternative options optimized for
-different scenarios.
+First, the input image comes in. Second, MediaPipe Face Detection locates faces
+and returns bounding boxes. Third, we perform 5-point alignment to normalize face
+orientation - this is critical for consistent embeddings.
 
-For storage, we use PostgreSQL with the pgvector extension. The IVFFlat index
-enables approximate nearest neighbor search in O(log n) time complexity, allowing
-sub-millisecond queries even with large enrollment databases.
+Fourth, we extract a 2622-dimensional vector embedding using VGG-Face. This
+embedding is a mathematical fingerprint of the face that we can compare.
 
-For 1:1 verification, we compute cosine distance - if the distance is below our
-empirically optimized threshold of 0.68, verification succeeds. For 1:N search,
-the vector index returns top-k candidates for identification."
+Fifth and finally, we search for matches using cosine similarity. Here is where
+pgvector shines - with IVFFlat indexing, we achieve sub-millisecond query times
+even with tens of thousands of enrolled faces. The search complexity is O(log n).
+
+Our verification threshold is a cosine distance of 0.68. Below this threshold
+means a match; above means different people. This threshold balances false
+acceptance against false rejection."
 ```
 
 ---
 
-### SLIDE 9: NFC & Standards Compliance
+### SLIDE 10: Card Detection & NFC Verification
+
+**Time:** 0:50
+**Presenter:** Ahmet Abdullah Gultekin
+**Aspect Ratio:** 16:9
+
+#### Visual Design
+```
+┌─────────────────────────────────────────────────────────────────┐
+│     CARD DETECTION & NFC VERIFICATION                           │
+│     ─────────────────────────────────                           │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │         STEP 1: VISUAL CARD DETECTION (ML MODEL)            ││
+│  │  ─────────────────────────────────────────────────────────  ││
+│  │                                                             ││
+│  │  [Camera] → [Trained Model] → [Card Type Detected]          ││
+│  │                                                             ││
+│  │  • Automatic ID type recognition (Turkish eID, Passport)    ││
+│  │  • Real-time detection via on-device ML                     ││
+│  │  • Guides user for optimal card positioning                 ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │         STEP 2: NFC CHIP VERIFICATION (ICAO)                ││
+│  │  ─────────────────────────────────────────────────────────  ││
+│  │                                                             ││
+│  │  [Mobile NFC] → [BAC Handshake] → [Read DG1/DG2] → [SOD ✓]  ││
+│  │                                                             ││
+│  │  • MRZ-derived session keys (3DES secure messaging)         ││
+│  │  • DG1: Personal data, DG2: High-res JPEG2000 photo         ││
+│  │  • Digital signature proves document authenticity           ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  STANDARDS: ICAO Doc 9303, ISO/IEC 14443, ISO 7816-4            │
+│  CARDS: Turkish eID, e-Passport, MIFARE, NDEF, 10+ types        │
+│                                                                 │
+│  Figure 6: Two-Stage Document Verification Pipeline                10/17  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Content Elements
+- Two-stage pipeline:
+  1. **Visual Card Detection** (ML Model):
+     - Trained model detects card type from camera feed
+     - Real-time on-device inference
+     - Automatic recognition of Turkish eID, Passport, etc.
+  2. **NFC Chip Verification** (ICAO):
+     - BAC handshake with MRZ-derived keys
+     - Read DG1 (personal data) and DG2 (photo)
+     - SOD verification for authenticity
+- Standards: ICAO Doc 9303, ISO/IEC 14443, ISO 7816-4
+- Supported cards: Turkish eID, e-Passport, MIFARE, NDEF, 10+ types
+- Figure caption required
+- Page number: 10/17
+
+#### Speech Script
+```
+"Document verification in FIVUCSAS is a two-stage pipeline.
+
+First, our trained Card Detection model analyzes the camera feed to
+automatically identify the document type - Turkish ID, passport, driver's
+license - without manual user selection. This runs on-device for real-time
+feedback and guides the user for optimal positioning.
+
+Second, once the card is positioned, our NFC Reader establishes a secure
+connection using Basic Access Control. The session keys are derived from the
+Machine Readable Zone, ensuring physical possession.
+
+We then read Data Group 1 for personal information and Data Group 2 for a
+high-resolution photograph - significantly better than the printed image.
+
+Finally, we verify the Security Object Document - a digital signature proving
+the data has not been modified since issuance.
+
+This combination of visual detection and cryptographic verification makes
+document spoofing extremely difficult."
+```
+
+---
+
+### SLIDE 11: Document Verification Demo
 
 **Time:** 0:45
 **Presenter:** Ayse Gulsum Eren
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     NFC & STANDARDS COMPLIANCE                                  │
-│     ──────────────────────────                                  │
-│                                                                 │
-│  ┌──────────────┐                        ┌──────────────┐       │
-│  │    MOBILE    │                        │   ID CARD    │       │
-│  │    (NFC)     │                        │   (CHIP)     │       │
-│  └──────┬───────┘                        └──────┬───────┘       │
-│         │                                       │               │
-│         │  1. SELECT AID                        │               │
-│         │ ─────────────────────────────────────►│               │
-│         │                                       │               │
-│         │  2. GET CHALLENGE                     │               │
-│         │ ─────────────────────────────────────►│               │
-│         │                                       │               │
-│         │  3. BAC: MRZ-derived Session Keys     │               │
-│         │ ◄────────────────────────────────────►│               │
-│         │     (3DES Secure Messaging)           │               │
-│         │                                       │               │
-│         │  4. READ DG1 (Personal Data)          │               │
-│         │ ─────────────────────────────────────►│               │
-│         │                                       │               │
-│         │  5. READ DG2 (HD Photo - JPEG2000)    │               │
-│         │ ─────────────────────────────────────►│               │
-│         │                                       │               │
-│         │  6. VERIFY SOD (Digital Signature)    │               │
-│         │ ◄─────────────────────────────────────│               │
-│         │      ✓ Document Authentic             │               │
-│         ▼                                       ▼               │
-│                                                                 │
-│  STANDARDS: ICAO Doc 9303, ISO/IEC 14443, ISO 7816-4            │
-│  CARDS: Turkish eID, e-Passport, 10+ card types                 │
-│                                                                 │
-│  Figure 6: NFC BAC Authentication Handshake                     │
-│                                               9/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     DOCUMENT VERIFICATION IN ACTION                                       │
+│     ───────────────────────────────                                       │
+│                                                                           │
+│  ┌─────────────────────────────────┐  ┌─────────────────────────────────┐ │
+│  │  CARD DETECTION                 │  │  NFC CHIP READING               │ │
+│  │  ───────────────                │  │  ─────────────────              │ │
+│  │                                 │  │                                 │ │
+│  │  [TURKISH eID PHOTO]           │  │  [NFC SCAN SCREEN]              │ │
+│  │                                 │  │                                 │ │
+│  │  ┌─────────────────────────┐   │  │  ┌─────────────────────────┐   │ │
+│  │  │ 🔍 Type: TURKISH_EID    │   │  │  │ ✓ BAC Authenticated     │   │ │
+│  │  │ 📊 Confidence: 97.3%    │   │  │  │ ✓ DG1 Personal Data     │   │ │
+│  │  │ ✓ Ready for NFC         │   │  │  │ ✓ DG2 Photo Loaded      │   │ │
+│  │  └─────────────────────────┘   │  │  │ ✓ SOD Signature Valid   │   │ │
+│  │                                 │  │  └─────────────────────────┘   │ │
+│  │  [E-PASSPORT PHOTO]            │  │                                 │ │
+│  │                                 │  │  ┌─────────────────────────┐   │ │
+│  │  ┌─────────────────────────┐   │  │  │ [HIGH-RES PHOTO         │   │ │
+│  │  │ 🔍 Type: E_PASSPORT     │   │  │  │  FROM DG2 CHIP]         │   │ │
+│  │  │ 📊 Confidence: 98.1%    │   │  │  │                         │   │ │
+│  │  │ ✓ Ready for NFC         │   │  │  │ JPEG2000 Quality        │   │ │
+│  │  └─────────────────────────┘   │  │  └─────────────────────────┘   │ │
+│  └─────────────────────────────────┘  └─────────────────────────────────┘ │
+│                                                                           │
+│  Left: ML model auto-detects card type | Right: NFC reads chip securely   │
+│                                                                    11/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
-- Sequence diagram: Mobile NFC ↔ ID Card Chip handshake
-- Six steps:
-  1. SELECT AID (Application Identifier)
-  2. GET CHALLENGE
-  3. BAC (Basic Access Control) with MRZ-derived keys
-  4. READ DG1 (Personal Data)
-  5. READ DG2 (High-resolution photo in JPEG2000)
-  6. VERIFY SOD (Security Object Document) digital signature
-- Standards listed: ICAO Doc 9303, ISO/IEC 14443, ISO 7816-4
-- Supported cards: Turkish eID, e-Passport, 10+ card types
-- Figure caption required
-- Page number: 9/14
-
-#### Speech Script
-```
-"Our NFC Reader module supports ICAO-compliant identity document verification.
-
-The protocol starts by selecting the chip application, then establishing Basic
-Access Control. The session keys are derived from the Machine Readable Zone -
-the printed text on the document - ensuring only someone with physical access
-to the document can read the chip.
-
-Once 3DES secure messaging is established, we read Data Group 1 containing
-personal information, and Data Group 2 containing a high-resolution JPEG2000
-photograph - significantly better quality than the printed photo.
-
-Finally, we verify the Security Object Document, a digital signature that
-proves the data has not been tampered with since issuance.
-
-Our reader supports Turkish National ID cards, e-Passports, and over 10 other
-card types including MIFARE and NDEF tags, making it a universal solution."
-```
-
----
-
-### SLIDE 10: Tasks Accomplished
-
-**Time:** 0:50
-**Presenter:** Ayse Gulsum Eren
-
-#### Visual Design
-```
-┌─────────────────────────────────────────────────────────────────┐
-│     TASKS ACCOMPLISHED - FALL 2025                              │
-│     ──────────────────────────────                              │
-│                                                                 │
-│  BIOMETRIC PROCESSOR (100%)                                     │
-│  • 40+ REST API endpoints (FastAPI)                             │
-│  • 9 ML models integrated via DeepFace                          │
-│  • Hybrid liveness + Real-time proctoring                       │
-│  • 254 Python source files                                      │
-│                                                                 │
-│  DEMO WEB GUI (100%)                                            │
-│  • 14+ interactive pages (Next.js 14, TypeScript)               │
-│  • Dashboard, Enrollment, Verification, Search, Liveness        │
-│  • Real-time proctoring with WebSocket streaming                │
-│                                                                 │
-│  IDENTITY CORE API (68%)                                        │
-│  • JWT authentication with refresh tokens (HS512)               │
-│  • Multi-tenant architecture with row-level security            │
-│  • Hexagonal architecture, 130 Java source files                │
-│                                                                 │
-│  CLIENT APPS - NFC READER (85%)                                 │
-│  • 135+ Kotlin files with Hilt DI + Compose Multiplatform       │
-│  • 10+ card types supported (Turkish eID, e-Passport, MIFARE)   │
-│  • BAC authentication, SOD validation implemented               │
-│                                                                 │
-│  DATABASE (100%)                                                │
-│  • 12+ tables, 9 Flyway migrations                              │
-│  • pgvector with IVFFlat indexing                               │
-│                                                                 │
-│                                              10/14              │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-#### Content Elements
-- Five component categories with completion percentages:
-  1. Biometric Processor: 100%
-  2. Demo Web GUI: 100%
-  3. Identity Core API: 68%
-  4. Client Apps (NFC Reader): 85%
-  5. Database Schema: 100%
-- Key metrics for each:
-  - 40+ REST endpoints
-  - 9 ML models
-  - 14+ web pages
-  - 135+ Kotlin files (Android + Desktop + shared)
-  - 12+ database tables with 9 migrations
-- Page number: 10/14
-
-#### Speech Script
-```
-"Let me present what we have accomplished this semester.
-
-The Biometric Processor is 100% complete with over 40 REST API endpoints covering
-face enrollment, verification, search, liveness detection, quality analysis,
-demographics, and real-time proctoring. We integrated 9 face recognition models
-across 254 Python source files.
-
-Our Demo Web GUI is also complete - 14 interactive pages built with Next.js
-and TypeScript, including a real-time proctoring dashboard using WebSocket streaming.
-
-The Identity Core API is at 68% completion with 130 Java source files. JWT
-authentication with refresh tokens works, and we have implemented multi-tenant
-row-level security following Hexagonal Architecture principles.
-
-Our Client Apps module is 85% complete - 135 Kotlin files supporting 10 card types
-with BAC authentication and SOD validation, using Compose Multiplatform for
-Android, Desktop, and iOS targets.
-
-The database schema is complete with 12 tables, 9 Flyway migrations, and pgvector
-integration for efficient embedding storage and similarity search."
-```
-
----
-
-### SLIDE 11: Technical Challenges & Solutions
-
-**Time:** 0:50
-**Presenter:** Ayse Gulsum Eren
-
-#### Visual Design
-```
-┌─────────────────────────────────────────────────────────────────┐
-│     TECHNICAL CHALLENGES & SOLUTIONS                            │
-│     ────────────────────────────────                            │
-│                                                                 │
-│  ┌─────────────────────────┬───────────────────────────────────┐│
-│  │       CHALLENGE         │           SOLUTION                ││
-│  ├─────────────────────────┼───────────────────────────────────┤│
-│  │                         │                                   ││
-│  │ Vector Search Latency   │ Migrated to IVFFlat indexing      ││
-│  │ (High-dimensional       │ on pgvector → O(log n) ANN        ││
-│  │  embedding queries)     │ with sub-ms query time            ││
-│  │                         │                                   ││
-│  ├─────────────────────────┼───────────────────────────────────┤│
-│  │ Cross-Platform          │ Kotlin Multiplatform + Compose    ││
-│  │ Hardware Access         │ with platform abstraction layer   ││
-│  │ (Camera, NFC, Storage)  │ for Android/Desktop/iOS           ││
-│  │                         │                                   ││
-│  ├─────────────────────────┼───────────────────────────────────┤│
-│  │ 9 ML Models in RAM      │ Containerized services with       ││
-│  │ (Memory pressure on     │ lazy loading + model caching      ││
-│  │  single server)         │ via Redis                         ││
-│  │                         │                                   ││
-│  ├─────────────────────────┼───────────────────────────────────┤│
-│  │ NFC Protocol            │ Modular reader architecture       ││
-│  │ Complexity              │ (7 specialized readers)           ││
-│  │ (Different card types)  │ Factory pattern for card types    ││
-│  │                         │                                   ││
-│  └─────────────────────────┴───────────────────────────────────┘│
-│                                                                 │
-│  Table 2: Engineering Challenges and Solutions                  │
-│                                              11/14              │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-#### Content Elements
-- Four-row table with Challenge | Solution columns
-- Challenges:
-  1. Vector search latency for high-dimensional embeddings
-  2. Cross-platform hardware access (camera, NFC, storage)
-  3. Multiple ML models consuming RAM
-  4. Complex NFC protocols for different card types
-- Solutions:
-  1. IVFFlat indexing → O(log n) approximate nearest neighbor
-  2. Kotlin Multiplatform with abstraction layer
-  3. Containerized services with lazy loading
-  4. Modular reader architecture with Factory pattern
-- Table caption required
-- Page number: 11/14
-
-#### Speech Script
-```
-"Of course, we faced significant challenges along the way. Allow me to highlight
-four critical ones.
-
-The first challenge was vector search latency. With 2622-dimensional embeddings,
-naive search was far too slow. We solved this by implementing IVFFlat indexing,
-achieving sub-millisecond query times.
-
-We then encountered cross-platform hardware access issues. Camera and NFC APIs
-differ significantly across Android, iOS, and Desktop. Our solution was Kotlin
-Multiplatform with a platform abstraction layer, allowing us to share 90% of
-our codebase across all platforms.
-
-Another significant hurdle was memory management. Loading 9 ML models
-simultaneously proved infeasible. We addressed this through lazy loading with
-Redis caching, where models load only on-demand.
-
-Finally, NFC protocol complexity. Different card types use entirely different
-protocols. We designed a modular reader architecture with 7 specialized readers
-and a Factory pattern to handle this diversity."
-```
-
----
-
-### SLIDE 12: Implementation Status
-
-**Time:** 0:40
-**Presenter:** Ayse Gulsum Eren
-
-#### Visual Design
-```
-┌─────────────────────────────────────────────────────────────────┐
-│     IMPLEMENTATION STATUS                                       │
-│     ─────────────────────                                       │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │                                                             ││
-│  │  Biometric Processor API                                    ││
-│  │  ████████████████████████████████████████████████  100%     ││
-│  │                                                             ││
-│  │  Demo Web GUI (Next.js)                                     ││
-│  │  ████████████████████████████████████████████████  100%     ││
-│  │                                                             ││
-│  │  Database Schema + Migrations                               ││
-│  │  ████████████████████████████████████████████████  100%     ││
-│  │                                                             ││
-│  │  NFC Reader (Universal)                                     ││
-│  │  ██████████████████████████████████████████░░░░░░   85%     ││
-│  │                                                             ││
-│  │  Identity Core API                                          ││
-│  │  ██████████████████████████████████░░░░░░░░░░░░░░   68%     ││
-│  │                                                             ││
-│  │  Mobile/Desktop App (UI)                                    ││
-│  │  ████████████████████████████░░░░░░░░░░░░░░░░░░░░   60%     ││
-│  │                                                             ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  OVERALL PROJECT PROGRESS: ~85% MVP                             │
-│                                                                 │
-│  Figure 7: Component Implementation Progress                    │
-│                                              12/14              │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-#### Content Elements
-- Six horizontal progress bars:
-  1. Biometric Processor API: 100%
-  2. Demo Web GUI: 100%
-  3. Database Schema: 100%
-  4. NFC Reader: 85%
-  5. Identity Core API: 68%
-  6. Mobile/Desktop App: 60%
-- Overall progress indicator: ~85% MVP
-- Figure caption required
-- Page number: 12/14
+- **Left side: Card Detection results**
+  - Turkish eID detected with 97.3% confidence
+  - e-Passport detected with 98.1% confidence
+  - Shows automatic type recognition without user input
+- **Right side: NFC verification results**
+  - BAC authentication success
+  - DG1 (personal data) and DG2 (photo) read
+  - SOD signature verified
+  - High-resolution photo extracted from chip
+- Page number: 11/17
 
 #### Image Requirements
-- **UPLOAD REAL SCREENSHOT** of dashboard or Swagger UI if possible
-- Progress bars can be generated by Gamma or created manually
+- **Card Detection screenshots**: Capture from mobile app showing detected cards
+- **NFC scan screen**: Mobile app showing "Hold card to phone" instruction
+- **Verification results**: Success checkmarks for BAC, DG1, DG2, SOD
+- **DG2 photo**: High-res photo extracted from NFC chip (team member's ID)
 
 #### Speech Script
 ```
-"Here is our current implementation status visualized as progress bars.
+"Here you can see our document verification system working with real documents.
 
-Three components are 100% complete: the Biometric Processor API with all 46
-endpoints functional, the Demo Web GUI with 14 interactive pages, and our
-database schema with all migrations applied.
+On the left, our Card Detection model automatically recognizes the document type.
+Turkish eID detected with 97% confidence, e-Passport with 98%. No manual selection -
+the user just points the camera and the system identifies the card type instantly.
 
-The NFC Reader is at 85% - core functionality works, with some edge cases
-remaining for less common card types.
+On the right, the NFC reading results. After placing the card on the phone, we
+successfully authenticate using Basic Access Control, read the personal data from
+DG1, extract the high-resolution JPEG2000 photo from DG2, and verify the digital
+signature in the Security Object Document.
 
-The Identity Core API is at 68% - authentication and multi-tenancy work,
-but RBAC enforcement is still being implemented.
+That green checkmark on SOD means this document is cryptographically proven to be
+authentic and unmodified since issuance.
 
-The Mobile and Desktop application UI is 60% complete - screens are built,
-but backend integration is at 30%.
-
-Overall, we are approximately 85% toward our MVP goal, well-positioned to
-complete integration in semester two."
+Now Gulsum will present what we accomplished this semester."
 ```
 
 ---
 
-### SLIDE 13: Future Work & Contingency Plan
+### SLIDE 12: Tasks Accomplished
+
+**Time:** 1:00
+**Presenter:** Ayse Gulsum Eren
+**Aspect Ratio:** 16:9
+
+#### Visual Design
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│     WHAT WE BUILT - FALL 2025                                             │
+│     ─────────────────────────                                             │
+│                                                                           │
+│  BIOMETRIC FEATURES                    DOCUMENT VERIFICATION              │
+│  ──────────────────                    ─────────────────────              │
+│  1. Face Detection (MediaPipe)         9. Visual Card Detection (ML)      │
+│  2. Face Enrollment                    10. NFC Document Reading           │
+│  3. Face Verification (1:1)            11. BAC Authentication             │
+│  4. Face Search (1:N)                  12. SOD Validation                 │
+│  5. Biometric Puzzle (Liveness)        13. MRZ Parsing                    │
+│  6. Frame Quality Analysis             14. 10+ Card Types Support         │
+│  7. Demographic Analysis                                                  │
+│  8. Similarity Scoring                 INFRASTRUCTURE                     │
+│                                        ──────────────                     │
+│  WEB DEMO GUI                          15. JWT Authentication             │
+│  ──────────────                        16. Multi-Tenant Architecture      │
+│  • Dashboard                           17. 40+ REST API Endpoints         │
+│  • Enrollment Page                     18. PostgreSQL + pgvector          │
+│  • Verification Page                   19. IVFFlat Vector Indexing        │
+│  • Search Page                         20. Redis Caching                  │
+│  • Liveness Testing                    21. Flyway Migrations              │
+│  • Quality Analysis                    22. Kotlin Multiplatform Apps      │
+│                                                                           │
+│                                                                    12/17  │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Content Elements
+- **22 implemented features** organized by category:
+  - Biometric Features (8): Detection, Enrollment, Verification, Search, Liveness, Quality, Demographics, Similarity
+  - Document Verification (6): Card Detection, NFC, BAC, SOD, MRZ, Card Types
+  - Infrastructure (8): Auth, Multi-tenant, API, Database, Indexing, Cache, Migrations, Apps
+  - Web Demo GUI: 6 interactive pages
+- Clear numbered list for easy reading
+- Page number: 12/17
+
+#### Speech Script
+```
+"Here is everything we built this semester - 22 implemented features.
+
+[Read the list by sections]
+
+Biometric: face detection, enrollment, verification, search, the Biometric
+Puzzle for liveness, quality analysis, demographics, and similarity scoring.
+
+Document verification: our trained card detection model, NFC reading, BAC
+authentication, SOD validation, MRZ parsing, supporting 10+ card types.
+
+Infrastructure: JWT auth, multi-tenant architecture, 40+ API endpoints,
+PostgreSQL with pgvector, IVFFlat indexing, Redis, and Kotlin Multiplatform.
+
+Plus a complete web demo with 6 interactive pages."
+```
+
+---
+
+### SLIDE 13: Technical Challenges & Solutions
 
 **Time:** 0:50
 **Presenter:** Ayse Gulsum Eren
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     FUTURE WORK & CONTINGENCY PLAN (B-PLAN)                     │
-│     ───────────────────────────────────────                     │
-│                                                                 │
-│  SPRING 2026 TIMELINE                                           │
-│  ────────────────────                                           │
-│                                                                 │
-│  FEB ─────► Service Integration (Identity Core ↔ Biometric)     │
-│             API contracts, event-driven messaging               │
-│                                                                 │
-│  MAR ─────► Full NFC Mobile Integration                         │
-│             Complete card type support, UI polish               │
-│                                                                 │
-│  APR ─────► Security & Penetration Testing                      │
-│             OWASP compliance, vulnerability assessment          │
-│                                                                 │
-│  MAY ─────► Production Deployment & Documentation               │
-│             Cloud deployment, final documentation               │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │  CONTINGENCY PLANS (B-PLAN)                                 ││
-│  │  IF Universal NFC fails → Limit to Turkish eID only         ││
-│  │  IF WebSocket latency high → Fallback to REST polling       ││
-│  │  IF Mobile integration delayed → Desktop-first deployment   ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │  FUTURE RESEARCH IDEAS (Beyond This Project)                ││
-│  │  • Offline-first mode with local ML inference               ││
-│  │  • Fingerprint & iris biometric modalities                  ││
-│  │  • Embedded/edge devices (microcontrollers, Raspberry Pi)   ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  Figure 8: Semester 2 Timeline, B-Plan, and Research Ideas      │
-│                                              13/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     TECHNICAL CHALLENGES                                                  │
+│     ────────────────────                                                  │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │  1. NFC PASSPORT INTEGRATION                                        │  │
+│  │     ─────────────────────────                                       │  │
+│  │     Challenge: Complex ICAO protocols, BAC handshake, SOD parsing   │  │
+│  │     Solution: Modular reader architecture with 7 specialized readers│  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │  2. CARD DETECTION MODEL TRAINING                                   │  │
+│  │     ────────────────────────────                                    │  │
+│  │     Challenge: Dataset collection, model accuracy, real-time speed  │  │
+│  │     Solution: Custom dataset + optimized on-device inference        │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐  │
+│  │  3. CROSS-LANGUAGE MICROSERVICE COMMUNICATION                       │  │
+│  │     ────────────────────────────────────────                        │  │
+│  │     Challenge: Java ↔ Python service integration, type safety       │  │
+│  │     Solution: REST APIs with OpenAPI contracts + Redis event bus    │  │
+│  └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                           │
+│                                                                    13/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
-- Four-month timeline: February → May 2026
-  - February: Service integration
-  - March: NFC mobile integration
-  - April: Security testing
-  - May: Production deployment
-- Three contingency plans (B-Plan):
-  1. If universal NFC fails → Turkish eID only
-  2. If WebSocket latency high → REST polling fallback
-  3. If mobile delayed → Desktop-first deployment
-- **Future Research Ideas** (beyond this project scope):
-  1. Offline-first mode with local ML inference on device
-  2. Additional biometric modalities (fingerprint, iris)
-  3. Embedded/edge device deployment (microcontrollers, Raspberry Pi)
-- Figure caption required
-- Page number: 13/14
+- **3 key challenges** with solutions:
+  1. NFC Passport Integration - ICAO protocols, modular readers
+  2. Card Detection Model Training - dataset + on-device inference
+  3. Cross-Language Microservice - Java ↔ Python, REST + Redis
+- Clean visual layout with boxed sections
+- Page number: 13/17
 
 #### Speech Script
 ```
-"For semester two, we have established a clear timeline with contingency plans.
+"We faced three major challenges.
 
-In February, we focus on service integration. March is dedicated to completing
-NFC mobile integration. April brings security and penetration testing. And in
-May, we target production deployment.
+First, NFC passport integration. ICAO protocols are complex - BAC handshake,
+SOD parsing. We built 7 specialized readers for different card types.
 
-We have also prepared contingency plans: If NFC parsing proves unreliable, we
-limit support to Turkish ID cards. If WebSocket has latency issues, we fall back
-to REST polling. If mobile integration is delayed, we prioritize desktop first.
+Second, card detection training. We collected a custom dataset and optimized
+the model for real-time on-device inference.
 
-Looking beyond this project, we have identified exciting directions for future
-research: offline-first operation with on-device ML inference, additional
-biometric modalities like fingerprint and iris, and deployment to embedded
-devices. These represent opportunities to explore after graduation."
+Third, cross-language communication. Java and Python services needed to talk.
+We used REST APIs with OpenAPI contracts and Redis for events."
 ```
 
 ---
 
-### SLIDE 14: References & Thank You
+### SLIDE 14: Future Work & Contingency Plan
 
-**Time:** 0:25
-**Presenter:** All Team Members
+**Time:** 0:50
+**Presenter:** Ayse Gulsum Eren
+**Aspect Ratio:** 16:9
 
 #### Visual Design
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│     REFERENCES                                                  │
-│     ──────────                                                  │
-│                                                                 │
-│  [1] Taigman et al. (2014). DeepFace: Closing the Gap to        │
-│      Human-Level Performance. CVPR.                             │
-│                                                                 │
-│  [2] Schroff et al. (2015). FaceNet: Unified Embedding for      │
-│      Face Recognition. IEEE CVPR.                               │
-│                                                                 │
-│  [3] Deng et al. (2019). ArcFace: Additive Angular Margin       │
-│      Loss for Deep Face Recognition. CVPR.                      │
-│                                                                 │
-│  [4] Lugaresi et al. (2019). MediaPipe: A Framework for         │
-│      Building Perception Pipelines. Google Research.            │
-│                                                                 │
-│  [5] ICAO Doc 9303 & ISO/IEC 14443: Travel Documents & NFC.     │
-│                                                                 │
-│  [6] ISO/IEC 30107-3: Presentation Attack Detection (PAD).      │
-│                                                                 │
-│  ─────────────────────────────────────────────────────────────  │
-│                                                                 │
-│                      THANK YOU                                  │
-│                                                                 │
-│           Questions & Discussion Welcome                        │
-│                                                                 │
-│  GitHub: github.com/Rollingcat-Software/FIVUCSAS                │
-│                                                                 │
-│                                              14/14              │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│     SEMESTER 2 PLANS & B-PLAN                                             │
+│     ─────────────────────────                                             │
+│                                                                           │
+│  SEMESTER 2 TIMELINE (Spring 2026)                                        │
+│  ─────────────────────────────────                                        │
+│                                                                           │
+│  FEB ─────► Service Integration + OCR Module                              │
+│  MAR ─────► Real-Time Proctoring Module                                   │
+│  APR ─────► Security Testing + Mobile Polish                              │
+│  MAY ─────► Production Deployment                                         │
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │  CONTINGENCY PLAN (B-PLAN)                                        │    │
+│  │                                                                   │    │
+│  │  IF NFC edge cases fail  →  Focus on Turkish eID + e-Passport    │    │
+│  │  IF Integration delayed  →  Web demo as primary deliverable      │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │  FUTURE RESEARCH (Beyond Project)                                 │    │
+│  │  • Offline mode with on-device ML                                 │    │
+│  │  • Fingerprint & iris biometrics                                  │    │
+│  │  • Embedded devices (Raspberry Pi)                                │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                                                    14/17  │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Content Elements
-- 6 key references in academic format:
-  1. DeepFace (Taigman et al., 2014) - Foundation for face verification
-  2. FaceNet (Schroff et al., 2015) - Triplet loss and embeddings
-  3. ArcFace (Deng et al., 2019) - State-of-the-art angular margin
-  4. MediaPipe (Lugaresi et al., 2019) - 468 facial landmarks
-  5. ICAO Doc 9303 & ISO/IEC 14443 - NFC standards
-  6. ISO/IEC 30107-3 (PAD) - Liveness detection standard
-- Thank you message
-- GitHub repository link: github.com/Rollingcat-Software/FIVUCSAS
-- Page number: 14/14
-
-#### Additional References (for Q&A backup)
-- pgvector: Approximate Nearest Neighbor in PostgreSQL
-- Spring Boot 3.2 Reference Documentation
-- FastAPI & Pydantic Documentation
-- Serge I. (2021). DeepFace: A Lightweight Face Recognition Library
+- **Semester 2 Timeline:** Feb-May 2026 with clear deliverables
+- **B-Plan:** 2 realistic contingency options
+- **Future Research:** 3 directions beyond project scope
+- Page number: 14/17
 
 #### Speech Script
 ```
-[Ahmet speaks]
-"These are our key references - foundational papers on face recognition from
-DeepFace to ArcFace, MediaPipe for landmark detection, and the ISO standards
-guiding our NFC and liveness implementations.
+"Semester two: February for service integration and OCR. March for proctoring.
+April for security testing. May for deployment.
 
-[Gulsum speaks]
-We would like to thank our advisor, Associate Professor Doctor Mustafa Agaoglu,
-for his guidance throughout this project.
+Our B-Plan: if NFC edge cases fail, we focus on Turkish eID and e-Passport.
+If integration is delayed, the web demo becomes our primary deliverable.
 
-[Aysenur speaks]
-Our complete source code is available on GitHub for review.
+Future research beyond this project: offline mode, fingerprint and iris
+biometrics, and embedded device deployment."
+```
 
-[Ahmet concludes]
-Thank you for your attention. We welcome your questions and feedback."
+---
+
+### SLIDE 15: Thank You
+
+**Time:** 0:20
+**Presenter:** Ayse Gulsum Eren
+**Aspect Ratio:** 16:9
+
+#### Visual Design
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│                                                                           │
+│                                                                           │
+│                           THANK YOU                                       │
+│                           ─────────                                       │
+│                                                                           │
+│                                                                           │
+│           We thank our advisor, Assoc. Prof. Dr. Mustafa Agaoglu,         │
+│                   for his guidance throughout this project.               │
+│                                                                           │
+│                                                                           │
+│                                                                           │
+│                    GitHub: github.com/Rollingcat-Software/FIVUCSAS        │
+│                                                                           │
+│                    (Will be released as open-source)                      │
+│                                                                           │
+│                                                                           │
+│                                                                    15/17  │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Content Elements
+- Thank you message
+- Advisor acknowledgment
+- GitHub link
+- **Open-source release announcement**
+- Page number: 15/17
+
+#### Speech Script
+```
+"We thank our advisor, Associate Professor Doctor Mustafa Agaoglu, for his
+guidance.
+
+Our code is on GitHub. Currently it is closed-source, but we plan to release
+it as open-source after graduation."
+```
+
+---
+
+### SLIDE 16: References
+
+**Time:** 0:20
+**Presenter:** Ayse Gulsum Eren
+**Aspect Ratio:** 16:9
+
+#### Visual Design
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│     REFERENCES                                                            │
+│     ──────────                                                            │
+│                                                                           │
+│  [1] Taigman et al. (2014). DeepFace: Closing the Gap to Human-Level      │
+│      Performance in Face Verification. CVPR.                              │
+│                                                                           │
+│  [2] Schroff et al. (2015). FaceNet: A Unified Embedding for Face         │
+│      Recognition and Clustering. IEEE CVPR.                               │
+│                                                                           │
+│  [3] Deng et al. (2019). ArcFace: Additive Angular Margin Loss for        │
+│      Deep Face Recognition. CVPR.                                         │
+│                                                                           │
+│  [4] Lugaresi et al. (2019). MediaPipe: A Framework for Building          │
+│      Perception Pipelines. Google Research.                               │
+│                                                                           │
+│  [5] ICAO Doc 9303: Machine Readable Travel Documents.                    │
+│                                                                           │
+│  [6] ISO/IEC 14443 & ISO 7816-4: NFC Standards.                           │
+│                                                                           │
+│                                                                    16/17  │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Content Elements
+- 6 key academic references
+- Clean, readable format
+- **LAST CONTENT SLIDE (per professor requirement)**
+- Page number: 16/17
+
+#### Speech Script
+```
+"Our key references: DeepFace and FaceNet for face recognition foundations,
+ArcFace for embedding quality, MediaPipe for landmarks, and ICAO/ISO for
+NFC standards."
+```
+
+---
+
+### SLIDE 17: Q&A
+
+**Time:** 3:00
+**Presenter:** All Team Members
+**Aspect Ratio:** 16:9
+
+#### Visual Design
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│                                                                           │
+│                                                                           │
+│                                                                           │
+│                          QUESTIONS & ANSWERS                              │
+│                          ───────────────────                              │
+│                                                                           │
+│                                                                           │
+│                                                                           │
+│                                                                           │
+│                             [Q&A Icon]                                    │
+│                                                                           │
+│                                                                           │
+│                                                                           │
+│                                                                           │
+│                                                                    17/17  │
+└───────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Content Elements
+- Simple Q&A slide
+- Clean design
+- Page number: 17/17
+
+#### Speech Script
+```
+"We welcome your questions."
 ```
 
 ---
 
 ## 3. Presenter Assignments
 
-### Simplified Flow (Only 2 Transitions)
-
-Each presenter speaks once, covering a contiguous block of slides. This creates a natural narrative flow.
+### Flow with 2 Main Transitions
 
 | Presenter | Slides | Total Time | Role |
 |-----------|--------|------------|------|
-| **Ahmet Abdullah** | 1-5 | ~3:00 | **Opening & Problem Context** - Sets the stage, explains why this matters |
-| **Aysenur Arici** | 6-9 | ~3:45 | **Technical Innovation** - How we solve it (Architecture, Biometric Puzzle, ML, NFC) |
-| **Ayse Gulsum** | 10-13 | ~3:10 | **Implementation & Future** - What we built, challenges faced, what's next |
-| **All Together** | 14 | ~0:25 | **Closing** - References & Thank You |
+| **Aysenur Arici** | 1-5 | ~4:00 | **Opening & Problem Context** |
+| **Ahmet Abdullah** | 6-10 | ~4:10 | **Technical Innovation + Biometric Demo** |
+| **Ayse Gulsum** | 11-16 | ~3:40 | **Doc Demo + Implementation + References** |
+| **All Together** | 17 | ~3:00 | **Q&A** |
 
-> **Flow:** Ahmet establishes the problem → Aysenur explains the solution → Gulsum shows results → All close together
+> **Flow:** Aysenur (problem) → Ahmet (solution + biometric demo) → Gulsum (doc demo + results + refs) → All (Q&A)
+> **BALANCED: 5 slides / 5 slides / 6 slides**
 
 ### Two Transition Scripts
 
-**TRANSITION 1: Ahmet → Aysenur (after Slide 5 - Scope)**
+**TRANSITION 1: Aysenur → Ahmet (after Slide 5)**
 ```
-[Ahmet concludes Scope slide, then says:]
-"So we have defined the problem, analyzed existing solutions, and set our scope.
-Now, Aysenur will show you HOW we actually solve these challenges - starting
-with our system architecture and our key innovation, the Biometric Puzzle."
+[Aysenur:]
+"Now, Ahmet will show you how we built our solution."
 
-[Aysenur steps forward naturally:]
-"Thank you, Ahmet. Let me show you how we designed FIVUCSAS to address
-these security gaps..."
+[Ahmet:]
+"Thank you. Let me show you our architecture."
 ```
 
-**TRANSITION 2: Aysenur → Gulsum (after Slide 9 - NFC)**
+**TRANSITION 2: Ahmet → Gulsum (after Slide 10)**
 ```
-[Aysenur concludes NFC slide, then says:]
-"So that is our complete technical approach - from architecture to liveness
-detection to NFC verification. Now, Gulsum will show you what we have actually
-built this semester and our roadmap for completion."
+[Ahmet:]
+"Now Gulsum will show our document verification and what we accomplished."
 
-[Gulsum steps forward naturally:]
-"Thank you, Aysenur. Let me walk you through our accomplishments and the
-real engineering challenges we overcame..."
+[Gulsum:]
+"Thank you. Let me show you our document verification in action."
 ```
 
 ### Why This Structure Works
 
-1. **Ahmet (Slides 1-5):** Builds urgency and context - "Here's the problem, here's what exists, here's what we're doing"
-2. **Aysenur (Slides 6-9):** Technical deep-dive - "Here's our innovative solution" (includes the Biometric Puzzle - your KEY differentiator)
-3. **Gulsum (Slides 10-13):** Proof and future - "Here's evidence it works, here's what's next"
-4. **All (Slide 14):** Unified closing - Shows team unity
+1. **Aysenur (Slides 1-5):** Problem context (~4:00)
+2. **Ahmet (Slides 6-10):** Technical solution + Biometric Demo (~4:10)
+3. **Gulsum (Slides 11-16):** Doc Demo + Implementation + References (~3:40)
+4. **All (Slide 17):** Q&A
+
+**BALANCED:** Each presenter has ~4 minutes and 5-6 slides.
 
 ---
 
 ### Complete Flowing Scripts (For Practice)
 
-These scripts are written to flow naturally from slide to slide. Practice delivering them as ONE continuous narrative, not as separate pieces.
+Short, natural scripts for each presenter. Practice speaking naturally, not reading.
 
 ---
 
-#### AHMET'S COMPLETE NARRATIVE (Slides 1-5, ~3:00)
+#### AYSENUR'S SCRIPT (Slides 1-5, ~3:30)
 
 ```
-[SLIDE 1 - Title]
-"Good morning, esteemed professors and fellow students. We are presenting
-FIVUCSAS - Face and Identity Verification Using Cloud-Based SaaS Models.
+[SLIDE 1]
+"Hello everyone. We are presenting FIVUCSAS - Face and Identity Verification
+Using Cloud-Based SaaS Models.
 
-I am Ahmet Abdullah Gultekin, and with me are my teammates Ayse Gulsum Eren
-and Aysenur Arici. Our project is supervised by Associate Professor Doctor
-Mustafa Agaoglu.
+I am Aysenur Arici. My teammates are Ahmet Abdullah Gultekin and Ayse Gulsum
+Eren. Our advisor is Associate Professor Doctor Mustafa Agaoglu."
 
-[SLIDE 2 - Outline]
-Our presentation follows this structure: We will begin with WHY this matters -
-the problem and motivation. Then we will show you WHAT exists and where it falls
-short. We will define our scope and constraints. Then Aysenur will explain HOW
-we solve it - our architecture and technical innovations. Finally, Gulsum will
-show you what we have actually built this semester and our roadmap forward.
+[SLIDE 2]
+"Our presentation has three parts.
 
-[SLIDE 3 - Problem & Motivation]
-So, why does this matter?
+First, WHY - we will explain the problem of identity fraud and where existing
+solutions fall short.
 
-Let me start with a real incident. In 2024, in Hong Kong, an employee received
-a video call from his CFO and colleagues - all of them deepfakes. He authorized
-a 25 million dollar transfer. The technology to do this is now accessible to
-anyone.
+Second, HOW - our architecture, liveness detection, and document verification.
 
-[PAUSE - let this sink in]
+Third, WHAT - our accomplishments, challenges we faced, and plans for semester two."
 
-Twenty-three billion dollars lost to identity fraud last year. Deepfake attacks
-up 400% in just one year. And here is the scary part - one in four people CANNOT
-tell a deepfake from a real video.
+[SLIDE 3]
+"Let me start with a real incident from 2024. In Hong Kong, a deepfake video call
+impersonated the CFO of a company and convinced employees to transfer 25 million
+dollars. This is not science fiction - this happened last year.
 
-Think about this: What if someone takes your online exam using your ID? What if
-someone opens a bank account in your name? What if you interview for a job -
-but it is not actually you?
+Look at the numbers: 23 billion dollars lost to identity fraud in 2024 alone.
+Deepfake attacks have increased 400 percent year over year. And here is the
+scary part: one in four people cannot distinguish a deepfake from a real person.
 
-These are not hypothetical scenarios - they are happening NOW.
+This is why we built FIVUCSAS. Our goal is simple but critical: prove the person
+is LIVE and present, their identity document is AUTHENTIC and untampered, and
+spoofing is IMPOSSIBLE through our hybrid detection system."
 
-We need systems that can prove three things: that you are LIVE, that your ID
-is AUTHENTIC, and that spoofing is IMPOSSIBLE.
+[SLIDE 4]
+"Let me show you how FIVUCSAS compares to existing solutions in the market.
 
-[SLIDE 4 - Related Work]
-So what already exists?
+Microsoft Azure Face and Amazon Rekognition are powerful, but they are proprietary -
+you cannot host them yourself, and they do not support NFC chip reading or automatic
+card type detection. For banks and government institutions that need data sovereignty,
+this is a serious limitation.
 
-We analyzed both academic literature and industrial solutions. Azure and AWS
-offer liveness detection but are proprietary, closed-source, and cloud-only
-with no offline capability. Sodec provides regional ID verification but lacks
-advanced liveness. BioGATE offers NFC compliance but not multi-tenant SaaS.
+Sodec and BioGATE are Turkish solutions we studied. Sodec lacks liveness detection
+entirely - a critical vulnerability. BioGATE has liveness but is not multi-tenant
+and cannot automatically detect card types.
 
-This is the gap we identified: NO existing solution combines ALL of these -
-open-source flexibility, hybrid active-plus-passive liveness, multi-tenant
-cloud architecture, AND ICAO-compliant NFC document verification.
+Here is the gap we identified: no open-source solution combines hybrid liveness
+detection, NFC chip verification, and automatic document type recognition.
+FIVUCSAS fills exactly this gap."
 
-FIVUCSAS is designed to fill exactly this gap.
+[SLIDE 5]
+"Our MVP scope includes six core deliverables: cloud-native SaaS platform, hybrid
+liveness detection, trained card detection model, NFC document reading, multi-tenant
+admin dashboard, and cross-platform client applications.
 
-[SLIDE 5 - Scope]
-So what are we actually building?
+As for out of scope: hardware manufacturing is beyond this project. We focus purely
+on software.
 
-Our scope focuses on a Minimum Viable Product: a cloud-native SaaS platform
-with hybrid liveness detection, NFC document reading, and a multi-tenant
-admin dashboard.
+Our engineering constraints: images must exceed 480p resolution for reliable face
+detection, API response must be under 200 milliseconds for good user experience,
+and NFC must comply with ISO 14443 standards.
 
-What is OUT of scope: hardware manufacturing, embedded devices, fingerprint and
-iris biometrics, and offline-first operation. These remain as potential directions
-for future research.
-
-Our engineering constraints are clear: images must exceed 480p for reliable
-detection, API response under 200 milliseconds, and NFC must comply with
-ISO 14443 standards.
-
-[TRANSITION TO AYSENUR]
-So we have defined the problem, analyzed existing solutions, and set our scope.
-Now, Aysenur will show you HOW we actually solve these challenges - starting
-with our system architecture and our key innovation, the Biometric Puzzle.
-
-[Ahmet steps back, Aysenur steps forward]"
+Now, Ahmet will show you how we built our solution."
 ```
 
 ---
 
-#### AYSENUR'S COMPLETE NARRATIVE (Slides 6-9, ~3:45)
+#### AHMET'S SCRIPT (Slides 6-10, ~4:10)
 
 ```
-[Aysenur receives the stage from Ahmet]
-"Thank you, Ahmet. Now let me take you inside our system and show you how we
-address these security gaps.
+[SLIDE 6]
+"Thank you. Let me walk you through our system architecture.
 
-[SLIDE 6 - Architecture]
-Our system follows a microservices architecture with Hexagonal design principles.
+We built FIVUCSAS using microservices with Hexagonal Architecture. NGINX serves
+as our API Gateway. Identity Core handles authentication and multi-tenancy in
+Java 21. The Biometric Processor runs face detection and liveness in Python 3.11.
 
-At the top, NGINX API Gateway handles rate limiting and request routing.
+Client applications use Kotlin Multiplatform for Android, iOS, and Desktop.
+PostgreSQL with pgvector stores embeddings, and Redis handles caching."
 
-The Identity Core API, built with Spring Boot and Java 21, manages authentication,
-multi-tenancy, and role-based access control.
+[SLIDE 7]
+"The Biometric Puzzle is our key innovation - hybrid liveness detection.
 
-The Biometric Processor, implemented with FastAPI and Python, handles the
-compute-intensive ML operations - 9 face recognition models and over 40 REST
-endpoints.
+The server generates a random challenge - 'blink your left eye.' The attacker
+cannot predict it. The client tracks 468 landmarks via MediaPipe and detects
+blinks when EAR drops below 0.2.
 
-We also have a real-time Proctoring Module using WebSocket connections for
-exam monitoring.
+Simultaneously, passive analysis checks for screen artifacts. This hybrid approach
+defeats deepfakes, photos, and video replays."
 
-PostgreSQL with pgvector stores our face embeddings with IVFFlat indexing
-for sub-millisecond similarity search.
+[SLIDE 8 - DEMO]
+"Here is our Biometric Processor in action with all three team members.
 
-[SLIDE 7 - Biometric Puzzle]
-Now let me explain our key innovation - the Biometric Puzzle.
+You can see the 468 facial landmarks being tracked - the green mesh overlay.
+Below each photo: Eye Aspect Ratio, quality score, and liveness status.
 
-This is our primary technical contribution to the field.
+All three of us passed the Biometric Puzzle and are verified as LIVE. A photo
+or deepfake would fail because it cannot respond to random challenges."
 
-Here is how it works: The server generates a cryptographically random challenge -
-for example, 'blink your left eye.' The attacker CANNOT predict which action
-will be requested, making replay attacks impossible.
+[SLIDE 9]
+"Our ML pipeline: detection, alignment, embedding extraction, similarity search.
 
-The mobile client captures a video stream and uses MediaPipe to track 468 facial
-landmarks. We calculate the Eye Aspect Ratio - when EAR drops below 0.2, a blink
-is detected.
+MediaPipe detects faces. We align using 5 points, extract 2622-D embeddings with
+VGG-Face, and search using pgvector with IVFFlat indexing for sub-millisecond queries.
 
-But that is only half the solution. Simultaneously, we run passive analysis -
-Local Binary Pattern texture analysis detects if the face is displayed on a
-screen rather than being a real person.
+Verification threshold: cosine distance below 0.68 means a match."
 
-This HYBRID approach - unpredictable active challenges COMBINED with passive
-spoofing detection - is our original contribution. Deepfakes, printed photos,
-video replays - none of them work because they cannot pass BOTH barriers.
+[SLIDE 10]
+"Document verification is a two-stage pipeline.
 
-[SLIDE 8 - ML Pipeline]
-Once we verify you are live, we need to recognize WHO you are.
+First, our Card Detection model automatically identifies the document type -
+Turkish ID, passport - without manual selection. Runs on-device in real-time.
 
-Our ML pipeline processes face images through five stages: detection, alignment,
-embedding extraction, and similarity search.
+Second, NFC reads the chip using Basic Access Control. We verify the digital
+signature proving the document is authentic.
 
-We integrated 9 face recognition models through the DeepFace framework. VGG-Face,
-producing 2622-dimensional embeddings, is our default due to high accuracy.
-ArcFace and FaceNet provide alternatives optimized for different scenarios.
-
-For storage, PostgreSQL with pgvector and IVFFlat indexing enables approximate
-nearest neighbor search in O(log n) time, allowing sub-millisecond queries even
-with millions of enrolled faces.
-
-[SLIDE 9 - NFC]
-The final piece of our security chain is document verification.
-
-Our NFC Reader module supports ICAO-compliant identity documents.
-
-The protocol establishes Basic Access Control using keys derived from the
-Machine Readable Zone - the printed text on your ID. This ensures only someone
-with PHYSICAL access to the document can read the chip.
-
-We read Data Group 1 for personal information and Data Group 2 for a
-high-resolution photograph - significantly better quality than the printed photo.
-
-Most importantly, we verify the Security Object Document - a digital signature
-that PROVES the data has not been tampered with since issuance.
-
-Our reader supports Turkish National ID cards, e-Passports, and over 10 other
-card types.
-
-[TRANSITION TO GULSUM]
-So that is our complete technical approach - from architecture to liveness
-detection to NFC verification. Now, Gulsum will show you what we have actually
-built this semester and our roadmap for completion.
-
-[Aysenur steps back, Gulsum steps forward]"
+Now Gulsum will show our document verification and what we accomplished."
 ```
 
 ---
 
-#### GULSUM'S COMPLETE NARRATIVE (Slides 10-13, ~3:10)
+#### GULSUM'S SCRIPT (Slides 11-16, ~3:40)
 
 ```
-[Gulsum receives the stage from Aysenur]
-"Thank you, Aysenur. Now let me walk you through what we have built and the
-engineering challenges we overcame along the way.
+[SLIDE 11 - DEMO]
+"Thank you. Let me show you our document verification in action.
 
-[SLIDE 10 - Tasks Accomplished]
-Here is what we accomplished this semester.
+On the left, Card Detection: Turkish eID detected at 97% confidence, e-Passport
+at 98%. No manual selection - just point and detect.
 
-The Biometric Processor is 100% complete - over 40 REST API endpoints covering
-face enrollment, verification, search, liveness detection, quality analysis,
-demographics, and real-time proctoring. 254 Python source files implementing
-everything Aysenur just explained.
+On the right, NFC results: BAC authenticated, DG1 and DG2 read successfully,
+SOD signature verified. That green checkmark proves document authenticity."
 
-Our Demo Web GUI is also complete - 14 interactive pages built with Next.js
-and TypeScript, including a real-time proctoring dashboard.
+[SLIDE 12]
+"Here is everything we built this semester - 22 implemented features.
 
-The Identity Core API is at 68% completion - authentication and multi-tenancy
-work, but RBAC enforcement is still being implemented.
+Biometric: face detection, enrollment, verification, search, Biometric Puzzle
+liveness, quality analysis, demographics, and similarity scoring.
 
-Our NFC Reader module is 85% complete - 135 Kotlin files supporting 10 card
-types with BAC authentication and SOD validation.
+Document verification: card detection model, NFC reading, BAC authentication,
+SOD validation, MRZ parsing, supporting 10+ card types.
 
-The database schema is complete with 12 tables and 9 migrations.
+Infrastructure: JWT auth, multi-tenant architecture, 40+ API endpoints,
+PostgreSQL with pgvector, Redis caching, and Kotlin Multiplatform apps."
 
-[SLIDE 11 - Challenges]
-Of course, we faced significant challenges along the way. Allow me to highlight
-four critical ones.
+[SLIDE 13]
+"We faced three major challenges.
 
-The first challenge was vector search latency. With 2622-dimensional embeddings,
-naive search was far too slow. We solved this by implementing IVFFlat indexing,
-and now our queries complete in under a millisecond.
+First, NFC passport integration - we built 7 specialized readers.
+Second, card detection training - custom dataset, on-device optimization.
+Third, cross-language communication - REST APIs with OpenAPI and Redis."
 
-We then encountered cross-platform hardware access issues. Camera and NFC APIs
-differ significantly across Android, iOS, and Desktop. Our solution was Kotlin
-Multiplatform with a platform abstraction layer, allowing us to share 90% of
-our codebase across all platforms.
+[SLIDE 14]
+"Semester two: February for integration and OCR. March for proctoring.
+April for security testing. May for deployment.
 
-Another significant hurdle was memory management. Loading 9 ML models
-simultaneously proved infeasible. We addressed this through lazy loading with
-Redis caching, where models load only on-demand.
+B-Plan: if NFC fails, focus on Turkish eID and e-Passport.
+Future research: offline mode, fingerprint/iris, embedded devices."
 
-Finally, NFC protocol complexity. Different card types use entirely different
-protocols. We designed a modular reader architecture with 7 specialized readers
-and a Factory pattern to handle this diversity.
+[SLIDE 15]
+"We thank our advisor, Associate Professor Doctor Mustafa Agaoglu, for his guidance.
 
-[SLIDE 12 - Status]
-Here is our current implementation status.
+Our code is on GitHub at Rollingcat-Software slash FIVUCSAS. We plan to release
+it as open-source after graduation."
 
-Three components are 100% complete: the Biometric Processor, the Demo Web GUI,
-and our database schema.
+[SLIDE 16]
+"Our key references: DeepFace and FaceNet for face recognition, ArcFace for
+embeddings, MediaPipe for landmarks, and ICAO/ISO for NFC standards."
 
-The NFC Reader is at 85% - core functionality works with some edge cases remaining.
-
-The Identity Core API is at 68% - authentication works, RBAC is in progress.
-
-The Mobile UI is 60% complete - screens are built, backend integration ongoing.
-
-Overall, we are approximately 85% toward our MVP goal - well-positioned to
-complete integration in semester two.
-
-[SLIDE 13 - Future Work]
-For semester two, we have established a clear timeline with contingency plans.
-
-In February, we focus on service integration. March is dedicated to completing
-NFC mobile integration. April brings security and penetration testing. And in
-May, we target production deployment.
-
-We have also prepared contingency plans: If NFC parsing proves unreliable, we
-limit support to Turkish ID cards. If WebSocket has latency issues, we fall back
-to REST polling. If mobile integration is delayed, we prioritize desktop first.
-
-Looking beyond this project, we have identified exciting directions for future
-research: offline-first operation with on-device ML inference, additional
-biometric modalities like fingerprint and iris, and deployment to embedded
-devices. These represent opportunities to explore after graduation.
-
-[TRANSITION TO ALL]
-[Ahmet and Aysenur step forward to join Gulsum]"
-```
-
----
-
-#### ALL TOGETHER - CLOSING (Slide 14, ~0:25)
-
-```
-[SLIDE 14 - References & Thank You]
-[All three presenters stand together at the front]
-
-[Ahmet speaks]
-"These are our key references - foundational papers on face recognition from
-DeepFace to ArcFace, MediaPipe for landmark detection, and the ISO standards
-guiding our NFC and liveness implementations.
-
-[Gulsum speaks]
-We would like to thank our advisor, Associate Professor Doctor Mustafa Agaoglu,
-for his guidance throughout this project.
-
-[Aysenur speaks]
-Our complete source code is available on GitHub for review.
-
-[Ahmet concludes]
-Thank you for your attention. We welcome your questions and feedback."
+[SLIDE 17]
+"We welcome your questions."
 ```
 
 ---
@@ -1702,8 +1568,8 @@ enhancement."
 
 ### Day Before
 
-- [ ] Verify slide count: 14 slides
-- [ ] Check page numbers on ALL slides (1/14 through 14/14)
+- [ ] Verify slide count: 15 slides
+- [ ] Check page numbers on ALL slides (1/15 through 15/15)
 - [ ] Verify figure captions on ALL diagrams
 - [ ] Confirm advisor name: "Assoc. Prof. Dr. Mustafa Agaoglu"
 - [ ] Remove any fake contact information
@@ -1726,14 +1592,15 @@ enhancement."
 
 ### During Presentation
 
-- [ ] **Ahmet presents slides 1-5** (Opening & Problem Context) - ~3:00
-- [ ] *TRANSITION 1: Ahmet hands off to Aysenur*
-- [ ] **Aysenur presents slides 6-9** (Technical Innovation) - ~3:45
-- [ ] *TRANSITION 2: Aysenur hands off to Gulsum*
-- [ ] **Gulsum presents slides 10-13** (Implementation & Future) - ~3:10
-- [ ] **All together for slide 14** + Q&A - ~0:25
-- [ ] Watch the clock - 11:45 target (15-second buffer)
-- [ ] Only 2 transitions total - smooth and confident handoffs
+- [ ] **Aysenur presents slides 1-5** (Opening & Problem Context) - ~4:00
+- [ ] *TRANSITION 1: Aysenur hands off to Ahmet*
+- [ ] **Ahmet presents slides 6-10** (Technical Innovation + Biometric Demo) - ~4:10
+- [ ] *TRANSITION 2: Ahmet hands off to Gulsum*
+- [ ] **Gulsum presents slides 11-16** (Doc Demo + Implementation + References) - ~3:40
+- [ ] **All together for slide 17** (Q&A) - ~3:00
+- [ ] Watch the clock - 12:00 target for presentation
+- [ ] Smooth transitions - keep them brief
+- [ ] **BALANCED: 5 slides / 5 slides / 6 slides per presenter**
 
 ---
 
@@ -1741,25 +1608,54 @@ enhancement."
 
 | Metric | Value | Context |
 |--------|-------|---------|
+| Total Slides | 17 | 16:9 aspect ratio |
+| Implemented Features | 22 | All categories |
 | API Endpoints | 40+ | Biometric Processor |
-| ML Models | 9 | Face recognition models |
-| Embedding Dimensions | 512-D / 2622-D | ArcFace / VGG-Face |
+| Embedding Dimensions | 2622-D | VGG-Face default |
 | EAR Threshold | < 0.2 | Blink detection |
-| MAR Threshold | > 0.6 | Smile/mouth open |
 | Cosine Threshold | 0.68 | Verification match |
 | Facial Landmarks | 468 | MediaPipe Face Mesh |
-| Python Files | 254 | Biometric Processor |
-| Java Files | 130 | Identity Core API |
-| Kotlin Files | 135+ | Client Apps (Android/Desktop) |
-| Database Tables | 12+ | Full schema |
-| Flyway Migrations | 9 | Schema versioning |
+| Card Types | 10+ | Turkish eID, e-Passport, MIFARE |
+| Specialized NFC Readers | 7 | Factory pattern |
+| Web Demo Pages | 6 | Interactive interfaces |
 | Target FAR | < 1% | False Acceptance Rate |
-| Target FRR | < 3% | False Rejection Rate |
 | Spoof Detection | > 98% | Liveness accuracy |
 
 ---
 
+## 7. Image Preparation Checklist for Demo Slides
+
+The demo slides (8 and 11) require real screenshots from your system. Capture these before the presentation:
+
+### For SLIDE 8: Biometric Processor Demo
+
+| Image | Description | How to Capture |
+|-------|-------------|----------------|
+| **Ahmet's face + 468 mesh** | Face with MediaPipe landmarks overlay | Run web demo, capture with mesh visible |
+| **Ayşenur's face + 468 mesh** | Face with MediaPipe landmarks overlay | Same process |
+| **Gülsüm's face + 468 mesh** | Face with MediaPipe landmarks overlay | Same process |
+| **All 3 LIVE status** | EAR values and "LIVE" checkmarks | Complete liveness test for each |
+
+### For SLIDE 11: Document Verification Demo
+
+| Image | Description | How to Capture |
+|-------|-------------|----------------|
+| **Turkish eID detection** | Card with bounding box + confidence | Point camera at Turkish ID |
+| **e-Passport detection** | Passport with bounding box + confidence | Point camera at passport |
+| **NFC scan screen** | "Hold card to phone" UI | Mobile app NFC screen |
+| **Verification success** | BAC, DG1, DG2, SOD checkmarks | After successful NFC read |
+| **DG2 photo** | High-res photo from chip | Extracted from NFC read |
+
+### Capture Tips
+
+1. **Good lighting** - Ensure faces are well-lit for clear mesh visualization
+2. **Clean background** - Use simple background for cleaner screenshots
+3. **Redact personal data** - Blur/redact any real personal information on IDs
+4. **Consistent style** - Use same screenshot tool for uniform appearance
+
+---
+
 **Document Created:** December 30, 2025
-**Last Updated:** December 31, 2025 (v2 - Restructured for 2 transitions, compelling Problem & Motivation, flowing scripts)
+**Last Updated:** January 1, 2026 (v6 - 17 slides, BALANCED: 5/5/6 slides per presenter, ~4 min each)
 **Author:** Generated for FIVUCSAS Team
 **Purpose:** Complete Presentation Guide for January 7, 2026 Defense
