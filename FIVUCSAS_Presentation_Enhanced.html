@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIVUCSAS - Face and Identity Verification Using Cloud-Based SaaS Models</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ============================================
+           FIVUCSAS PRESENTATION - ENHANCED STYLES
+           ============================================ */
+
+        :root {
+            --primary: #1e3a5f;
+            --primary-light: #2c5282;
+            --accent: #f39c12;
+            --accent-dark: #d68910;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #2d3436;
+            --gradient-primary: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            --gradient-accent: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            --shadow-soft: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.12);
+            --border-radius: 8px;
+        }
+
+        /* Prevent overflow */
+        html, body {
+            overflow: hidden !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        .reveal .slides {
+            overflow: hidden !important;
+        }
+
+        .reveal .slides section {
+            overflow: hidden !important;
+            box-sizing: border-box;
+        }
+
+        /* Base Styles */
+        .reveal {
+            font-family: 'Segoe UI', 'Inter', -apple-system, sans-serif;
+            font-size: 18px;
+        }
+
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+            color: var(--primary);
+            text-transform: none;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .reveal h1 { font-size: 2.2em; }
+        .reveal h2 { font-size: 1.6em; margin-bottom: 0.3em; }
+        .reveal h3 { font-size: 1.2em; }
+        .reveal h4 { font-size: 1em; }
+        .reveal p, .reveal li { font-size: 0.9em; line-height: 1.4; }
+        .reveal ul, .reveal ol { margin: 0.3em 0; }
+
+        .reveal h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-accent);
+            margin-top: 8px;
+            border-radius: 2px;
+        }
+
+        .reveal .slides section {
+            text-align: left;
+            padding: 15px 30px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .reveal .slides section.center {
+            text-align: center;
+        }
+
+        .reveal .slides section.center h2::after {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Dark Background Slides */
+        .dark-slide {
+            background: var(--gradient-primary) !important;
+        }
+
+        .dark-slide h1, .dark-slide h2, .dark-slide h3,
+        .dark-slide p, .dark-slide li, .dark-slide span {
+            color: white !important;
+        }
+
+        .dark-slide h2::after {
+            background: var(--gradient-accent);
+        }
+
+        /* Icon Styles */
+        .icon-check { color: var(--success); }
+        .icon-x { color: var(--danger); }
+        .icon-accent { color: var(--accent); }
+        .icon-primary { color: var(--primary); }
+
+        /* Stat Cards */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px 12px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1.3em;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75em;
+            color: var(--dark);
+            opacity: 0.8;
+        }
+
+        /* Content Boxes */
+        .content-box {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-left: 3px solid var(--primary);
+        }
+
+        .content-box.accent {
+            border-left-color: var(--accent);
+        }
+
+        .content-box.success {
+            border-left-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .content-box h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+        }
+
+        /* Flex Layouts */
+        .flex-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .flex-col {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Gateway Box */
+        .gateway-box {
+            background: var(--gradient-accent);
+            color: white;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .gateway-box h4 {
+            color: white;
+            margin: 0 0 3px 0;
+            font-size: 0.95em;
+        }
+
+        .gateway-box p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.8em;
+        }
+
+        /* Service Cards */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            box-shadow: var(--shadow-soft);
+            border-top: 3px solid var(--primary);
+        }
+
+        .service-card h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .service-card .tech-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 15px;
+            font-size: 0.65em;
+            margin-bottom: 6px;
+        }
+
+        .service-card ul {
+            margin: 0;
+            padding-left: 15px;
+            font-size: 0.75em;
+        }
+
+        .service-card li {
+            padding: 1px 0;
+        }
+
+        /* Database Box */
+        .db-box {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .db-box .db-item {
+            text-align: center;
+        }
+
+        .db-box .db-item i {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .db-box .db-item div {
+            font-size: 0.85em;
+        }
+
+        /* Pipeline Visualization */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 15px 0;
+            flex-wrap: nowrap;
+        }
+
+        .pipeline-stage {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            min-width: 80px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pipeline-stage .stage-icon {
+            font-size: 1.1em;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .pipeline-stage .stage-title {
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-bottom: 2px;
+        }
+
+        .pipeline-stage .stage-sub {
+            font-size: 0.7em;
+            opacity: 0.8;
+        }
+
+        .pipeline-arrow {
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+
+        /* Comparison Table */
+        .reveal table.comparison {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7em;
+            margin: 10px 0;
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .reveal table.comparison th {
+            background: var(--primary);
+            color: white;
+            padding: 8px 6px;
+            font-weight: 600;
+        }
+
+        .reveal table.comparison td {
+            padding: 6px 5px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .reveal table.comparison tr:nth-child(even) {
+            background: var(--light);
+        }
+
+        .reveal table.comparison td:first-child {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .reveal table.comparison td:last-child {
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        /* Demo Cards */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .demo-card {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .demo-card .demo-placeholder {
+            background: var(--light);
+            height: 70px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 0.8em;
+            color: var(--dark);
+            opacity: 0.7;
+        }
+
+        .demo-card .demo-metrics {
+            background: var(--light);
+            border: 2px solid var(--success);
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .demo-card .demo-metrics p {
+            margin: 2px 0;
+            font-size: 0.75em;
+        }
+
+        .demo-card .demo-metrics .live-badge {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Challenge Cards */
+        .challenge-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 10px 12px;
+            margin: 8px 0;
+            box-shadow: var(--shadow-soft);
+            border-left: 3px solid var(--primary);
+        }
+
+        .challenge-card h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .challenge-card .challenge-problem {
+            color: var(--danger);
+            margin: 3px 0;
+            font-size: 0.8em;
+        }
+
+        .challenge-card .challenge-solution {
+            color: var(--success);
+            margin: 3px 0 0;
+            font-size: 0.8em;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 12%;
+            right: 12%;
+            height: 3px;
+            background: var(--light);
+            z-index: 0;
+        }
+
+        .timeline-item {
+            text-align: center;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .timeline-item .timeline-dot {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.75em;
+            margin: 0 auto 8px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .timeline-item .timeline-content {
+            font-size: 0.7em;
+        }
+
+        /* Quote Box */
+        .quote-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 1em;
+            font-style: italic;
+            margin: 10px 0;
+            box-shadow: var(--shadow-soft);
+            border-left: 3px solid var(--accent);
+        }
+
+        .quote-box i {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+
+        /* Goal Box */
+        .goal-box {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-top: 15px;
+            box-shadow: var(--shadow-medium);
+            font-size: 0.95em;
+        }
+
+        .goal-box i {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        /* Threshold Box */
+        .threshold-box {
+            background: var(--success);
+            color: white;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-top: 10px;
+            font-size: 1em;
+        }
+
+        /* Feature Lists */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-list li {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+        }
+
+        .feature-list li i {
+            width: 16px;
+            font-size: 0.9em;
+        }
+
+        /* Scope Grid */
+        .scope-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 15px;
+        }
+
+        /* Progress Indicator */
+        .reveal .progress {
+            height: 4px;
+            background: var(--accent);
+        }
+
+        /* Slide Number */
+        .reveal .slide-number {
+            font-size: 14px;
+            color: var(--dark);
+            background: var(--light);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        /* Fragment Animations */
+        .reveal .fragment.grow-in {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .reveal .fragment.grow-in.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Biometric Puzzle Visualization */
+        .puzzle-flow {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .puzzle-box {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--border-radius);
+        }
+
+        .puzzle-box.server {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .puzzle-box.client {
+            background: white;
+            border: 2px solid var(--primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .puzzle-box h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .puzzle-box.server h4 {
+            color: white;
+        }
+
+        .puzzle-box ol, .puzzle-box ul {
+            font-size: 0.8em;
+            margin: 0;
+            padding-left: 15px;
+        }
+
+        .puzzle-box li {
+            margin-bottom: 5px;
+        }
+
+        .puzzle-arrows {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.8em;
+            padding: 0 5px;
+        }
+
+        .puzzle-arrows .arrow {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Detection Methods */
+        .detection-methods {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .detection-method {
+            flex: 1;
+            padding: 8px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 0.8em;
+        }
+
+        .detection-method.active {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 1px solid #2196f3;
+        }
+
+        .detection-method.passive {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            border: 1px solid #e91e63;
+        }
+
+        /* NFC Steps */
+        .nfc-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nfc-step {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .nfc-step h4 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+        }
+
+        .nfc-step .flow {
+            text-align: center;
+            color: var(--accent);
+            font-weight: 600;
+            margin: 6px 0;
+            font-size: 0.85em;
+        }
+
+        .nfc-step ul {
+            font-size: 0.8em;
+            margin: 0;
+        }
+
+        /* Task Grid */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            font-size: 0.75em;
+        }
+
+        .task-column h4 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--accent);
+            font-size: 0.95em;
+        }
+
+        .task-column ol {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .task-column li {
+            padding: 2px 0;
+        }
+
+        /* B-Plan Box */
+        .bplan-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            border-radius: var(--border-radius);
+            padding: 10px 12px;
+            margin: 10px 0;
+        }
+
+        .bplan-box h4 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            color: var(--dark);
+            font-size: 0.9em;
+        }
+
+        .bplan-box ul {
+            margin: 0;
+            font-size: 0.8em;
+        }
+
+        /* GitHub Box */
+        .github-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+        }
+
+        .github-box i {
+            font-size: 1.5em;
+        }
+
+        .github-box a {
+            color: var(--accent) !important;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        /* Print Styles */
+        @media print {
+            .reveal .slides section {
+                page-break-after: always;
+            }
+        }
+
+        /* Speaker Notes Indicator */
+        .speaker-note-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            color: var(--dark);
+            opacity: 0.5;
+        }
+
+        /* Animated Counter */
+        .counter {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ==================== SLIDE 1: Title ==================== -->
+            <section class="dark-slide center" data-background-gradient="linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%)">
+                <h1 style="font-size: 2.5em; margin-bottom: 0;">
+                    <i class="fas fa-fingerprint" style="color: var(--accent);"></i> FIVUCSAS
+                </h1>
+                <h3 style="font-weight: 400; margin-top: 10px;">
+                    Face and Identity Verification Using Cloud-Based SaaS Models
+                </h3>
+                <p class="fragment fade-up" style="color: var(--accent); margin-top: 40px; font-size: 1.1em;">
+                    <i class="fas fa-graduation-cap"></i> CSE4197 Engineering Project - Fall 2025
+                </p>
+                <hr style="border-color: rgba(255,255,255,0.2); margin: 30px auto; width: 60%;">
+                <div class="fragment fade-up">
+                    <p style="font-size: 0.95em; margin-bottom: 5px;">
+                        <i class="fas fa-users" style="color: var(--accent);"></i> <strong>Team:</strong>
+                    </p>
+                    <p style="font-size: 0.9em; opacity: 0.9; margin: 5px 0;">
+                        Ahmet Abdullah Gultekin &bull; Ayse Gulsum Eren &bull; Aysenur Arici
+                    </p>
+                </div>
+                <div class="fragment fade-up" style="margin-top: 25px;">
+                    <p style="font-size: 0.85em;">
+                        <i class="fas fa-chalkboard-teacher" style="color: var(--accent);"></i>
+                        <strong>Supervisor:</strong> Assoc. Prof. Dr. Mustafa Agaoglu
+                    </p>
+                    <p style="font-size: 0.8em; opacity: 0.7;">
+                        <i class="fas fa-university"></i> Marmara University - Computer Engineering
+                    </p>
+                </div>
+                <aside class="notes">
+                    AYSENUR: Hello everyone. We are presenting FIVUCSAS - Face and Identity Verification Using Cloud-Based SaaS Models.
+                    I am Aysenur Arici. My teammates are Ahmet Abdullah Gultekin and Ayse Gulsum Eren.
+                    Our advisor is Associate Professor Doctor Mustafa Agaoglu.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 2: Outline ==================== -->
+            <section>
+                <h2><i class="fas fa-list-ol icon-accent"></i> OUTLINE</h2>
+                <div class="flex-row" style="margin-top: 40px;">
+                    <div class="flex-col fragment fade-right">
+                        <div class="content-box accent">
+                            <h4><i class="fas fa-question-circle icon-accent"></i> WHY THIS MATTERS</h4>
+                            <ol>
+                                <li>Problem Statement & Motivation</li>
+                                <li>Related Work & Gap Analysis</li>
+                                <li>Scope & Engineering Constraints</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="flex-col fragment fade-right" data-fragment-index="2">
+                        <div class="content-box accent">
+                            <h4><i class="fas fa-cogs icon-accent"></i> HOW WE SOLVE IT</h4>
+                            <ol start="4">
+                                <li>System Architecture</li>
+                                <li>The Biometric Puzzle</li>
+                                <li>ML Pipeline & Vector Search</li>
+                                <li>Card Detection & NFC</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="flex-col fragment fade-right" data-fragment-index="3">
+                        <div class="content-box accent">
+                            <h4><i class="fas fa-trophy icon-accent"></i> WHAT WE BUILT</h4>
+                            <ol start="8">
+                                <li>Tasks Accomplished</li>
+                                <li>Challenges & Solutions</li>
+                                <li>Future Work & B-Plan</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <aside class="notes">
+                    AYSENUR: Our presentation has three parts.
+                    First, WHY - the problem of identity fraud and where existing solutions fall short.
+                    Second, HOW - our architecture, liveness detection, and document verification.
+                    Third, WHAT - our accomplishments, challenges, and semester two plans.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 3: Problem Statement ==================== -->
+            <section>
+                <h2><i class="fas fa-exclamation-triangle icon-accent"></i> WHY THIS MATTERS</h2>
+
+                <div class="quote-box fragment fade-up">
+                    <i class="fas fa-quote-left"></i>
+                    2024: Deepfake CFO video call → <strong>$25 Million stolen</strong>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-card fragment fade-up" data-fragment-index="1">
+                        <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="stat-value">$23B</div>
+                        <div class="stat-label">Identity Fraud Losses<br>(2024)</div>
+                    </div>
+                    <div class="stat-card fragment fade-up" data-fragment-index="2">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="stat-value">+400%</div>
+                        <div class="stat-label">Deepfake Attacks<br>(Year over Year)</div>
+                    </div>
+                    <div class="stat-card fragment fade-up" data-fragment-index="3">
+                        <div class="stat-icon"><i class="fas fa-eye-slash"></i></div>
+                        <div class="stat-value">1 in 4</div>
+                        <div class="stat-label">Cannot Detect<br>Deepfakes</div>
+                    </div>
+                </div>
+
+                <div class="goal-box fragment fade-up">
+                    <i class="fas fa-bullseye"></i>
+                    <strong>OUR GOAL:</strong> Prove <span style="color: var(--accent);">LIVE</span> +
+                    <span style="color: var(--accent);">AUTHENTIC</span> +
+                    <span style="color: var(--accent);">IMPOSSIBLE</span> to spoof
+                </div>
+                <aside class="notes">
+                    AYSENUR: Let me start with a real incident from 2024. In Hong Kong, a deepfake video call
+                    impersonated the CFO of a company and convinced employees to transfer 25 million dollars.
+                    Look at the numbers: 23 billion dollars lost to identity fraud in 2024 alone.
+                    Deepfake attacks have increased 400 percent year over year. One in four people cannot distinguish a deepfake from a real person.
+                    This is why we built FIVUCSAS.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 4: Related Work ==================== -->
+            <section>
+                <h2><i class="fas fa-search icon-accent"></i> RELATED WORK & GAP</h2>
+
+                <table class="comparison">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Azure</th>
+                            <th>AWS</th>
+                            <th>Sodec</th>
+                            <th>BioGATE</th>
+                            <th style="background: var(--success);">FIVUCSAS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="fragment fade-up">
+                            <td><strong>Open Source</strong></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                        </tr>
+                        <tr class="fragment fade-up">
+                            <td><strong>Liveness Detection</strong></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                        </tr>
+                        <tr class="fragment fade-up">
+                            <td><strong>Multi-Tenant</strong></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                        </tr>
+                        <tr class="fragment fade-up">
+                            <td><strong>NFC ICAO</strong></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                        </tr>
+                        <tr class="fragment fade-up">
+                            <td><strong>Card Detection (ML)</strong></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                        </tr>
+                        <tr class="fragment fade-up">
+                            <td><strong>Hybrid Liveness</strong></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-times icon-x"></i></td>
+                            <td><i class="fas fa-check icon-check"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="content-box success fragment fade-up" style="text-align: center;">
+                    <strong><i class="fas fa-lightbulb"></i> GAP:</strong> No open-source solution with hybrid liveness + NFC + card detection
+                </div>
+                <aside class="notes">
+                    AYSENUR: Azure and AWS are powerful but proprietary. Sodec lacks liveness detection entirely.
+                    BioGATE has liveness but is not multi-tenant and cannot detect card types.
+                    Here is the gap: no open-source solution combines all these features. FIVUCSAS fills this gap.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 5: Scope ==================== -->
+            <section>
+                <h2><i class="fas fa-crosshairs icon-accent"></i> SCOPE & CONSTRAINTS</h2>
+
+                <div class="scope-grid">
+                    <div>
+                        <div class="content-box success fragment fade-right">
+                            <h4><i class="fas fa-check-circle icon-check"></i> IN SCOPE (MVP)</h4>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-check icon-check"></i> Cloud-Native SaaS Platform</li>
+                                <li><i class="fas fa-check icon-check"></i> Hybrid Liveness Detection</li>
+                                <li><i class="fas fa-check icon-check"></i> Card Detection (ML Model)</li>
+                                <li><i class="fas fa-check icon-check"></i> NFC Document Reading</li>
+                                <li><i class="fas fa-check icon-check"></i> Multi-Tenant Dashboard</li>
+                                <li><i class="fas fa-check icon-check"></i> Cross-Platform Apps</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="content-box fragment fade-left" style="border-left-color: var(--danger);">
+                            <h4><i class="fas fa-times-circle icon-x"></i> OUT OF SCOPE</h4>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-times icon-x"></i> Hardware Manufacturing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-box fragment fade-up" style="margin-top: 30px;">
+                    <h4><i class="fas fa-ruler-combined icon-accent"></i> ENGINEERING CONSTRAINTS</h4>
+                    <div class="flex-row" style="text-align: center; margin-top: 15px;">
+                        <div class="flex-col">
+                            <div style="font-size: 1.4em; font-weight: 700; color: var(--primary);">> 480p</div>
+                            <div style="font-size: 0.8em;">Image Quality</div>
+                        </div>
+                        <div class="flex-col">
+                            <div style="font-size: 1.4em; font-weight: 700; color: var(--primary);">< 200ms</div>
+                            <div style="font-size: 0.8em;">API Latency</div>
+                        </div>
+                        <div class="flex-col">
+                            <div style="font-size: 1.4em; font-weight: 700; color: var(--primary);">ISO 14443</div>
+                            <div style="font-size: 0.8em;">NFC Standard</div>
+                        </div>
+                    </div>
+                </div>
+                <aside class="notes">
+                    AYSENUR: Our MVP scope includes 6 core deliverables. Hardware manufacturing is out of scope.
+                    Our constraints: images must exceed 480p, API response under 200ms, NFC must comply with ISO 14443.
+                    Now, Ahmet will show you how we built our solution.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 6: Architecture ==================== -->
+            <section>
+                <h2><i class="fas fa-sitemap icon-accent"></i> SYSTEM ARCHITECTURE</h2>
+
+                <div class="gateway-box fragment fade-down">
+                    <h4><i class="fas fa-shield-alt"></i> NGINX API GATEWAY</h4>
+                    <p>Rate Limiting &bull; Routing &bull; Load Balancing</p>
+                </div>
+
+                <div class="service-grid">
+                    <div class="service-card fragment fade-up" data-fragment-index="1">
+                        <h4><i class="fas fa-id-card icon-primary"></i> IDENTITY CORE</h4>
+                        <span class="tech-badge"><i class="fab fa-java"></i> Spring Boot (Java 21)</span>
+                        <ul>
+                            <li>JWT Authentication</li>
+                            <li>Multi-Tenant Isolation</li>
+                            <li>Role-Based Access Control</li>
+                        </ul>
+                    </div>
+                    <div class="service-card fragment fade-up" data-fragment-index="2">
+                        <h4><i class="fas fa-brain icon-primary"></i> BIOMETRIC PROCESSOR</h4>
+                        <span class="tech-badge"><i class="fab fa-python"></i> FastAPI (Python 3.11)</span>
+                        <ul>
+                            <li>Face Detection & Recognition</li>
+                            <li>40+ REST Endpoints</li>
+                            <li>Liveness Analysis</li>
+                        </ul>
+                    </div>
+                    <div class="service-card fragment fade-up" data-fragment-index="3">
+                        <h4><i class="fas fa-mobile-alt icon-primary"></i> CLIENT APPS</h4>
+                        <span class="tech-badge"><i class="fas fa-code"></i> Kotlin Multiplatform</span>
+                        <ul>
+                            <li>Android / iOS / Desktop</li>
+                            <li>Camera & NFC Access</li>
+                            <li>Card Detection</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="db-box fragment fade-up">
+                    <div class="db-item">
+                        <i class="fas fa-database"></i>
+                        <div><strong>PostgreSQL 16 + pgvector</strong></div>
+                        <div style="font-size: 0.85em; opacity: 0.8;">Vector Embeddings &bull; IVFFlat</div>
+                    </div>
+                    <div class="db-item">
+                        <i class="fas fa-bolt"></i>
+                        <div><strong>Redis</strong></div>
+                        <div style="font-size: 0.85em; opacity: 0.8;">Cache &bull; Event Bus</div>
+                    </div>
+                </div>
+
+                <p style="text-align: center; margin-top: 15px;" class="fragment fade-up">
+                    <strong><i class="fas fa-cubes icon-accent"></i> Architecture:</strong> Hexagonal (Ports & Adapters) + DDD
+                </p>
+                <aside class="notes">
+                    AHMET: Thank you. We built FIVUCSAS using microservices with Hexagonal Architecture.
+                    NGINX serves as our API Gateway. Identity Core handles authentication in Java 21.
+                    The Biometric Processor runs face detection and liveness in Python 3.11.
+                    Client apps use Kotlin Multiplatform. PostgreSQL with pgvector stores embeddings, Redis handles caching.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 7: Biometric Puzzle ==================== -->
+            <section>
+                <h2><i class="fas fa-puzzle-piece icon-accent"></i> THE BIOMETRIC PUZZLE</h2>
+
+                <div class="puzzle-flow">
+                    <div class="puzzle-box server fragment fade-right">
+                        <h4><i class="fas fa-server"></i> SERVER</h4>
+                        <ol style="font-size: 0.9em;">
+                            <li class="fragment fade-up">
+                                <strong>Generate Challenge</strong><br>
+                                <em>"Blink Left Eye"</em>
+                            </li>
+                            <li class="fragment fade-up">
+                                <strong>Calculate EAR</strong><br>
+                                <code style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px;">EAR = 0.18 < 0.2</code><br>
+                                <span style="color: #2ecc71;"><i class="fas fa-check"></i> Blink Detected</span>
+                            </li>
+                            <li class="fragment fade-up">
+                                <strong>Passive Analysis</strong><br>
+                                LBP Texture Check<br>
+                                <span style="color: #2ecc71;"><i class="fas fa-check"></i> Not a Screen</span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="puzzle-arrows">
+                        <div class="arrow fragment fade-left"><i class="fas fa-arrow-right"></i> Challenge</div>
+                        <div class="arrow fragment fade-right"><i class="fas fa-arrow-left"></i> Response</div>
+                    </div>
+
+                    <div class="puzzle-box client fragment fade-left">
+                        <h4><i class="fas fa-mobile-alt icon-primary"></i> MOBILE CLIENT</h4>
+                        <ul style="font-size: 0.9em; list-style: none; padding: 0;">
+                            <li class="fragment fade-up"><i class="fas fa-camera icon-accent"></i> Camera Capture</li>
+                            <li class="fragment fade-up"><i class="fas fa-draw-polygon icon-accent"></i> 468 Landmarks (MediaPipe)</li>
+                            <li class="fragment fade-up"><i class="fas fa-tachometer-alt icon-accent"></i> Real-time ~50ms</li>
+                            <li class="fragment fade-up" style="color: var(--success); font-weight: 700; font-size: 1.1em;">
+                                <i class="fas fa-check-circle"></i> PASS
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="detection-methods fragment fade-up">
+                    <div class="detection-method active">
+                        <strong><i class="fas fa-hand-pointer"></i> ACTIVE</strong><br>
+                        <span style="font-size: 0.85em;">EAR, MAR, Head Pose</span>
+                    </div>
+                    <div class="detection-method passive">
+                        <strong><i class="fas fa-eye"></i> PASSIVE</strong><br>
+                        <span style="font-size: 0.85em;">LBP Texture, Color, Frequency</span>
+                    </div>
+                </div>
+                <aside class="notes">
+                    AHMET: The Biometric Puzzle is our key innovation. The server generates a random challenge - the attacker cannot predict it.
+                    The client tracks 468 landmarks via MediaPipe and detects blinks when EAR drops below 0.2.
+                    Simultaneously, passive analysis checks for screen artifacts. This hybrid approach defeats deepfakes, photos, and video replays.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 8: Biometric Demo ==================== -->
+            <section>
+                <h2><i class="fas fa-play-circle icon-accent"></i> BIOMETRIC PROCESSOR IN ACTION</h2>
+
+                <div class="demo-grid">
+                    <div class="demo-card fragment fade-up">
+                        <div class="demo-placeholder">
+                            <i class="fas fa-user" style="font-size: 1.8em; opacity: 0.5;"></i>
+                        </div>
+                        <p style="font-weight: 600; color: var(--primary); font-size: 0.9em; margin: 5px 0;">AHMET</p>
+                        <p style="font-size: 0.7em; color: var(--dark); opacity: 0.7; margin: 0;">468 Mesh</p>
+                        <div class="demo-metrics">
+                            <p>EAR: <strong>0.28</strong></p>
+                            <p>Quality: <strong>94%</strong></p>
+                            <p class="live-badge"><i class="fas fa-check-circle"></i> LIVE</p>
+                        </div>
+                    </div>
+                    <div class="demo-card fragment fade-up" data-fragment-index="2">
+                        <div class="demo-placeholder">
+                            <i class="fas fa-user" style="font-size: 1.8em; opacity: 0.5;"></i>
+                        </div>
+                        <p style="font-weight: 600; color: var(--primary); font-size: 0.9em; margin: 5px 0;">AYSENUR</p>
+                        <p style="font-size: 0.7em; color: var(--dark); opacity: 0.7; margin: 0;">468 Mesh</p>
+                        <div class="demo-metrics">
+                            <p>EAR: <strong>0.31</strong></p>
+                            <p>Quality: <strong>96%</strong></p>
+                            <p class="live-badge"><i class="fas fa-check-circle"></i> LIVE</p>
+                        </div>
+                    </div>
+                    <div class="demo-card fragment fade-up" data-fragment-index="3">
+                        <div class="demo-placeholder">
+                            <i class="fas fa-user" style="font-size: 1.8em; opacity: 0.5;"></i>
+                        </div>
+                        <p style="font-weight: 600; color: var(--primary); font-size: 0.9em; margin: 5px 0;">GULSUM</p>
+                        <p style="font-size: 0.7em; color: var(--dark); opacity: 0.7; margin: 0;">468 Mesh</p>
+                        <div class="demo-metrics">
+                            <p>EAR: <strong>0.29</strong></p>
+                            <p>Quality: <strong>95%</strong></p>
+                            <p class="live-badge"><i class="fas fa-check-circle"></i> LIVE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="text-align: center; margin-top: 25px; color: var(--primary);" class="fragment fade-up">
+                    <i class="fas fa-info-circle"></i> All team members verified with <strong>468 facial landmarks + liveness detection</strong>
+                </p>
+
+                <div class="bplan-box fragment fade-up" style="text-align: center;">
+                    <i class="fas fa-lightbulb icon-accent"></i>
+                    <em>Note: Replace placeholders with actual screenshots from web demo</em>
+                </div>
+                <aside class="notes">
+                    AHMET: Here is our Biometric Processor in action with all three team members.
+                    You can see the 468 facial landmarks being tracked. Below each photo: EAR, quality score, and liveness status.
+                    All three of us passed the Biometric Puzzle and are verified as LIVE.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 9: ML Pipeline ==================== -->
+            <section>
+                <h2><i class="fas fa-project-diagram icon-accent"></i> ML PIPELINE & VECTOR SEARCH</h2>
+
+                <div class="content-box" style="margin-top: 20px;">
+                    <h4><i class="fas fa-stream icon-accent"></i> RECOGNITION PIPELINE</h4>
+                    <div class="pipeline">
+                        <div class="pipeline-stage fragment fade-right">
+                            <span class="stage-icon"><i class="fas fa-image"></i></span>
+                            <div class="stage-title">Input</div>
+                            <div class="stage-sub">Image</div>
+                        </div>
+                        <span class="pipeline-arrow fragment fade-up"><i class="fas fa-chevron-right"></i></span>
+                        <div class="pipeline-stage fragment fade-right" data-fragment-index="2">
+                            <span class="stage-icon"><i class="fas fa-search"></i></span>
+                            <div class="stage-title">Detect</div>
+                            <div class="stage-sub">MediaPipe</div>
+                        </div>
+                        <span class="pipeline-arrow fragment fade-up"><i class="fas fa-chevron-right"></i></span>
+                        <div class="pipeline-stage fragment fade-right" data-fragment-index="3">
+                            <span class="stage-icon"><i class="fas fa-compress-arrows-alt"></i></span>
+                            <div class="stage-title">Align</div>
+                            <div class="stage-sub">5-Point</div>
+                        </div>
+                        <span class="pipeline-arrow fragment fade-up"><i class="fas fa-chevron-right"></i></span>
+                        <div class="pipeline-stage fragment fade-right" data-fragment-index="4">
+                            <span class="stage-icon"><i class="fas fa-fingerprint"></i></span>
+                            <div class="stage-title">Extract</div>
+                            <div class="stage-sub">Embedding</div>
+                        </div>
+                        <span class="pipeline-arrow fragment fade-up"><i class="fas fa-chevron-right"></i></span>
+                        <div class="pipeline-stage fragment fade-right" data-fragment-index="5">
+                            <span class="stage-icon"><i class="fas fa-search-plus"></i></span>
+                            <div class="stage-title">Search</div>
+                            <div class="stage-sub">Cosine</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="db-box fragment fade-up">
+                    <div class="db-item" style="flex: 1;">
+                        <i class="fas fa-database"></i>
+                        <div><strong>VECTOR DATABASE</strong></div>
+                        <div style="font-size: 0.9em;">PostgreSQL + pgvector + IVFFlat → O(log n) sub-ms queries</div>
+                    </div>
+                </div>
+
+                <div class="threshold-box fragment fade-up">
+                    <i class="fas fa-check-double"></i>
+                    <strong>Threshold:</strong> cosine distance < <span style="font-size: 1.3em;">0.68</span> = MATCH
+                </div>
+                <aside class="notes">
+                    AHMET: Our ML pipeline: detection, alignment, embedding extraction, similarity search.
+                    MediaPipe detects faces. We align using 5 points, extract embeddings with VGG-Face, and search using pgvector.
+                    Verification threshold: cosine distance below 0.68 means a match.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 10: Card & NFC ==================== -->
+            <section>
+                <h2><i class="fas fa-id-card icon-accent"></i> CARD DETECTION & NFC</h2>
+
+                <div class="nfc-steps">
+                    <div class="nfc-step fragment fade-right">
+                        <h4><i class="fas fa-camera icon-accent"></i> STEP 1: VISUAL CARD DETECTION (ML)</h4>
+                        <div class="flow">
+                            <i class="fas fa-camera"></i> Camera →
+                            <i class="fas fa-brain"></i> Trained Model →
+                            <i class="fas fa-id-badge"></i> Card Type Detected
+                        </div>
+                        <ul style="font-size: 0.9em;">
+                            <li>Automatic ID type recognition (Turkish eID, Passport)</li>
+                            <li>Real-time detection via on-device ML</li>
+                            <li>Guides user for optimal card positioning</li>
+                        </ul>
+                    </div>
+
+                    <div class="nfc-step fragment fade-left">
+                        <h4><i class="fas fa-wifi icon-accent"></i> STEP 2: NFC CHIP VERIFICATION (ICAO)</h4>
+                        <div class="flow">
+                            <i class="fas fa-mobile-alt"></i> Mobile NFC →
+                            <i class="fas fa-handshake"></i> BAC Handshake →
+                            <i class="fas fa-file-alt"></i> Read DG1/DG2 →
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i> SOD Verified
+                        </div>
+                        <ul style="font-size: 0.9em;">
+                            <li>MRZ-derived session keys (3DES secure messaging)</li>
+                            <li>DG1: Personal data, DG2: High-res JPEG2000 photo</li>
+                            <li>Digital signature proves document authenticity</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flex-row fragment fade-up" style="margin-top: 20px; font-size: 0.9em;">
+                    <div class="flex-col">
+                        <strong><i class="fas fa-file-contract icon-primary"></i> STANDARDS:</strong>
+                        ICAO Doc 9303, ISO/IEC 14443, ISO 7816-4
+                    </div>
+                    <div class="flex-col">
+                        <strong><i class="fas fa-credit-card icon-primary"></i> CARDS:</strong>
+                        Turkish eID, e-Passport, MIFARE, NDEF, 10+ types
+                    </div>
+                </div>
+                <aside class="notes">
+                    AHMET: Document verification is a two-stage pipeline.
+                    First, our Card Detection model automatically identifies the document type without manual selection.
+                    Second, NFC reads the chip using Basic Access Control. We verify the digital signature proving authenticity.
+                    Now Gulsum will show our document verification and what we accomplished.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 11: Doc Demo ==================== -->
+            <section>
+                <h2><i class="fas fa-file-contract icon-accent"></i> DOCUMENT VERIFICATION IN ACTION</h2>
+
+                <div class="flex-row">
+                    <div class="flex-col">
+                        <div class="content-box fragment fade-right">
+                            <h4><i class="fas fa-camera icon-accent"></i> CARD DETECTION</h4>
+
+                            <div style="background: var(--light); padding: 10px; border-radius: 6px; margin: 8px 0; text-align: center;">
+                                <i class="fas fa-id-card" style="font-size: 1.4em; color: var(--dark); opacity: 0.5;"></i>
+                                <p style="margin: 3px 0; font-size: 0.8em;">[TURKISH eID]</p>
+                            </div>
+                            <p style="margin: 5px 0;"><i class="fas fa-search icon-accent"></i> Type: <strong>TURKISH_EID</strong></p>
+                            <p style="margin: 5px 0;"><i class="fas fa-chart-pie icon-accent"></i> Confidence: <strong>97.3%</strong></p>
+                            <p style="margin: 5px 0; color: var(--success);"><i class="fas fa-check-circle"></i> Ready for NFC</p>
+
+                            <hr style="margin: 8px 0; border-color: var(--light);">
+
+                            <div style="background: var(--light); padding: 8px; border-radius: 6px; margin: 6px 0; text-align: center;">
+                                <i class="fas fa-passport" style="font-size: 1.2em; color: var(--dark); opacity: 0.5;"></i>
+                                <p style="margin: 3px 0; font-size: 0.75em;">[E-PASSPORT]</p>
+                            </div>
+                            <p style="margin: 3px 0; font-size: 0.85em;">Type: <strong>E_PASSPORT</strong> | <strong>98.1%</strong></p>
+                        </div>
+                    </div>
+                    <div class="flex-col">
+                        <div class="content-box fragment fade-left">
+                            <h4><i class="fas fa-wifi icon-accent"></i> NFC CHIP READING</h4>
+
+                            <ul class="feature-list" style="font-size: 1em;">
+                                <li class="fragment fade-up"><i class="fas fa-check-circle icon-check"></i> BAC Authenticated</li>
+                                <li class="fragment fade-up"><i class="fas fa-check-circle icon-check"></i> DG1 Personal Data</li>
+                                <li class="fragment fade-up"><i class="fas fa-check-circle icon-check"></i> DG2 Photo Loaded</li>
+                                <li class="fragment fade-up"><i class="fas fa-check-circle icon-check"></i> SOD Signature Valid</li>
+                            </ul>
+
+                            <div class="demo-metrics fragment fade-up" style="margin-top: 12px; text-align: center;">
+                                <i class="fas fa-user-circle" style="font-size: 1.8em; color: var(--success);"></i>
+                                <p style="margin: 5px 0; font-size: 0.85em;"><strong>HIGH-RES DG2 PHOTO</strong></p>
+                                <p style="font-size: 0.75em; opacity: 0.7;">JPEG2000 Quality</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="text-align: center; margin-top: 15px; color: var(--primary);" class="fragment fade-up">
+                    <strong>Left:</strong> ML model auto-detects &bull; <strong>Right:</strong> NFC reads securely
+                </p>
+                <aside class="notes">
+                    GULSUM: Thank you. Here you can see our document verification system working.
+                    On the left, Card Detection: Turkish eID detected at 97%, e-Passport at 98%. No manual selection.
+                    On the right, NFC results: BAC authenticated, DG1 and DG2 read, SOD signature verified.
+                    That green checkmark proves document authenticity.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 12: Tasks ==================== -->
+            <section>
+                <h2><i class="fas fa-tasks icon-accent"></i> WHAT WE BUILT - FALL 2025</h2>
+
+                <div class="task-grid">
+                    <div class="task-column fragment fade-up">
+                        <h4><i class="fas fa-fingerprint icon-primary"></i> BIOMETRIC (8)</h4>
+                        <ol>
+                            <li>Face Detection (MediaPipe)</li>
+                            <li>Face Enrollment</li>
+                            <li>Face Verification (1:1)</li>
+                            <li>Face Search (1:N)</li>
+                            <li>Biometric Puzzle (Liveness)</li>
+                            <li>Frame Quality Analysis</li>
+                            <li>Demographic Analysis</li>
+                            <li>Similarity Scoring</li>
+                        </ol>
+                    </div>
+                    <div class="task-column fragment fade-up" data-fragment-index="2">
+                        <h4><i class="fas fa-id-card icon-primary"></i> DOCUMENT (6)</h4>
+                        <ol start="9">
+                            <li>Visual Card Detection (ML)</li>
+                            <li>NFC Document Reading</li>
+                            <li>BAC Authentication</li>
+                            <li>SOD Validation</li>
+                            <li>MRZ Parsing</li>
+                            <li>10+ Card Types Support</li>
+                        </ol>
+                    </div>
+                    <div class="task-column fragment fade-up" data-fragment-index="3">
+                        <h4><i class="fas fa-server icon-primary"></i> INFRASTRUCTURE (8)</h4>
+                        <ol start="15">
+                            <li>JWT Authentication</li>
+                            <li>Multi-Tenant Architecture</li>
+                            <li>40+ REST API Endpoints</li>
+                            <li>PostgreSQL + pgvector</li>
+                            <li>IVFFlat Vector Indexing</li>
+                            <li>Redis Caching</li>
+                            <li>Flyway Migrations</li>
+                            <li>Kotlin Multiplatform Apps</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="content-box accent fragment fade-up" style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 10px;"><i class="fas fa-desktop icon-accent"></i> WEB DEMO GUI</h4>
+                    <span style="font-size: 0.9em;">
+                        Dashboard &bull; Enrollment &bull; Verification &bull; Search &bull; Liveness &bull; Quality Analysis
+                    </span>
+                </div>
+                <aside class="notes">
+                    GULSUM: Here is everything we built this semester - 22 implemented features.
+                    Biometric: face detection, enrollment, verification, search, Biometric Puzzle liveness, quality, demographics, similarity.
+                    Document: card detection model, NFC reading, BAC, SOD, MRZ parsing, 10+ card types.
+                    Infrastructure: JWT auth, multi-tenant, 40+ APIs, PostgreSQL pgvector, Redis, Kotlin Multiplatform.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 13: Challenges ==================== -->
+            <section>
+                <h2><i class="fas fa-mountain icon-accent"></i> TECHNICAL CHALLENGES</h2>
+
+                <div class="challenge-card fragment fade-up">
+                    <h4><i class="fas fa-wifi icon-primary"></i> 1. NFC PASSPORT INTEGRATION</h4>
+                    <p class="challenge-problem"><i class="fas fa-exclamation-circle"></i> <strong>Challenge:</strong> Complex ICAO protocols, BAC handshake, SOD parsing</p>
+                    <p class="challenge-solution"><i class="fas fa-check-circle"></i> <strong>Solution:</strong> Modular reader architecture with 7 specialized readers</p>
+                </div>
+
+                <div class="challenge-card fragment fade-up">
+                    <h4><i class="fas fa-brain icon-primary"></i> 2. CARD DETECTION MODEL TRAINING</h4>
+                    <p class="challenge-problem"><i class="fas fa-exclamation-circle"></i> <strong>Challenge:</strong> Dataset collection, model accuracy, real-time speed</p>
+                    <p class="challenge-solution"><i class="fas fa-check-circle"></i> <strong>Solution:</strong> Custom dataset + optimized on-device inference</p>
+                </div>
+
+                <div class="challenge-card fragment fade-up">
+                    <h4><i class="fas fa-exchange-alt icon-primary"></i> 3. CROSS-LANGUAGE MICROSERVICES</h4>
+                    <p class="challenge-problem"><i class="fas fa-exclamation-circle"></i> <strong>Challenge:</strong> Java ↔ Python service integration, type safety</p>
+                    <p class="challenge-solution"><i class="fas fa-check-circle"></i> <strong>Solution:</strong> REST APIs with OpenAPI contracts + Redis event bus</p>
+                </div>
+                <aside class="notes">
+                    GULSUM: We faced three major challenges.
+                    First, NFC passport integration - we built 7 specialized readers.
+                    Second, card detection training - custom dataset, on-device optimization.
+                    Third, cross-language communication - REST APIs with OpenAPI and Redis.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 14: Future ==================== -->
+            <section>
+                <h2><i class="fas fa-road icon-accent"></i> SEMESTER 2 PLANS & B-PLAN</h2>
+
+                <h4 style="margin-bottom: 5px;"><i class="fas fa-calendar-alt icon-accent"></i> SEMESTER 2 TIMELINE (Spring 2026)</h4>
+
+                <div class="timeline">
+                    <div class="timeline-item fragment fade-up">
+                        <div class="timeline-dot">FEB</div>
+                        <div class="timeline-content">Service Integration<br>+ OCR Module</div>
+                    </div>
+                    <div class="timeline-item fragment fade-up" data-fragment-index="2">
+                        <div class="timeline-dot">MAR</div>
+                        <div class="timeline-content">Real-Time<br>Proctoring Module</div>
+                    </div>
+                    <div class="timeline-item fragment fade-up" data-fragment-index="3">
+                        <div class="timeline-dot">APR</div>
+                        <div class="timeline-content">Security Testing<br>+ Mobile Polish</div>
+                    </div>
+                    <div class="timeline-item fragment fade-up" data-fragment-index="4">
+                        <div class="timeline-dot">MAY</div>
+                        <div class="timeline-content">Production<br>Deployment</div>
+                    </div>
+                </div>
+
+                <div class="bplan-box fragment fade-up">
+                    <h4><i class="fas fa-shield-alt"></i> CONTINGENCY PLAN (B-PLAN)</h4>
+                    <ul style="margin-bottom: 0;">
+                        <li><strong>IF</strong> NFC edge cases fail → <strong>Focus</strong> Turkish eID + e-Passport only</li>
+                        <li><strong>IF</strong> Integration delayed → <strong>Web demo</strong> as primary deliverable</li>
+                    </ul>
+                </div>
+
+                <div class="content-box fragment fade-up">
+                    <h4><i class="fas fa-rocket icon-accent"></i> FUTURE RESEARCH (Beyond Project)</h4>
+                    <span style="font-size: 0.95em;">
+                        <i class="fas fa-wifi-slash"></i> Offline mode &bull;
+                        <i class="fas fa-fingerprint"></i> Fingerprint & Iris &bull;
+                        <i class="fab fa-raspberry-pi"></i> Embedded Devices
+                    </span>
+                </div>
+                <aside class="notes">
+                    GULSUM: Semester two: February for integration and OCR. March for proctoring.
+                    April for security testing. May for deployment.
+                    B-Plan: if NFC fails, focus on Turkish eID and e-Passport. If integration is delayed, web demo becomes primary.
+                    Future research: offline mode, fingerprint/iris, embedded devices.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 15: Thank You ==================== -->
+            <section class="dark-slide center" data-background-gradient="linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%)">
+                <h1 style="font-size: 2.2em;">
+                    <i class="fas fa-heart" style="color: var(--accent);"></i> THANK YOU
+                </h1>
+
+                <p style="font-size: 1em; margin-top: 20px; opacity: 0.95;" class="fragment fade-up">
+                    We thank our advisor,<br>
+                    <strong style="color: var(--accent);">Assoc. Prof. Dr. Mustafa Agaoglu</strong>,<br>
+                    for his guidance throughout this project.
+                </p>
+
+                <hr style="border-color: rgba(255,255,255,0.2); margin: 20px auto; width: 50%;">
+
+                <div class="github-box fragment fade-up">
+                    <i class="fab fa-github"></i>
+                    <div>
+                        <strong>GitHub:</strong>
+                        <a href="https://github.com/Rollingcat-Software/FIVUCSAS" target="_blank">
+                            github.com/Rollingcat-Software/FIVUCSAS
+                        </a>
+                    </div>
+                </div>
+
+                <p style="font-size: 0.9em; margin-top: 20px; opacity: 0.7;" class="fragment fade-up">
+                    <i class="fas fa-code-branch"></i> Will be released as open-source
+                </p>
+                <aside class="notes">
+                    GULSUM: We thank our advisor, Associate Professor Doctor Mustafa Agaoglu, for his guidance.
+                    Our code is on GitHub at Rollingcat-Software slash FIVUCSAS. We plan to release it as open-source after graduation.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 16: References ==================== -->
+            <section>
+                <h2><i class="fas fa-book icon-accent"></i> REFERENCES</h2>
+
+                <ol style="font-size: 0.85em; line-height: 1.8;">
+                    <li class="fragment fade-up">
+                        Taigman et al. (2014). <strong>DeepFace: Closing the Gap to Human-Level Performance in Face Verification.</strong> CVPR.
+                    </li>
+                    <li class="fragment fade-up">
+                        Schroff et al. (2015). <strong>FaceNet: A Unified Embedding for Face Recognition and Clustering.</strong> IEEE CVPR.
+                    </li>
+                    <li class="fragment fade-up">
+                        Deng et al. (2019). <strong>ArcFace: Additive Angular Margin Loss for Deep Face Recognition.</strong> CVPR.
+                    </li>
+                    <li class="fragment fade-up">
+                        Lugaresi et al. (2019). <strong>MediaPipe: A Framework for Building Perception Pipelines.</strong> Google Research.
+                    </li>
+                    <li class="fragment fade-up">
+                        <strong>ICAO Doc 9303:</strong> Machine Readable Travel Documents.
+                    </li>
+                    <li class="fragment fade-up">
+                        <strong>ISO/IEC 14443 & ISO 7816-4:</strong> NFC Standards.
+                    </li>
+                </ol>
+                <aside class="notes">
+                    GULSUM: Our key references: DeepFace and FaceNet for face recognition, ArcFace for embeddings, MediaPipe for landmarks, and ICAO/ISO for NFC standards.
+                </aside>
+            </section>
+
+            <!-- ==================== SLIDE 17: Q&A ==================== -->
+            <section class="dark-slide center" data-background-gradient="linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%)">
+                <h1 style="font-size: 2em;">
+                    <i class="fas fa-comments" style="color: var(--accent);"></i>
+                    QUESTIONS & ANSWERS
+                </h1>
+
+                <p style="font-size: 1.1em; margin-top: 25px; opacity: 0.9;">
+                    We welcome your questions.
+                </p>
+
+                <div class="fragment fade-up" style="margin-top: 30px;">
+                    <p style="font-size: 0.85em; opacity: 0.7;">
+                        <i class="fas fa-clock"></i> Allocated time: 3 minutes
+                    </p>
+                </div>
+                <aside class="notes">
+                    ALL: We welcome your questions. (3 minutes for Q&A)
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            transitionSpeed: 'default',
+            backgroundTransition: 'fade',
+            center: false,
+
+            // Responsive scaling - fits to browser window
+            width: 960,
+            height: 540,
+            margin: 0.04,
+            minScale: 0.2,
+            maxScale: 2.0,
+
+            // Plugins
+            plugins: [ RevealNotes ],
+
+            // Keyboard shortcuts
+            keyboard: {
+                83: function() { Reveal.toggleNotes(); }  // S for speaker view
+            },
+
+            // Disable touch gestures for desktop
+            touch: true,
+
+            // Auto-animate settings
+            autoAnimateDuration: 0.5,
+            autoAnimateEasing: 'ease'
+        });
+
+        // Timer functionality
+        let startTime = null;
+        let timerInterval = null;
+
+        document.addEventListener('keydown', function(e) {
+            // Press 'T' to start/stop timer
+            if (e.key === 't' || e.key === 'T') {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    console.log('Timer stopped');
+                } else {
+                    startTime = new Date();
+                    timerInterval = setInterval(function() {
+                        const elapsed = new Date() - startTime;
+                        const minutes = Math.floor(elapsed / 60000);
+                        const seconds = Math.floor((elapsed % 60000) / 1000);
+                        console.log(`Elapsed: ${minutes}:${seconds.toString().padStart(2, '0')}`);
+                    }, 1000);
+                    console.log('Timer started');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
