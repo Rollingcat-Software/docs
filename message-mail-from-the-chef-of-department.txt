@@ -1,0 +1,78 @@
+*** CSE4197/CSE4297 öğrencileri içindir.
+
+Öncelikle CSE4197/4297 proje sunumları için tüm grupları ve danışman hocalarımızı tebrik ederim.
+
+ADD Dokümanlarının,  hem PSD jüri raporları hem de danışman görüşleri alınarak eksiksiz olarak tamamlanabilmesi adına ADD teslim tarihi  24 Ocak Cumartesi 22:00  olarak revize edilmiştir.
+
+ADD dokümanları için benzerlik taraması yapılacaktır. Benzerlik oranı belirli bir eşik değerin üzerinde olan raporlar kabul edilmeyecektir.  Tekrar revizyon vs de zaman kalmayacağı için ADD’lerinizi kendi cümlelerinizle, uygun ve legal atıflar yaparak hazırlamanız gerekmektedir.
+
+ADD Teslim Tarihi: 24 Ocak Cumartesi  saat 22:00.  (Geç teslimler kesinlikle kabul edilmeyecektir.)
+
+Prof. Dr. Haluk Topcuoglu
+
+From: <eng.cse.faculty-request@liste.marmara.edu.tr> on behalf of Haluk Topcuoglu <haluk@marmara.edu.tr>
+Reply-To: Haluk Topcuoglu <haluk@marmara.edu.tr>
+Date: 24 December 2025 Wednesday at 12:00
+To: 'Haluk Topcuoglu' via FALL 2025 CSE4197/4297 - CSE4198/4298 <cse4197-98@googlegroups.com>
+Cc: Ömer Korçak <omer.korcak@gmail.com>, KÜBRA ULUDAĞ <kubra.uludag@marmara.edu.tr>
+Subject: [eng.cse.faculty] ADD related - CSE4197/CSE4297
+
+*** CSE4197/CSE4297 öğrencileri içindir.
+
+Sevgili Öğrenciler,
+
+ADD (Analysis and Design Document) Kılavuzunu ekte göndermekteyim.  Gecen hafta ADD Toplantısında yapılan sunum slidelarını da (Borahan Hoca’nın sunumu ve Ömer Hoca’nın sunumu) ekledim.
+
+ADD dokümanınızı ekte gönderdiğim kılavuza birebir uyacak şekilde hazırlamalısınız. ADD dokümanınız, ekte yer alan Kılavuzda belirtilen tüm başlıkları / bölümleri içermelidir.
+
+Bazı bölümler /başlıklar, PSD dokümanınızın genişletilmiş halidir.  Bazı bölümler ise yenidir.
+
+ADD için, PSD ye yönelik daha önce  size gönderilen  aynı şablonu/template i  (aynı font büyüklüğü, satır aralığı vs)  kullanmalısınız. ADD de sayfa sınırı yoktur.
+
+PSD’lerinize ait jüri değerlendirmelerini  önümüzdeki hafta sonuna doğru e-posta ile paylaşacağız.  ADD’yi hazırlarken jüri üyeleri tarafından iletilen tüm yorum ve itirazları dikkate almalı ve danışmanınızın yönlendirmeleri doğrultusunda çalışmanızı güncellemelisiniz.
+
+Daha önceki e-postamda da belirttiğim üzere, ADD dokümanları için benzerlik taraması yapılacaktır. Benzerlik oranı belirli bir eşik değerin üzerinde olan raporlar kabul edilmeyecektir. Bu nedenle ADD’lerinizi kendi cümlelerinizle, uygun ve legal atıflar yaparak hazırlamanız gerekmektedir.
+
+CSE4197/CSE4297 sunumlar 7 Ocakta yapılacak olup, tüm gün boyunca tüm öğrencilerin  sunuma katılımı zorunludur. Sunum çizelgesini de haftaya göndereceğim.
+
+ADD Teslim Tarihi: 9 Ocak Cuma  saat 22:00.  (Geç teslimler kesinlikle kabul edilmeyecektir.)
+
+Prof. Dr. Haluk Topcuoglu
+
+ 
+
+--
+You received this message because you are subscribed to the Google Groups "FALL 2025 CSE4197/4297 - CSE4198/4298" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to cse4197-98+unsubscribe@googlegroups.com.
+To view this discussion visit https://groups.google.com/d/msgid/cse4197-98/5D507DE0-B0D0-4370-A954-8F4C6E5E6E07%40marmara.edu.tr.
+
+ 
+
+*** CSE4197/CSE4297 öğrencileri içindir.
+
+Sevgili Öğrenciler,
+
+ADD (Analysis and Design Document) Kılavuzunu ekte göndermekteyim.  Gecen hafta ADD Toplantısında yapılan sunum slidelarını da (Borahan Hoca’nın sunumu ve Ömer Hoca’nın sunumu) ekledim.
+
+ADD dokümanınızı ekte gönderdiğim kılavuza birebir uyacak şekilde hazırlamalısınız. ADD dokümanınız, ekte yer alan Kılavuzda belirtilen tüm başlıkları / bölümleri içermelidir.
+
+Bazı bölümler /başlıklar, PSD dokümanınızın genişletilmiş halidir.  Bazı bölümler ise yenidir.
+
+ADD için, PSD ye yönelik daha önce  size gönderilen  aynı şablonu/template i  (aynı font büyüklüğü, satır aralığı vs)  kullanmalısınız. ADD de sayfa sınırı yoktur.
+
+PSD’lerinize ait jüri değerlendirmelerini  önümüzdeki hafta sonuna doğru e-posta ile paylaşacağız.  ADD’yi hazırlarken jüri üyeleri tarafından iletilen tüm yorum ve itirazları dikkate almalı ve danışmanınızın yönlendirmeleri doğrultusunda çalışmanızı güncellemelisiniz.
+
+Daha önceki e-postamda da belirttiğim üzere, ADD dokümanları için benzerlik taraması yapılacaktır. Benzerlik oranı belirli bir eşik değerin üzerinde olan raporlar kabul edilmeyecektir. Bu nedenle ADD’lerinizi kendi cümlelerinizle, uygun ve legal atıflar yaparak hazırlamanız gerekmektedir.
+
+CSE4197/CSE4297 sunumlar 7 Ocakta yapılacak olup, tüm gün boyunca tüm öğrencilerin  sunuma katılımı zorunludur. Sunum çizelgesini de haftaya göndereceğim.
+
+ADD Teslim Tarihi: 9 Ocak Cuma  saat 22:00.  (Geç teslimler kesinlikle kabul edilmeyecektir.)
+
+Prof. Dr. Haluk Topcuoglu
+
+ 
+
+--
+You received this message because you are subscribed to the Google Groups "FALL 2025 CSE4197/4297 - CSE4198/4298" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to cse4197-98+unsubscribe@googlegroups.com.
+To view this discussion visit https://groups.google.com/d/msgid/cse4197-98/5DBD8E80-5F94-4DB4-9994-0FAFB7DB95FC%40marmara.edu.tr.
