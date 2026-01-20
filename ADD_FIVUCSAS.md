@@ -497,6 +497,245 @@ graph TB
 - 3a. No face detected: Return 400 Bad Request with guidance
 - 7a. Score below threshold: Return verification failed
 
+#### 4.1.4 Sequence Diagrams
+
+This subsection presents UML sequence diagrams illustrating the temporal interactions among system components for critical use cases, fulfilling CSE4197 ADD requirements for behavioral modeling.
+
+##### 4.1.4.1 User Registration Sequence
+
+The following diagram shows the complete user registration flow, including tenant validation, password hashing, and JWT token generation.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant WebApp as Web/Mobile Client
+    participant NGINX as API Gateway
+    participant IdentityAPI as Identity Core API
+    participant DB as PostgreSQL
+    participant Redis as Redis Cache
+
+    User->>WebApp: Enter registration details
+    WebApp->>NGINX: POST /api/v1/auth/register<br/>{email, password, firstName, lastName, tenantId}
+    NGINX->>IdentityAPI: Forward request
+
+    IdentityAPI->>IdentityAPI: Validate input format<br/>(RFC 5322 email)
+
+    IdentityAPI->>DB: SELECT * FROM tenants<br/>WHERE id = :tenantId
+    DB-->>IdentityAPI: Tenant record
+
+    alt Tenant not found or inactive
+        IdentityAPI-->>WebApp: 404 Not Found
+        WebApp-->>User: "Invalid tenant"
+    else Tenant active
+        IdentityAPI->>DB: SELECT COUNT(*) FROM users<br/>WHERE tenant_id = :tenantId<br/>AND email = :email
+        DB-->>IdentityAPI: Count (0 or 1)
+
+        alt Email already exists
+            IdentityAPI-->>WebApp: 409 Conflict
+            WebApp-->>User: "Email already registered"
+        else Email unique
+            IdentityAPI->>IdentityAPI: Hash password<br/>(BCrypt, work factor 12)
+
+            IdentityAPI->>DB: INSERT INTO users<br/>(id, tenant_id, email, password_hash,<br/>first_name, last_name, created_at)
+            DB-->>IdentityAPI: User created (UUID)
+
+            IdentityAPI->>IdentityAPI: Generate JWT access token<br/>(HS512, 15min expiry)
+            IdentityAPI->>IdentityAPI: Generate refresh token<br/>(UUID, 7 days)
+
+            IdentityAPI->>DB: INSERT INTO refresh_tokens<br/>(token, user_id, expires_at)
+            DB-->>IdentityAPI: Token stored
+
+            IdentityAPI->>Redis: SET session:{userId}<br/>TTL 900 seconds
+            Redis-->>IdentityAPI: OK
+
+            IdentityAPI-->>WebApp: 201 Created<br/>{accessToken, refreshToken, user}
+            WebApp->>WebApp: Store tokens in secure storage
+            WebApp-->>User: "Registration successful"
+        end
+    end
+```
+
+**Key Interactions:**
+1. **Input Validation** (lines 9-10): Email format validated against RFC 5322 before database operations
+2. **Tenant Isolation** (lines 12-13): Tenant existence verified to enforce multi-tenancy constraints
+3. **Uniqueness Check** (lines 19-20): Email uniqueness checked within tenant scope (not globally)
+4. **Security** (lines 25-26): Password hashed with BCrypt (work factor 12) before storage
+5. **Stateless Auth** (lines 31-34): JWT access token for API authentication, refresh token for renewal
+6. **Session Management** (lines 37-38): Session cached in Redis for fast lookup
+
+##### 4.1.4.2 Biometric Enrollment with Liveness Sequence
+
+This diagram illustrates the complete face enrollment process, including active liveness detection (Biometric Puzzle) and embedding generation.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant MobileApp as Mobile/Desktop Client
+    participant BiometricAPI as Biometric Processor
+    participant IdentityAPI as Identity Core API
+    participant DeepFace as DeepFace Library
+    participant MediaPipe as MediaPipe
+    participant DB as PostgreSQL (pgvector)
+
+    User->>MobileApp: Navigate to Enrollment
+    MobileApp->>BiometricAPI: POST /api/v1/liveness/challenge
+    BiometricAPI->>BiometricAPI: Generate random challenge sequence<br/>(e.g., [BLINK, SMILE, TURN_LEFT])
+    BiometricAPI-->>MobileApp: {challengeId, sequence, timeout: 30s}
+
+    MobileApp-->>User: Display "Please blink your eyes"
+    User->>MobileApp: Blink action
+    MobileApp->>MobileApp: Capture video frames (30 FPS)
+
+    loop For each frame (max 900 frames)
+        MobileApp->>MediaPipe: Detect facial landmarks
+        MediaPipe-->>MobileApp: 468 landmark coordinates
+        MobileApp->>MobileApp: Calculate EAR (Eye Aspect Ratio)
+    end
+
+    MobileApp->>MobileApp: Detect EAR drop<br/>(threshold < 0.25)
+    MobileApp-->>User: ✓ "Blink detected"<br/>Display "Now smile"
+
+    User->>MobileApp: Smile action
+    loop For each frame
+        MobileApp->>MediaPipe: Detect landmarks
+        MediaPipe-->>MobileApp: Landmark coordinates
+        MobileApp->>MobileApp: Calculate MAR (Mouth Aspect Ratio)
+    end
+
+    MobileApp->>MobileApp: Detect MAR increase<br/>(threshold > 0.5)
+    MobileApp-->>User: ✓ "Smile detected"<br/>Display "Turn head left"
+
+    User->>MobileApp: Turn head left
+    MobileApp->>MobileApp: Calculate head pose<br/>(yaw angle)
+    MobileApp->>MobileApp: Detect yaw < -15°
+    MobileApp-->>User: ✓ "Challenge complete"
+
+    MobileApp->>BiometricAPI: POST /api/v1/liveness/verify<br/>{challengeId, frames[], landmarks[]}
+    BiometricAPI->>BiometricAPI: Verify challenge completion<br/>(sequence + timing)
+    BiometricAPI->>BiometricAPI: Passive anti-spoofing<br/>(LBP texture, moire detection)
+
+    alt Liveness failed
+        BiometricAPI-->>MobileApp: 403 Forbidden<br/>{reason: "SPOOF_DETECTED"}
+        MobileApp-->>User: "Liveness check failed"
+    else Liveness passed
+        BiometricAPI-->>MobileApp: 200 OK<br/>{livenessToken, confidence: 0.95}
+
+        MobileApp-->>User: "Capture enrollment photo"
+        User->>MobileApp: Capture high-quality image
+
+        MobileApp->>BiometricAPI: POST /api/v1/enroll<br/>{userId, image, livenessToken}
+        BiometricAPI->>BiometricAPI: Validate liveness token<br/>(5-minute expiry)
+
+        BiometricAPI->>DeepFace: detect_face(image)
+        DeepFace-->>BiometricAPI: {face_region, confidence: 0.98}
+
+        alt No face detected
+            BiometricAPI-->>MobileApp: 400 Bad Request
+            MobileApp-->>User: "No face detected"
+        else Face detected
+            BiometricAPI->>DeepFace: analyze_quality(face_region)
+            DeepFace-->>BiometricAPI: {quality_score: 0.82, brightness, sharpness}
+
+            alt Quality insufficient (<0.5)
+                BiometricAPI-->>MobileApp: 422 Unprocessable Entity
+                MobileApp-->>User: "Image quality too low"
+            else Quality sufficient
+                BiometricAPI->>DeepFace: represent(face_region, model='Facenet512')
+                DeepFace-->>BiometricAPI: embedding[512] (normalized vector)
+
+                BiometricAPI->>IdentityAPI: GET /api/v1/users/{userId}
+                IdentityAPI-->>BiometricAPI: {userId, tenantId, permissions}
+
+                BiometricAPI->>DB: INSERT INTO biometric_data<br/>(user_id, tenant_id, embedding,<br/>model_name, quality_score)
+                DB-->>BiometricAPI: Enrollment ID
+
+                BiometricAPI->>DB: CREATE INDEX IF NOT EXISTS<br/>USING ivfflat (embedding vector_cosine_ops)<br/>WITH (lists = 100)
+                DB-->>BiometricAPI: Index updated
+
+                BiometricAPI-->>MobileApp: 201 Created<br/>{enrollmentId, qualityScore: 0.82}
+                MobileApp-->>User: "Enrollment successful!"
+            end
+        end
+    end
+```
+
+**Key Interactions:**
+1. **Challenge Generation** (lines 9-11): Random 3-step sequence prevents replay attacks
+2. **Real-time Landmark Tracking** (lines 17-22): MediaPipe processes 30 FPS for blink detection
+3. **Biometric Puzzle Validation** (lines 43-45): Server-side verification of action sequence and timing
+4. **Two-Factor Liveness** (lines 47-48): Active (challenge) + passive (texture analysis) combined
+5. **Token-Based Enrollment** (lines 57-58): Liveness token valid for 5 minutes to prevent reuse
+6. **Quality Gating** (lines 68-72): Enrollment rejected if image quality below threshold
+7. **Vector Indexing** (lines 83-86): IVFFlat index automatically updated for fast similarity search
+
+##### 4.1.4.3 Face Search (1:N Identification) Sequence
+
+This diagram shows the workflow for identifying an unknown face against all enrolled users within a tenant.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant System as External System
+    participant BiometricAPI as Biometric Processor
+    participant DeepFace as DeepFace Library
+    participant DB as PostgreSQL (pgvector)
+    participant Redis as Redis Cache
+
+    User->>System: Present face to camera
+    System->>System: Capture image
+
+    System->>BiometricAPI: POST /api/v1/search<br/>{image, tenantId, topK: 10, threshold: 0.7}
+    BiometricAPI->>BiometricAPI: Validate tenant authorization
+
+    BiometricAPI->>DeepFace: detect_face(image)
+    DeepFace-->>BiometricAPI: {face_region, confidence: 0.96}
+
+    alt No face detected
+        BiometricAPI-->>System: 400 Bad Request<br/>{error: "NO_FACE_DETECTED"}
+        System-->>User: "Face not visible"
+    else Face detected
+        BiometricAPI->>DeepFace: represent(face_region, model='Facenet512')
+        DeepFace-->>BiometricAPI: query_embedding[512]
+
+        Note over BiometricAPI,Redis: Check cache for recent searches
+        BiometricAPI->>Redis: GET search:hash(query_embedding)
+        Redis-->>BiometricAPI: NULL (cache miss)
+
+        BiometricAPI->>DB: SELECT user_id, embedding,<br/>1 - (embedding <=> :query) AS similarity<br/>FROM biometric_data<br/>WHERE tenant_id = :tenantId<br/>AND 1 - (embedding <=> :query) > :threshold<br/>ORDER BY embedding <=> :query<br/>LIMIT :topK
+
+        Note over DB: pgvector uses IVFFlat index<br/>for approximate nearest neighbor search<br/>(lists=100, probes=10)
+
+        DB-->>BiometricAPI: Top-10 matches with similarity scores
+
+        alt No matches above threshold
+            BiometricAPI-->>System: 404 Not Found<br/>{message: "No matching identity"}
+            System-->>User: "Identity not recognized"
+        else Matches found
+            BiometricAPI->>BiometricAPI: Rank by similarity score<br/>(highest first)
+
+            BiometricAPI->>Redis: SETEX search:hash(query_embedding)<br/>results, TTL 60 seconds
+            Redis-->>BiometricAPI: OK
+
+            BiometricAPI-->>System: 200 OK<br/>{matches: [{userId, similarity: 0.94},<br/>{userId, similarity: 0.88}, ...]}
+
+            System->>System: Select top match (similarity: 0.94)
+            System-->>User: "Welcome, [User Name]"<br/>Grant access
+        end
+    end
+```
+
+**Key Interactions:**
+1. **Tenant Isolation** (line 10): Search scope limited to tenant's enrollments only
+2. **Face Detection** (lines 12-13): Pre-processing ensures valid face before expensive vector search
+3. **Embedding Generation** (lines 19-20): Query face converted to 512-D Facenet embedding
+4. **Cache Layer** (lines 23-24): Redis caches recent searches for 60 seconds (repeated kiosk access)
+5. **Vector Similarity Search** (lines 26-31): pgvector's `<=>` operator performs cosine distance search
+6. **IVFFlat Optimization** (lines 33-35): Approximate nearest neighbor (ANN) search with index lists=100, probes=10
+7. **Threshold Filtering** (line 38): Only matches above 0.7 similarity (configurable per tenant) returned
+8. **Result Caching** (lines 46-47): Successful searches cached to reduce database load
+
+---
+
 ### 4.2 Class and ER Diagrams
 
 #### 4.2.1 Domain Model - Core Entities
@@ -1340,6 +1579,489 @@ SIMILARITY_THRESHOLD=0.6
 QUALITY_THRESHOLD=0.5
 ```
 
+### 5.5 State Machines and Behavioral Models
+
+This section presents state diagrams for key workflows within FIVUCSAS, illustrating state transitions and system behavior in response to events. State machines are particularly valuable for real-time systems (as recommended by CSE4197 ADD guidelines) to model complex workflows.
+
+#### 5.5.1 User Session Lifecycle State Machine
+
+This state machine models the complete user authentication session lifecycle from initial unauthenticated state through active usage to termination.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Unauthenticated: System Start
+
+    Unauthenticated --> Authenticating: POST /auth/login
+
+    Authenticating --> Authenticated: Credentials Valid<br/>(JWT issued)
+    Authenticating --> Unauthenticated: Credentials Invalid<br/>(401 Unauthorized)
+    Authenticating --> Locked: Max Attempts Exceeded<br/>(3 failed logins)
+
+    Authenticated --> Active: API Request<br/>(JWT valid)
+    Authenticated --> Expired: Token Expiry<br/>(15 minutes)
+
+    Active --> Active: Successful API Call<br/>(session refreshed)
+    Active --> Expired: Token Expiry<br/>(idle 15 min)
+    Active --> Terminated: POST /auth/logout<br/>(explicit logout)
+    Active --> Revoked: Admin Revocation<br/>(security event)
+
+    Expired --> Refreshing: POST /auth/refresh<br/>(refresh token provided)
+    Expired --> Unauthenticated: Refresh Token Expired<br/>(7 days)
+
+    Refreshing --> Authenticated: Refresh Token Valid<br/>(new JWT issued)
+    Refreshing --> Unauthenticated: Refresh Token Invalid<br/>(revoked/expired)
+
+    Terminated --> [*]: Session Ended
+    Revoked --> [*]: Session Forcibly Ended
+    Locked --> Unauthenticated: Password Reset<br/>(admin unlock)
+
+    note right of Authenticated
+        JWT stored in Redis
+        TTL: 900 seconds
+    end note
+
+    note right of Expired
+        Refresh token remains valid
+        Grace period: 7 days
+    end note
+
+    note right of Locked
+        Requires admin intervention
+        Security event logged
+    end note
+```
+
+**State Descriptions:**
+
+| State | Description | Entry Condition | Exit Triggers |
+|-------|-------------|-----------------|---------------|
+| **Unauthenticated** | Initial state; no credentials provided | System start, logout, expired refresh token | Login attempt |
+| **Authenticating** | Validating credentials against database | POST /auth/login received | Credentials validated OR max retries |
+| **Authenticated** | Valid JWT issued, not yet used | Successful authentication or token refresh | First API request OR expiry |
+| **Active** | User actively making API requests | API call with valid JWT | Token expiry, logout, revocation |
+| **Expired** | Access token expired, refresh token still valid | 15-minute JWT expiry | Refresh attempt |
+| **Refreshing** | Requesting new tokens with refresh token | POST /auth/refresh | Refresh token validated |
+| **Terminated** | Normal session end | Explicit logout | Session cleanup complete |
+| **Revoked** | Admin-forced session termination | Security event (e.g., password change) | Session cleanup complete |
+| **Locked** | Account locked due to suspicious activity | 3+ failed login attempts | Admin password reset |
+
+#### 5.5.2 Biometric Enrollment Workflow State Machine
+
+This diagram models the face enrollment process, including quality checks, liveness verification, and embedding storage.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Initiated: User Clicks "Enroll Face"
+
+    Initiated --> ChallengeRequested: Request Liveness Challenge
+
+    ChallengeRequested --> PerformingChallenge: Challenge Received<br/>{sequence: [BLINK, SMILE, TURN]}
+
+    PerformingChallenge --> BlinkDetection: Step 1: Detect Blink
+    BlinkDetection --> SmileDetection: EAR Drop Detected<br/>(threshold < 0.25)
+    BlinkDetection --> ChallengeFailed: Timeout (30s)<br/>OR No Blink Detected
+
+    SmileDetection --> HeadTurnDetection: MAR Increase Detected<br/>(threshold > 0.5)
+    SmileDetection --> ChallengeFailed: Timeout OR No Smile
+
+    HeadTurnDetection --> ChallengeCompleted: Yaw Angle Detected<br/>(< -15° for LEFT)
+    HeadTurnDetection --> ChallengeFailed: Timeout OR Insufficient Rotation
+
+    ChallengeCompleted --> VerifyingLiveness: Submit Frames + Landmarks
+
+    VerifyingLiveness --> LivenessVerified: Active + Passive Checks Pass<br/>(confidence > 0.85)
+    VerifyingLiveness --> ChallengeFailed: Spoof Detected<br/>(LBP/Moire patterns)
+
+    ChallengeFailed --> Initiated: Retry Enrollment<br/>(max 3 attempts)
+    ChallengeFailed --> EnrollmentAborted: Max Retries Exceeded
+
+    LivenessVerified --> CapturingImage: Liveness Token Issued<br/>(valid 5 min)
+
+    CapturingImage --> DetectingFace: Image Submitted
+
+    DetectingFace --> AnalyzingQuality: Face Detected<br/>(confidence > 0.9)
+    DetectingFace --> CapturingImage: No Face Detected<br/>(retry capture)
+
+    AnalyzingQuality --> GeneratingEmbedding: Quality Sufficient<br/>(score > 0.5)
+    AnalyzingQuality --> CapturingImage: Quality Insufficient<br/>(blurry/dark image)
+
+    GeneratingEmbedding --> StoringEmbedding: Embedding Generated<br/>(512-D Facenet vector)
+
+    StoringEmbedding --> IndexingVector: Embedding Stored<br/>(biometric_data table)
+
+    IndexingVector --> EnrollmentComplete: IVFFlat Index Updated
+
+    EnrollmentComplete --> [*]: Success Message Displayed
+
+    EnrollmentAborted --> [*]: Error Message Displayed
+
+    note right of PerformingChallenge
+        Real-time MediaPipe
+        468 facial landmarks
+        30 FPS processing
+    end note
+
+    note right of VerifyingLiveness
+        Two-factor verification:
+        1. Active (challenge sequence)
+        2. Passive (texture analysis)
+    end note
+
+    note right of StoringEmbedding
+        Multi-tenant isolation
+        tenant_id foreign key
+        Embeddings encrypted at rest
+    end note
+```
+
+**State Descriptions:**
+
+| State | Description | Data Processed | Next States |
+|-------|-------------|----------------|-------------|
+| **Initiated** | User begins enrollment process | None | ChallengeRequested |
+| **ChallengeRequested** | Requesting random liveness challenge | POST /liveness/challenge | PerformingChallenge |
+| **PerformingChallenge** | User performing biometric puzzle | Video frames (30 FPS) | BlinkDetection, ChallengeFailed |
+| **BlinkDetection** | Analyzing eye aspect ratio | EAR values, landmark points | SmileDetection, ChallengeFailed |
+| **SmileDetection** | Analyzing mouth aspect ratio | MAR values, lip landmarks | HeadTurnDetection, ChallengeFailed |
+| **HeadTurnDetection** | Analyzing head pose | Yaw/pitch/roll angles | ChallengeCompleted, ChallengeFailed |
+| **VerifyingLiveness** | Server-side spoof detection | Frames, landmarks, texture | LivenessVerified, ChallengeFailed |
+| **LivenessVerified** | Liveness confirmed, token issued | Liveness token (JWT, 5min TTL) | CapturingImage |
+| **CapturingImage** | User capturing enrollment photo | High-resolution image | DetectingFace |
+| **DetectingFace** | DeepFace face detection | Face bounding box, confidence | AnalyzingQuality, Retry |
+| **AnalyzingQuality** | Brightness, sharpness, pose check | Quality score (0-1) | GeneratingEmbedding, Retry |
+| **GeneratingEmbedding** | DeepFace model inference | 512-D normalized vector | StoringEmbedding |
+| **StoringEmbedding** | PostgreSQL INSERT operation | user_id, tenant_id, embedding | IndexingVector |
+| **IndexingVector** | pgvector IVFFlat index update | Vector index rebuild | EnrollmentComplete |
+| **EnrollmentComplete** | Enrollment successful | enrollment_id | Terminal state |
+| **ChallengeFailed** | Liveness check failed | Failure reason | Retry or Abort |
+| **EnrollmentAborted** | Max retries exceeded | Error log | Terminal state |
+
+#### 5.5.3 Liveness Challenge State Machine
+
+This focused state machine details the biometric puzzle challenge sequence used for anti-spoofing.
+
+```mermaid
+stateDiagram-v2
+    [*] --> ChallengeGenerated: Generate Random Sequence
+
+    ChallengeGenerated --> Step1_Blink: Sequence: [BLINK, ?, ?]<br/>Start Timer (30s)
+
+    Step1_Blink --> MonitoringBlink: Display "Blink Your Eyes"
+
+    MonitoringBlink --> BlinkDetected: EAR < 0.25 detected
+    MonitoringBlink --> Step1_Timeout: Timer Expires (10s)
+
+    BlinkDetected --> Step2_Smile: Step 1 Complete<br/>Next Action
+
+    Step2_Smile --> MonitoringSmile: Display "Smile"
+
+    MonitoringSmile --> SmileDetected: MAR > 0.5 detected
+    MonitoringSmile --> Step2_Timeout: Timer Expires (10s)
+
+    SmileDetected --> Step3_HeadTurn: Step 2 Complete<br/>Final Action
+
+    Step3_HeadTurn --> MonitoringHeadTurn: Display "Turn Head Left"
+
+    MonitoringHeadTurn --> HeadTurnDetected: Yaw < -15° detected
+    MonitoringHeadTurn --> Step3_Timeout: Timer Expires (10s)
+
+    HeadTurnDetected --> SequenceValidation: All Steps Complete
+
+    SequenceValidation --> PassiveVerification: Timing Valid<br/>(not too fast)
+
+    PassiveVerification --> ChallengePassed: No Spoof Indicators<br/>(LBP/Moire OK)
+    PassiveVerification --> ChallengeFailed: Spoof Detected
+
+    Step1_Timeout --> ChallengeFailed: Step 1 Failed
+    Step2_Timeout --> ChallengeFailed: Step 2 Failed
+    Step3_Timeout --> ChallengeFailed: Step 3 Failed
+
+    SequenceValidation --> ChallengeFailed: Sequence Too Fast<br/>(< 3 seconds total)
+
+    ChallengePassed --> [*]: Liveness Token Issued
+
+    ChallengeFailed --> [*]: Retry Required
+
+    note right of SequenceValidation
+        Validates:
+        - Correct action order
+        - Realistic timing (3-30s)
+        - No skipped steps
+    end note
+
+    note right of PassiveVerification
+        Texture Analysis:
+        - Local Binary Patterns
+        - Moire pattern detection
+        - Color distribution
+        - Frequency domain analysis
+    end note
+```
+
+**State Descriptions:**
+
+| State | Description | Detection Method | Success Criteria |
+|-------|-------------|------------------|------------------|
+| **ChallengeGenerated** | Random 3-step sequence created | Server-side randomization | Sequence sent to client |
+| **Step1_Blink** | Awaiting blink detection | Eye Aspect Ratio (EAR) monitoring | EAR drops below 0.25 |
+| **MonitoringBlink** | Real-time landmark tracking | MediaPipe 468-point detection | Blink detected within 10s |
+| **Step2_Smile** | Awaiting smile detection | Mouth Aspect Ratio (MAR) monitoring | MAR exceeds 0.5 |
+| **MonitoringSmile** | Tracking mouth landmarks | Lip distance calculations | Smile detected within 10s |
+| **Step3_HeadTurn** | Awaiting head rotation | Head pose estimation (yaw angle) | Yaw < -15° (left turn) |
+| **MonitoringHeadTurn** | Tracking 3D head orientation | Perspective-n-Point (PnP) algorithm | Turn detected within 10s |
+| **SequenceValidation** | Verifying action order and timing | Challenge log analysis | Correct order, 3-30s duration |
+| **PassiveVerification** | Anti-spoofing texture analysis | LBP, Moire, color space checks | No spoof patterns detected |
+| **ChallengePassed** | Liveness confirmed | All checks passed | Liveness token (JWT) issued |
+| **ChallengeFailed** | Liveness verification failed | Timeout or spoof detected | Retry enrollment |
+
+### 5.6 Architecture Decision Records (ADRs)
+
+This section documents key architectural decisions made during FIVUCSAS development, providing rationale and trade-off analysis for critical technology selections.
+
+#### ADR-001: FastAPI for Biometric Processor vs. Spring Boot
+
+**Status:** Accepted
+**Date:** September 2025
+**Deciders:** Team Lead, ML Engineer
+
+**Context:**
+The biometric processor requires ML library integration (DeepFace, MediaPipe) and high-throughput image processing. Two primary frameworks were considered:
+- **Spring Boot 3** (Java/Kotlin): Consistent with Identity Core API
+- **FastAPI** (Python): Native ML ecosystem integration
+
+**Decision:**
+Selected **FastAPI** (Python 3.11) for the Biometric Processor API.
+
+**Rationale:**
+
+| Criterion | Spring Boot | FastAPI | Winner |
+|-----------|-------------|---------|--------|
+| **ML Ecosystem** | Limited (DL4J, TensorFlow Java) | Native (DeepFace, MediaPipe, OpenCV) | **FastAPI** |
+| **Development Speed** | Slower (type-safe compilation) | Faster (dynamic typing, REPL) | **FastAPI** |
+| **Performance** | High (JVM optimization) | High (async/await, uvicorn) | Tie |
+| **Type Safety** | Strong (compile-time) | Optional (Pydantic runtime) | Spring Boot |
+| **Concurrency** | Thread pools, virtual threads | Async/await, event loop | Tie |
+| **Team Expertise** | High (Java developers) | Medium (learning curve) | Spring Boot |
+| **Library Maturity** | DeepFace (Python-only) | N/A | **FastAPI** |
+
+**Consequences:**
+
+*Positive:*
+- ✅ Direct access to DeepFace library (no JNI bindings required)
+- ✅ Faster prototyping of ML pipelines (Jupyter notebooks → API)
+- ✅ Rich ecosystem for computer vision (OpenCV, PIL, scikit-image)
+- ✅ Excellent async performance for I/O-bound face recognition tasks
+- ✅ Automatic OpenAPI documentation generation
+
+*Negative:*
+- ❌ Heterogeneous tech stack (Java + Python) increases deployment complexity
+- ❌ No compile-time type checking (mitigated with Pydantic, mypy)
+- ❌ Python GIL limits true parallelism for CPU-bound tasks (mitigated with multiprocessing)
+- ❌ Team must maintain expertise in two ecosystems
+
+*Mitigation Strategies:*
+- Use Docker to containerize both services (eliminates environment conflicts)
+- Standardize on OpenAPI 3.0 for API contracts (language-agnostic)
+- Implement comprehensive integration tests to catch type mismatches
+- Consider GraalVM native image for Identity Core to reduce JVM overhead
+
+**Alternatives Considered:**
+1. **PyTorch/TensorFlow Serving:** Rejected due to lack of business logic support
+2. **gRPC for inter-service communication:** Deferred to v2.0 (REST-first for simplicity)
+3. **Jython (Java + Python):** Rejected due to Python 2.7 limitation, poor library support
+
+---
+
+#### ADR-002: pgvector for Embeddings vs. Specialized Vector Database
+
+**Status:** Accepted
+**Date:** October 2025
+**Deciders:** Backend Lead, DBA
+
+**Context:**
+Face embeddings require efficient similarity search at scale (target: 1M+ vectors). Options evaluated:
+- **pgvector** (PostgreSQL extension)
+- **Milvus** (purpose-built vector database)
+- **Weaviate** (vector search engine)
+- **Pinecone** (managed vector database)
+
+**Decision:**
+Selected **pgvector** extension for PostgreSQL 16.
+
+**Rationale:**
+
+| Criterion | pgvector | Milvus | Weaviate | Pinecone | Winner |
+|-----------|----------|--------|----------|----------|--------|
+| **Setup Complexity** | Low (extension install) | Medium (separate service) | Medium (separate service) | Low (managed SaaS) | **pgvector** |
+| **Operational Cost** | Included with Postgres | Self-hosted (infra cost) | Self-hosted | Pay-per-query | **pgvector** |
+| **Query Performance (1M vectors)** | 50-100ms (IVFFlat) | 10-30ms (HNSW) | 20-50ms (HNSW) | 10-20ms (proprietary) | Milvus/Pinecone |
+| **Transactional Consistency** | ACID guarantees | Eventual consistency | Eventual consistency | Eventual consistency | **pgvector** |
+| **Multi-tenancy** | Native (row-level security) | Manual partitioning | Manual partitioning | Index-per-tenant | **pgvector** |
+| **Maturity** | v0.5.1 (stable) | v2.3 (production-ready) | v1.22 (mature) | Production SaaS | Weaviate/Pinecone |
+| **Open Source** | Yes (PostgreSQL license) | Yes (Apache 2.0) | Yes (BSD 3-Clause) | No (proprietary) | pgvector/Milvus/Weaviate |
+| **Vendor Lock-in** | None | None | None | High | **pgvector** |
+
+**Consequences:**
+
+*Positive:*
+- ✅ Single database (PostgreSQL) for relational + vector data (simplified architecture)
+- ✅ ACID transactions enable atomic user+embedding creation
+- ✅ Row-level security (RLS) enforces multi-tenant isolation at database level
+- ✅ Existing PostgreSQL expertise (no new database to learn)
+- ✅ Zero additional infrastructure cost
+- ✅ Integrated backup/restore with existing database strategy
+
+*Negative:*
+- ❌ Slower similarity search vs. specialized vector databases (50-100ms vs. 10-30ms)
+- ❌ Index build time increases with dataset size (10s for 100K vectors)
+- ❌ Limited to cosine, L2, inner product distances (no custom metrics)
+- ❌ IVFFlat index requires manual tuning (lists, probes parameters)
+
+*Mitigation Strategies:*
+- Implement Redis caching for frequent search queries (60-second TTL)
+- Use IVFFlat index with optimized parameters (lists=100, probes=10)
+- Monitor query performance; migrate to Milvus if latency exceeds NFR-1.4 (<100ms)
+- Consider HNSW index in pgvector v0.6+ for faster queries
+
+**Performance Benchmark (100K embeddings, 512-D):**
+- Sequential scan: 2,500ms
+- IVFFlat (lists=100, probes=10): 75ms (97% recall)
+- IVFFlat (lists=50, probes=5): 45ms (92% recall)
+- Redis cache hit: 5ms
+
+**Migration Path:**
+If query performance becomes bottleneck:
+1. pgvector → Milvus: Export embeddings via `COPY` command, bulk import to Milvus
+2. Dual-write pattern: Write to both pgvector and Milvus during migration
+3. Feature flag to switch read queries to Milvus
+4. Deprecate pgvector embedding storage
+
+**Alternatives Considered:**
+1. **Elasticsearch with dense_vector:** Rejected due to poor recall at high dimensions (512-D)
+2. **Redis with RediSearch:** Rejected due to memory cost ($500/month for 100K vectors)
+3. **FAISS library (in-memory):** Rejected due to lack of persistence and multi-tenancy support
+
+---
+
+#### ADR-003: Kotlin Multiplatform vs. React Native/Flutter
+
+**Status:** Accepted
+**Date:** September 2025
+**Deciders:** Mobile Lead, Team
+
+**Context:**
+Client applications required for Android, iOS, Windows, macOS, Linux. Cross-platform frameworks evaluated:
+- **Kotlin Multiplatform (KMP)** with Compose Multiplatform
+- **React Native** (JavaScript/TypeScript)
+- **Flutter** (Dart)
+
+**Decision:**
+Selected **Kotlin Multiplatform** with Compose Multiplatform for UI.
+
+**Rationale:**
+
+| Criterion | KMP + Compose | React Native | Flutter | Winner |
+|-----------|--------------|--------------|---------|--------|
+| **Code Sharing** | 95% (logic + UI) | 70% (logic only) | 90% (logic + UI) | **KMP** |
+| **Desktop Support** | Native (Compose Desktop) | Poor (Electron wrapper) | Beta (unstable) | **KMP** |
+| **Performance** | Native compilation | JavaScript bridge | Compiled (Dart VM) | KMP/Flutter |
+| **Type Safety** | Strong (Kotlin) | Weak (TypeScript at compile) | Strong (Dart) | KMP/Flutter |
+| **Native Integration** | Direct (expect/actual) | Bridges (JSI) | Plugins (FFI) | **KMP** |
+| **Team Expertise** | High (Kotlin/Java) | Medium (JavaScript) | Low (Dart) | **KMP** |
+| **Ecosystem Maturity** | Growing (2023+) | Mature (2015+) | Mature (2017+) | React Native/Flutter |
+| **Jetpack Compose** | Native | N/A | N/A | **KMP** |
+
+**Consequences:**
+
+*Positive:*
+- ✅ **95% code reuse** across Android, iOS, Desktop (business logic + UI)
+- ✅ Native performance (no JavaScript bridge overhead)
+- ✅ Type-safe interop with backend (shared Kotlin data classes)
+- ✅ Compose UI familiar to Android developers (declarative paradigm)
+- ✅ True desktop apps (not Electron wrappers) - better performance, smaller bundles
+
+*Negative:*
+- ❌ **Smaller ecosystem** vs. React Native/Flutter (fewer libraries)
+- ❌ iOS support still maturing (Compose Multiplatform iOS in alpha during development)
+- ❌ Steeper learning curve for non-Kotlin developers
+- ❌ Build times longer than React Native (full compilation)
+
+*Mitigation Strategies:*
+- Focus on Android + Desktop for MVP (defer iOS to v2.0)
+- Use expect/actual declarations for platform-specific code
+- Leverage existing Kotlin libraries (Ktor, kotlinx.serialization, Koin)
+- Monitor Compose Multiplatform iOS stability; fallback to SwiftUI if needed
+
+**Code Sharing Breakdown:**
+- **Shared (95%):** Domain models, use cases, repositories, ViewModels, UI components
+- **Platform-specific (5%):** Camera access (CameraX vs. AVFoundation), biometric auth, notifications
+
+**Alternatives Considered:**
+1. **Native (Swift + Kotlin):** Rejected due to 0% code sharing, 3x development time
+2. **.NET MAUI:** Rejected due to team unfamiliarity with C#
+3. **Ionic/Capacitor:** Rejected due to poor native integration for biometric APIs
+
+---
+
+#### ADR-004: JWT with HS512 vs. RS256 for Token Signing
+
+**Status:** Accepted
+**Date:** October 2025
+**Deciders:** Security Lead, Backend Lead
+
+**Context:**
+Access tokens require digital signatures to prevent tampering. Two primary JWT algorithms considered:
+- **HS512:** Symmetric signing (shared secret)
+- **RS256:** Asymmetric signing (public/private key pair)
+
+**Decision:**
+Selected **HS512** (HMAC with SHA-512) for JWT signing.
+
+**Rationale:**
+
+| Criterion | HS512 | RS256 | Winner |
+|-----------|-------|-------|--------|
+| **Security** | High (512-bit secret) | Higher (2048-bit RSA) | RS256 |
+| **Performance** | Fast (symmetric crypto) | Slower (asymmetric crypto) | **HS512** |
+| **Key Distribution** | Shared secret (both services) | Public key distribution | RS256 |
+| **Token Verification** | Requires secret (backend only) | Public key (any service) | RS256 |
+| **Complexity** | Low | Medium (key rotation) | **HS512** |
+| **Token Size** | Smaller (HMAC-SHA512: 64 bytes) | Larger (RSA-SHA256: 256 bytes) | **HS512** |
+
+**Consequences:**
+
+*Positive:*
+- ✅ **5-10x faster** token signing and verification (benchmarked: HS512: 5µs, RS256: 50µs)
+- ✅ Simpler key management (single secret stored in environment variable)
+- ✅ Smaller token payload (reduces HTTP header size)
+- ✅ Sufficient security for internal microservices (no public verification needed)
+
+*Negative:*
+- ❌ Shared secret must be protected (leaked secret compromises all tokens)
+- ❌ All services require secret access (no public verification)
+- ❌ Secret rotation requires coordinated deployment
+
+*Mitigation Strategies:*
+- Store JWT secret in environment variable (not in code)
+- Rotate secret quarterly using blue-green deployment
+- Implement short token expiry (15 minutes) to limit compromise window
+- Use refresh tokens (separate secret) for long-lived sessions
+
+**Security Considerations:**
+- Secret strength: 512-bit random (base64-encoded, 86 characters)
+- Stored in: Docker secrets (production), .env file (development)
+- Access: Identity Core API only (Biometric Processor uses opaque tokens)
+
+**When to Migrate to RS256:**
+- Public API launch (third-party integrations need token verification)
+- Multi-region deployment (different keys per region)
+- Compliance requirement (e.g., FIPS 140-2 mandates asymmetric signing)
+
+**Alternatives Considered:**
+1. **HS256 (HMAC-SHA256):** Rejected in favor of stronger HS512 (minimal performance difference)
+2. **EdDSA (Ed25519):** Rejected due to limited library support in Java/Kotlin ecosystem
+3. **Opaque tokens (random UUIDs):** Used for refresh tokens, but requires database lookup (slower)
+
 ---
 
 ## 6. Tasks Accomplished
@@ -1452,40 +2174,96 @@ The Biometric Processor is the most complete component, implementing:
 
 ### 6.3 Gantt Chart
 
+This section presents the project timeline in tabular format as required by CSE4197 ADD guidelines, showing task decomposition, expected outputs, dependencies, and monthly progress tracking.
+
+#### 6.3.1 Fall Semester (CSE4297) Timeline
+
+**Duration:** September 2025 - January 2026 (5 months)
+
+| Task No | Task Description | Expected Output | Responsible | Sep | Oct | Nov | Dec | Jan | Status | Dependencies |
+|---------|------------------|-----------------|-------------|-----|-----|-----|-----|-----|--------|--------------|
+| **F-1** | Project Initiation & Setup | Git repository, Docker Compose environment, CI/CD pipeline | AAG | ████ | | | | | ✅ Complete | None |
+| **F-2** | Database Schema Design | ER diagram, 9 Flyway migrations, pgvector setup | AAG | ████ | ████ | | | | ✅ Complete | F-1 |
+| **F-3** | Identity Core - Base Implementation | User registration, JWT authentication, RBAC schema | AAG | | ████ | ████ | | | ✅ Complete | F-2 |
+| **F-4** | Biometric Processor - Core API | Face detection, embedding generation, quality analysis | AA | | | ████ | ████ | | ✅ Complete | F-2 |
+| **F-5** | Liveness Detection Algorithm | Biometric Puzzle (active + passive), MediaPipe integration | AA | | | ████ | ████ | | ✅ Complete | F-4 |
+| **F-6** | Web Admin Dashboard | React 18 UI, 14+ pages, shadcn/ui components | Team | | | | ████ | ████ | ✅ Complete | F-3, F-4 |
+| **F-7** | Service Integration | Identity Core ↔ Biometric Processor API contracts | AAG, AA | | | | | ████ | 🔄 70% | F-3, F-4 |
+| **F-8** | Mobile App - UI Development | Android app with Compose Multiplatform, 6 screens | AGE | | | ████ | ████ | ████ | ✅ Complete | F-3 |
+| **F-9** | Desktop App - Kiosk Mode | Desktop app with kiosk + admin modes | AGE | | | | ████ | ████ | ✅ Complete | F-3 |
+| **F-10** | NFC Reader - Proof of Concept | Turkish eID reader, universal card detector | AA | | ████ | ████ | ████ | | ✅ Complete | None |
+| **F-11** | PSD Documentation | Project Specification Document submission | Team | | | | | ████ | ✅ Complete | All |
+
+**Legend:** ████ = Work performed during month | ✅ = Complete | 🔄 = In Progress | ⏳ = Pending
+
+**Critical Path:** F-1 → F-2 → F-3 → F-4 → F-5 → F-7 → F-11
+
+#### 6.3.2 Spring Semester (CSE4197) Timeline
+
+**Duration:** February 2026 - June 2026 (5 months)
+
+| Task No | Task Description | Expected Output | Responsible | Feb | Mar | Apr | May | Jun | Status | Dependencies |
+|---------|------------------|-----------------|-------------|-----|-----|-----|-----|-----|--------|--------------|
+| **S-1** | RBAC Implementation | Permission enforcement, role-based access control | AAG | ████ | ████ | | | | ⏳ Planned | F-3 |
+| **S-2** | Service Integration - Complete | Full Identity ↔ Biometric integration, webhooks | AAG, AA | ████ | ████ | | | | ⏳ Planned | F-7 |
+| **S-3** | Mobile App - Backend Connection | API client, authentication flow, biometric enrollment | AGE | | ████ | ████ | | | ⏳ Planned | S-2 |
+| **S-4** | Desktop App - Production Ready | Admin dashboard, session management, NFC integration | AGE | | ████ | ████ | | | ⏳ Planned | S-2 |
+| **S-5** | Vector Search Optimization | pgvector index tuning, query performance benchmarks | AA | | | ████ | | | ⏳ Planned | S-2 |
+| **S-6** | End-to-End Testing | Playwright tests, API integration tests, mobile E2E | Team | | | ████ | ████ | | ⏳ Planned | S-3, S-4 |
+| **S-7** | Performance Optimization | Load testing, caching strategy, API response time tuning | AAG | | | | ████ | | ⏳ Planned | S-6 |
+| **S-8** | Security Audit | OWASP ZAP scan, penetration testing, vulnerability fixes | Team | | | | ████ | ████ | ⏳ Planned | S-6 |
+| **S-9** | Documentation Finalization | ADD document, API documentation, deployment guide | Team | | | | ████ | ████ | 🔄 80% | All |
+| **S-10** | Demo Preparation | Demo video, presentation slides, system demonstration | Team | | | | | ████ | ⏳ Planned | S-9 |
+| **S-11** | ADD Submission & Defense | Final ADD submission, defense presentation | Team | | | | | ████ | ⏳ Planned | S-9, S-10 |
+
+**Legend:** ████ = Planned work month | ✅ = Complete | 🔄 = In Progress | ⏳ = Pending
+
+**Critical Path:** S-1 → S-2 → S-3/S-4 → S-6 → S-7 → S-8 → S-9 → S-11
+
+#### 6.3.3 Task Dependencies Graph
+
+```mermaid
+graph LR
+    F1[F-1: Setup] --> F2[F-2: Database]
+    F2 --> F3[F-3: Identity Core]
+    F2 --> F4[F-4: Biometric Core]
+    F3 --> F6[F-6: Web Dashboard]
+    F3 --> F7[F-7: Integration]
+    F3 --> F8[F-8: Mobile UI]
+    F3 --> F9[F-9: Desktop UI]
+    F4 --> F5[F-5: Liveness]
+    F4 --> F6
+    F4 --> F7
+    F5 --> F7
+    F7 --> F11[F-11: PSD]
+    F8 --> F11
+    F9 --> F11
+
+    F3 --> S1[S-1: RBAC]
+    F7 --> S2[S-2: Full Integration]
+    S1 --> S2
+    S2 --> S3[S-3: Mobile Backend]
+    S2 --> S4[S-4: Desktop Production]
+    S2 --> S5[S-5: Vector Optimization]
+    S3 --> S6[S-6: E2E Testing]
+    S4 --> S6
+    S6 --> S7[S-7: Performance]
+    S6 --> S8[S-8: Security]
+    S7 --> S9[S-9: Documentation]
+    S8 --> S9
+    S9 --> S10[S-10: Demo Prep]
+    S10 --> S11[S-11: ADD Defense]
 ```
-FIVUCSAS Project Timeline (2025-2026)
-==================================================================================
 
-FALL SEMESTER (CSE4297) - September 2025 to January 2026
-----------------------------------------------------------------------------------
-                     Sep    Oct    Nov    Dec    Jan
-Task                 |------|------|------|------|
-Project Setup        ████
-Database Design           ████
-Identity Core Base             ████
-Biometric Core                      ████
-Liveness Algorithm                       ████
-Web Dashboard                                 ████
-Integration                                        ████
-PSD Document                                            ████
+#### 6.3.4 Resource Allocation
 
-SPRING SEMESTER (CSE4197) - February 2026 to June 2026
-----------------------------------------------------------------------------------
-                     Feb    Mar    Apr    May    Jun
-Task                 |------|------|------|------|
-RBAC Implementation  ████
-Service Integration       ████
-Mobile Integration             ████
-Desktop Completion                  ████
-E2E Testing                              ████
-Performance Opt.                              ████
-Security Audit                                     ████
-ADD & Demo                                              ████
-
-==================================================================================
-Legend: ████ = Task Duration    Current: January 2026
-==================================================================================
-```
+| Resource | Fall Semester Allocation (hours) | Spring Semester Allocation (hours) | Total |
+|----------|----------------------------------|-------------------------------------|-------|
+| **AAG (Ahmet Abdullah)** | 280 hours (Identity Core, Database, Integration) | 200 hours (RBAC, Performance, Security) | 480 hours |
+| **AA (Ayşenur)** | 320 hours (Biometric Processor, Liveness, NFC) | 180 hours (Vector Optimization, Testing) | 500 hours |
+| **AGE (Ayşe Gülsüm)** | 240 hours (Mobile + Desktop UI) | 220 hours (Backend Integration, Testing) | 460 hours |
+| **Team Collaborative** | 120 hours (Web Dashboard, PSD) | 160 hours (E2E Testing, Documentation, Demo) | 280 hours |
+| **Total Project Effort** | 960 hours | 760 hours | **1,720 hours** |
 
 #### 6.3.1 Milestone Summary
 
