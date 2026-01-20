@@ -946,6 +946,66 @@ Desktop application targets Windows, Linux, and macOS using Kotlin Multiplatform
 | Web App | 10 | 45 | 65% |
 | Client Apps (shared) | 50+ | 120 | 75% |
 
+#### 4.4.5 Test Timeline and Resource Allocation
+
+This subsection provides estimated calendar time required for testing tasks, fulfilling CSE4197 ADD requirements for temporal planning.
+
+**Testing Phase Schedule (Semester 1: September 2025 - January 2026)**
+
+| Task No | Test Task / Milestone | Responsible | Estimated Hours | Week | Deadline | Status |
+|---------|----------------------|-------------|-----------------|------|----------|--------|
+| **Phase 1: Unit Testing** |
+| T-1.1 | Identity Core - Unit Tests (User, Auth, Token services) | AAG | 16 hours | Week 4-5 | Oct 13, 2025 | ✓ Complete |
+| T-1.2 | Biometric Processor - Unit Tests (Enrollment, Verification) | AA | 18 hours | Week 4-6 | Oct 20, 2025 | ✓ Complete |
+| T-1.3 | Liveness Detection - Unit Tests (EAR, MAR, Spoof detection) | AA | 12 hours | Week 6-7 | Oct 27, 2025 | ✓ Complete |
+| T-1.4 | Client Apps - Unit Tests (ViewModels, Use Cases) | AGE | 14 hours | Week 5-7 | Oct 27, 2025 | ✓ Complete |
+| **Phase 2: Integration Testing** |
+| T-2.1 | Identity Core ↔ PostgreSQL (RBAC, Multi-tenancy) | AAG | 12 hours | Week 8-9 | Nov 10, 2025 | ✓ Complete |
+| T-2.2 | Biometric Processor ↔ pgvector (Embedding storage/search) | AA | 10 hours | Week 8-9 | Nov 10, 2025 | ✓ Complete |
+| T-2.3 | Identity Core ↔ Redis (Session management, caching) | AAG | 8 hours | Week 9 | Nov 17, 2025 | ✓ Complete |
+| T-2.4 | Biometric Processor ↔ DeepFace (Model integration) | AA | 6 hours | Week 7 | Nov 3, 2025 | ✓ Complete |
+| **Phase 3: End-to-End Testing** |
+| T-3.1 | User Registration → Login → Biometric Enrollment | Team | 16 hours | Week 10-11 | Nov 24, 2025 | ✓ Complete |
+| T-3.2 | Liveness Challenge → Verification → Access Grant | Team | 14 hours | Week 11-12 | Dec 1, 2025 | ✓ Complete |
+| T-3.3 | Multi-tenant Isolation (Cross-tenant data access prevention) | AAG | 10 hours | Week 12 | Dec 8, 2025 | ✓ Complete |
+| T-3.4 | Mobile App → Backend Integration Tests | AGE | 12 hours | Week 13-14 | Dec 22, 2025 | In Progress |
+| **Phase 4: Performance Testing** |
+| T-4.1 | API Load Testing (100 concurrent users, 500 RPS) | AAG | 8 hours | Week 14 | Dec 22, 2025 | Pending |
+| T-4.2 | Vector Search Benchmark (1K, 10K, 100K embeddings) | AA | 6 hours | Week 14 | Dec 22, 2025 | Pending |
+| T-4.3 | Liveness Detection Latency (Real-time performance) | AA | 4 hours | Week 14 | Dec 22, 2025 | Pending |
+| **Phase 5: Security Testing** |
+| T-5.1 | OWASP ZAP Vulnerability Scan (Identity Core API) | AAG | 4 hours | Week 15 | Dec 29, 2025 | Pending |
+| T-5.2 | Authentication Bypass Attempts (JWT validation) | AAG | 4 hours | Week 15 | Dec 29, 2025 | Pending |
+| T-5.3 | Spoofing Attack Tests (Photo, video, 3D mask) | AA | 6 hours | Week 15 | Dec 29, 2025 | Pending |
+| **Phase 6: Regression & Final Validation** |
+| T-6.1 | Full Regression Suite (All test levels) | Team | 8 hours | Week 16 | Jan 5, 2026 | Pending |
+| T-6.2 | Bug Fixes & Re-testing | Team | 12 hours | Week 16-17 | Jan 7, 2026 | Pending |
+| T-6.3 | Documentation & Test Report Generation | Team | 6 hours | Week 17 | Jan 7, 2026 | Pending |
+
+**Total Testing Effort:** 206 hours (approximately 26 person-days)
+
+**Resource Allocation:**
+- AAG (Ahmet Abdullah Gültekin): 70 hours (Identity Core, Auth, Security)
+- AA (Ayşenur Arıcı): 64 hours (Biometric Processor, Liveness, ML)
+- AGE (Ayşe Gülsüm Eren): 40 hours (Client Apps, Mobile Integration)
+- Team Collaborative: 32 hours (E2E, Regression)
+
+**Testing Infrastructure:**
+- **CI/CD:** GitHub Actions for automated test execution on push
+- **Test Environments:**
+  - Local: Docker Compose (development testing)
+  - Staging: VPS instance (integration/E2E testing)
+  - Performance: Dedicated test runner (8GB RAM, 4 vCPU)
+- **Test Data:**
+  - Synthetic faces: 100 images from public datasets (LFW subset)
+  - Spoofing samples: 50 photo/video attacks
+  - User data: Faker library for realistic test accounts
+
+**Risk Mitigation:**
+- **Time Overruns:** 20% buffer built into Phase 6 for unexpected issues
+- **Blocking Dependencies:** Parallel test development where feasible
+- **Resource Conflicts:** Weekly test review meetings to adjust allocation
+
 ---
 
 ## 5. Software Architecture
