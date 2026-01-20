@@ -1,0 +1,223 @@
+<mxfile host="app.diagrams.net" modified="2025-12-30T12:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram name="NFC Handshake" id="nfc-handshake">
+    <mxGraphModel dx="1434" dy="780" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="NFC Document Verification - BAC Authentication Handshake" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#1a365d;" vertex="1" parent="1">
+          <mxGeometry x="234" y="15" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Standards Badge -->
+        <mxCell id="standards" value="ICAO Doc 9303 | ISO/IEC 14443 | ISO 7816-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d3748;strokeColor=#1a202c;fontColor=#ffffff;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="384" y="55" width="400" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Mobile Device -->
+        <mxCell id="mobile-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ebf8ff;strokeColor=#3182ce;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="200" height="580" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile-icon" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4299e1;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="140" y="115" width="80" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile-screen" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="150" y="130" width="60" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile-label" value="MOBILE&#xa;(NFC Reader)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="240" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile-tech" value="Kotlin + Android NFC API" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="100" y="265" width="160" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ID Card -->
+        <mxCell id="card-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d69e2e;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="880" y="100" width="200" height="580" as="geometry" />
+        </mxCell>
+        <mxCell id="card-shape" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ed8936;strokeColor=#c05621;" vertex="1" parent="1">
+          <mxGeometry x="910" y="120" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="chip-icon" value="CHIP" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d69e2e;fontSize=8;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="920" y="135" width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="card-label" value="ID CARD&#xa;(RFID Chip)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#975a16;" vertex="1" parent="1">
+          <mxGeometry x="900" y="220" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="card-tech" value="eMRTD / Turkish eID" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="900" y="245" width="160" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1: SELECT AID -->
+        <mxCell id="step1-num" value="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4299e1;strokeColor=#2b6cb0;fontColor=#ffffff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="295" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-label" value="SELECT AID" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="135" y="295" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4299e1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="280" y="310" as="sourcePoint" />
+            <mxPoint x="880" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow1-data" value="00 A4 04 0C 07 A0000002471001" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontFamily=Courier New;fontColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="420" y="295" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2: GET CHALLENGE -->
+        <mxCell id="step2-num" value="2" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4299e1;strokeColor=#2b6cb0;fontColor=#ffffff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="345" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-label" value="GET CHALLENGE" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="135" y="345" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4299e1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="280" y="360" as="sourcePoint" />
+            <mxPoint x="880" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow2-data" value="00 84 00 00 08" style="text;html=1;strokeColor=none;fillColor=#ebf8ff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontFamily=Courier New;fontColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="500" y="345" width="160" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Response: Random Number -->
+        <mxCell id="arrow2-resp" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#ed8936;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="880" y="390" as="sourcePoint" />
+            <mxPoint x="280" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow2-resp-data" value="RND.IC (8 bytes random)" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontColor=#975a16;" vertex="1" parent="1">
+          <mxGeometry x="480" y="378" width="200" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- Step 3: BAC Authentication -->
+        <mxCell id="step3-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c6f6d5;strokeColor=#38a169;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="415" width="560" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-num" value="3" style="ellipse;whiteSpace=wrap;html=1;fillColor=#38a169;strokeColor=#276749;fontColor=#ffffff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="445" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-label" value="BAC Authentication" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#276749;" vertex="1" parent="1">
+          <mxGeometry x="135" y="445" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-title" value="Basic Access Control (MRZ-Derived Keys)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#276749;" vertex="1" parent="1">
+          <mxGeometry x="400" y="420" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3-bidir" value="" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=3;strokeColor=#38a169;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="340" y="465" as="sourcePoint" />
+            <mxPoint x="820" y="465" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step3-process" value="1. Parse MRZ (Document Number + DOB + Expiry)&#xa;2. Derive K_seed via SHA-1&#xa;3. Calculate K_enc and K_mac (3DES keys)&#xa;4. Mutual Authentication → Session Keys" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#276749;" vertex="1" parent="1">
+          <mxGeometry x="380" y="475" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-result" value="3DES Secure Messaging Established" style="text;html=1;strokeColor=none;fillColor=#38a169;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="450" y="485" width="260" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Step 4: READ DG1 -->
+        <mxCell id="step4-num" value="4" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9f7aea;strokeColor=#6b46c1;fontColor=#ffffff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="530" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-label" value="READ DG1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#6b46c1;" vertex="1" parent="1">
+          <mxGeometry x="135" y="530" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow4" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#9f7aea;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="280" y="545" as="sourcePoint" />
+            <mxPoint x="880" y="545" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow4-data" value="SELECT EF.DG1 + READ BINARY (Encrypted)" style="text;html=1;strokeColor=none;fillColor=#e9d8fd;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontColor=#553c9a;" vertex="1" parent="1">
+          <mxGeometry x="420" y="530" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- DG1 Response -->
+        <mxCell id="arrow4-resp" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#ed8936;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="880" y="570" as="sourcePoint" />
+            <mxPoint x="280" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dg1-content" value="Personal Data: Name, DOB, Nationality, Document #" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontColor=#975a16;" vertex="1" parent="1">
+          <mxGeometry x="400" y="560" width="360" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- Step 5: READ DG2 -->
+        <mxCell id="step5-num" value="5" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9f7aea;strokeColor=#6b46c1;fontColor=#ffffff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="590" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-label" value="READ DG2" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#6b46c1;" vertex="1" parent="1">
+          <mxGeometry x="135" y="590" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow5" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#9f7aea;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="280" y="605" as="sourcePoint" />
+            <mxPoint x="880" y="605" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow5-data" value="SELECT EF.DG2 + READ BINARY (Encrypted)" style="text;html=1;strokeColor=none;fillColor=#e9d8fd;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontColor=#553c9a;" vertex="1" parent="1">
+          <mxGeometry x="420" y="590" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- DG2 Response -->
+        <mxCell id="arrow5-resp" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#ed8936;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="880" y="630" as="sourcePoint" />
+            <mxPoint x="280" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dg2-content" value="HD Photo (JPEG2000) - Higher quality than printed photo" style="text;html=1;strokeColor=none;fillColor=#fef3c7;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontColor=#975a16;" vertex="1" parent="1">
+          <mxGeometry x="390" y="620" width="380" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- Step 6: Verify SOD -->
+        <mxCell id="step6-num" value="6" style="ellipse;whiteSpace=wrap;html=1;fillColor=#38a169;strokeColor=#276749;fontColor=#ffffff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="650" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step6-label" value="VERIFY SOD" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#276749;" vertex="1" parent="1">
+          <mxGeometry x="135" y="650" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow6" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#38a169;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="880" y="665" as="sourcePoint" />
+            <mxPoint x="280" y="665" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sod-verify" value="Security Object Document - Digital Signature Verified" style="text;html=1;strokeColor=none;fillColor=#c6f6d5;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=1;fontColor=#276749;" vertex="1" parent="1">
+          <mxGeometry x="400" y="655" width="360" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="checkmark" value="✓ DOCUMENT AUTHENTIC" style="text;html=1;strokeColor=none;fillColor=#38a169;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="900" y="650" width="160" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Supported Cards -->
+        <mxCell id="cards-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7fafc;strokeColor=#a0aec0;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="700" width="1000" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cards-label" value="SUPPORTED CARDS:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="90" y="710" width="130" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cards-list" value="Turkish eID | e-Passport | MIFARE Classic 1K/4K | MIFARE DESFire | MIFARE Ultralight | NDEF Tags | ISO 15693 | Student Cards" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="220" y="710" width="840" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Figure Caption -->
+        <mxCell id="caption" value="Figure 6: NFC BAC Authentication Handshake - ICAO Doc 9303 Compliant" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=2;fontColor=#4a5568;" vertex="1" parent="1">
+          <mxGeometry x="334" y="760" width="500" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Page Number -->
+        <mxCell id="pagenum" value="9/14" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#718096;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="760" width="50" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

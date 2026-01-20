@@ -29,11 +29,10 @@ All new code MUST adhere to these principles.
 ```
 FIVUCSAS/
 ├── identity-core-api/       # Spring Boot backend (Java 21)
-├── biometric-processor/     # FastAPI ML service (Python 3.12)
-├── mobile-app/              # Kotlin Multiplatform (Desktop/Android/iOS)
-├── web-app/                 # React dashboard (not started)
-├── desktop-app/             # Legacy - use mobile-app instead
-├── practice-and-test/       # DeepFace experiments
+├── biometric-processor/     # FastAPI ML service (Python 3.11)
+├── client-apps/             # Kotlin Multiplatform (Android/iOS/Desktop)
+├── web-app/                 # React Admin Dashboard (100% complete)
+├── practice-and-test/       # NFC Readers & ML experiments
 └── docs/                    # Documentation
 ```
 
@@ -109,13 +108,13 @@ pytest
 - Cosine similarity threshold: 0.7 for verification
 - Automatic temp file cleanup after processing
 
-### 3. Mobile/Desktop App (mobile-app)
+### 3. Client Apps (client-apps)
 
 **Technology:** Kotlin Multiplatform, Compose Multiplatform, Clean Architecture
 
 **Running desktop app:**
 ```bash
-cd mobile-app
+cd client-apps
 .\gradlew.bat :desktopApp:run
 ```
 
@@ -126,8 +125,8 @@ cd mobile-app
 
 **Architecture:**
 ```
-mobile-app/
-├── shared/
+client-apps/
+├── shared/                      # 90% shared code
 │   ├── src/commonMain/kotlin/
 │   │   ├── domain/              # Business logic
 │   │   │   ├── model/           # Domain entities
@@ -138,9 +137,9 @@ mobile-app/
 │   │   │   └── remote/          # API clients
 │   │   └── presentation/        # UI logic
 │   │       └── viewmodel/       # ViewModels
-├── desktopApp/                  # Desktop-specific code
-├── androidApp/                  # Android-specific code
-└── iosApp/                      # iOS-specific code
+├── desktopApp/                  # Desktop (Windows/Linux/macOS)
+├── androidApp/                  # Android
+└── iosApp/                      # iOS (planned)
 ```
 
 **Important notes:**
@@ -165,7 +164,7 @@ cd biometric-processor
 uvicorn app.main:app --reload --port 8001
 
 # Terminal 3: Desktop App
-cd mobile-app
+cd client-apps
 .\gradlew.bat :desktopApp:run
 ```
 
@@ -212,9 +211,9 @@ cd biometric-processor
 pytest tests/ -v
 ```
 
-**Mobile App:**
+**Client Apps:**
 ```bash
-cd mobile-app
+cd client-apps
 .\gradlew.bat :shared:test
 ```
 
@@ -370,9 +369,9 @@ interface AuthApi {
 - `biometric-processor/app/api/endpoints/face.py`
 - `identity-core-api/src/main/java/com/fivucsas/identity/service/BiometricService.java`
 
-**For understanding mobile architecture:**
-- `mobile-app/shared/src/commonMain/kotlin/domain/`
-- `mobile-app/shared/src/commonMain/kotlin/data/repository/`
+**For understanding client apps architecture:**
+- `client-apps/shared/src/commonMain/kotlin/domain/`
+- `client-apps/shared/src/commonMain/kotlin/data/repository/`
 
 ## Database Schema
 
@@ -416,13 +415,13 @@ Based on current project status (see PROJECT_STATUS_NOW.md):
 
 ## Documentation References
 
-- Main README: `README.md`
-- Backend details: `identity-core-api/README.md`
-- Biometric service: `biometric-processor/README.md`
-- Mobile app: `mobile-app/README.md`
-- Current status: `PROJECT_STATUS_NOW.md`
-- Running services: `RUNNING_SERVICES_CAPABILITIES.md`
-- Quick start: `START_HERE.md`
+- Main README: `../README.md`
+- Implementation Status: `../IMPLEMENTATION_STATUS_REPORT.md`
+- Architecture Diagrams: `../02-architecture/ARCHITECTURE_DIAGRAMS.md`
+- Module Structure: `../02-architecture/MODULE_STRUCTURE.md`
+- Backend API: `identity-core-api/README.md`
+- Biometric Service: `biometric-processor/README.md`
+- Client Apps: `client-apps/README.md`
 
 ## Notes for Claude Code
 
