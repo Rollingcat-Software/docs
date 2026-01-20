@@ -259,57 +259,772 @@ To rigorously position FIVUCSAS within the competitive landscape, we compare aga
 
 ### 3.1 Functional Requirements
 
-#### FR-1: User Authentication and Management
+This section presents the functional requirements in hierarchical format as per CSE4197 guidelines. Each requirement is structured with: Description, Inputs, Processing, Outputs, and Error/Data Handling subsections.
 
-| ID | Requirement | Inputs | Processing | Outputs | Error Handling |
-|----|-------------|--------|------------|---------|----------------|
-| FR-1.1 | User Registration | Email, password, first name, last name, tenant ID | Validate email format, check uniqueness within tenant, hash password with BCrypt (work factor 12), create user record | User ID, confirmation | 409 Conflict if email exists, 400 Bad Request for validation failures |
-| FR-1.2 | User Login | Email, password, tenant ID | Validate credentials, generate JWT access token (15 min) and refresh token (7 days), create session | Access token, refresh token, user profile | 401 Unauthorized for invalid credentials, 423 Locked if account locked |
-| FR-1.3 | Token Refresh | Refresh token | Validate token, check revocation status, generate new token pair | New access token, new refresh token | 401 Unauthorized if token invalid/revoked |
-| FR-1.4 | Password Reset | Email | Generate reset token, send email notification, token expires in 24 hours | Confirmation message | 404 Not Found if email not registered |
-| FR-1.5 | Profile Update | User ID, profile fields | Validate permissions, update allowed fields | Updated user profile | 403 Forbidden if unauthorized |
+---
 
-#### FR-2: Biometric Enrollment
+#### 3.1.1 FR-1: User Authentication and Management
 
-| ID | Requirement | Inputs | Processing | Outputs | Error Handling |
-|----|-------------|--------|------------|---------|----------------|
-| FR-2.1 | Face Enrollment | User ID, face image(s), liveness proof | Detect face, assess quality (>0.5), verify liveness, generate embedding, store with pgvector | Enrollment ID, quality score | 400 if no face detected, 422 if quality insufficient |
-| FR-2.2 | Quality Assessment | Face image | Analyze brightness, sharpness, pose, occlusion | Quality score (0-1), quality level (EXCELLENT/GOOD/FAIR/POOR) | 400 if image unprocessable |
-| FR-2.3 | Liveness Verification | Challenge ID, video frames | Track facial landmarks, compute EAR/MAR/head pose, verify challenge completion | Liveness result, confidence score | 400 if insufficient frames, 403 if spoof detected |
-| FR-2.4 | Re-enrollment | User ID, new face image, admin override | Delete existing enrollment, process new enrollment | New enrollment ID | 403 if not authorized |
+##### 3.1.1.1 FR-1.1: User Registration
 
-#### FR-3: Biometric Verification
+###### 3.1.1.1.1 Description
+Enables end users to create a new account within a specific tenant boundary. The system validates user input, ensures email uniqueness within the tenant scope, and securely stores credentials using industry-standard cryptographic hashing.
 
-| ID | Requirement | Inputs | Processing | Outputs | Error Handling |
-|----|-------------|--------|------------|---------|----------------|
-| FR-3.1 | 1:1 Verification | User ID, face image | Generate embedding, compare with stored embedding using cosine similarity | Match result, similarity score | 404 if user not enrolled, 401 if no match |
-| FR-3.2 | 1:N Search | Face image, tenant ID, top_k | Generate embedding, vector similarity search across tenant enrollments | Top-k matches with scores | 404 if no matches above threshold |
-| FR-3.3 | Verification with Liveness | Face image, liveness proof | Verify liveness first, then perform verification | Verification result with liveness status | 403 if liveness fails |
+###### 3.1.1.1.2 Inputs
+- **Email:** String in RFC 5322 format (e.g., user@example.com)
+- **Password:** String with minimum 12 characters, including uppercase, lowercase, digit, and special character
+- **First Name:** String (1-50 characters)
+- **Last Name:** String (1-50 characters)
+- **Tenant ID:** UUID identifying the tenant context
 
-#### FR-4: Multi-Tenant Administration
+###### 3.1.1.1.3 Processing
+1. Validate email format against RFC 5322 specification
+2. Check email uniqueness within tenant scope (query users table with tenant_id filter)
+3. Validate password complexity against defined policy
+4. Hash password using BCrypt algorithm with work factor 12
+5. Create user record in database with status "ACTIVE"
+6. Assign default role "USER" for the tenant
+7. Generate confirmation token if email verification required
 
-| ID | Requirement | Inputs | Processing | Outputs | Error Handling |
-|----|-------------|--------|------------|---------|----------------|
-| FR-4.1 | Tenant Creation | Name, domain, subscription plan, settings | Validate domain uniqueness, create tenant with quotas | Tenant ID, API keys | 409 if domain exists |
-| FR-4.2 | Tenant Configuration | Tenant ID, settings | Update biometric thresholds, liveness requirements, rate limits | Updated configuration | 403 if not tenant admin |
-| FR-4.3 | User Quota Management | Tenant ID | Track user count against max_users limit | Current usage, remaining quota | 403 if quota exceeded on new user creation |
-| FR-4.4 | Enrollment Quota Management | Tenant ID | Track enrollment count against max_biometric_enrollments | Current usage, remaining quota | 403 if quota exceeded |
+###### 3.1.1.1.4 Outputs
+- **User ID:** UUID of newly created user
+- **Confirmation Message:** Success response with user details (excluding sensitive data)
+- **HTTP Status:** 201 Created
 
-#### FR-5: Role-Based Access Control
+###### 3.1.1.1.5 Error/Data Handling
+- **409 Conflict:** If email already exists within tenant (returns existing user's ID hash for security)
+- **400 Bad Request:** If email format invalid, password does not meet complexity requirements, or required fields missing
+- **403 Forbidden:** If tenant registration is disabled or tenant quota exceeded
+- **Data Validation:** All inputs sanitized to prevent SQL injection and XSS attacks
 
-| ID | Requirement | Inputs | Processing | Outputs | Error Handling |
-|----|-------------|--------|------------|---------|----------------|
-| FR-5.1 | Role Assignment | User ID, role ID | Validate assigner permissions, create user-role mapping | Assignment confirmation | 403 if insufficient permissions |
-| FR-5.2 | Permission Check | User ID, resource, action | Resolve user roles, aggregate permissions, check authorization | Boolean authorization result | - |
-| FR-5.3 | Custom Role Creation | Tenant ID, role name, permissions | Validate tenant admin, create role with selected permissions | Role ID | 403 if not tenant admin |
+---
 
-#### FR-6: Audit and Compliance
+##### 3.1.1.2 FR-1.2: User Login
 
-| ID | Requirement | Inputs | Processing | Outputs | Error Handling |
-|----|-------------|--------|------------|---------|----------------|
-| FR-6.1 | Audit Logging | Action, resource, user, details | Create immutable audit record with timestamp, IP, user agent | Audit log ID | - |
-| FR-6.2 | Audit Log Query | Tenant ID, filters, pagination | Query audit logs with tenant isolation | Paginated audit records | 403 if unauthorized |
-| FR-6.3 | Verification History | User ID | Retrieve biometric verification attempts | List of verification logs | 403 if unauthorized |
+###### 3.1.1.2.1 Description
+Authenticates a user with email and password credentials, generating JWT tokens for subsequent API access. The system implements secure session management with short-lived access tokens and long-lived refresh tokens.
+
+###### 3.1.1.2.2 Inputs
+- **Email:** String (registered user email)
+- **Password:** String (plaintext password)
+- **Tenant ID:** UUID identifying tenant context
+
+###### 3.1.1.2.3 Processing
+1. Query user record by email and tenant_id
+2. Verify user account status (must be ACTIVE, not LOCKED or SUSPENDED)
+3. Compare submitted password with stored BCrypt hash
+4. Increment failed login counter if password incorrect (lock account after 5 failures)
+5. Generate JWT access token with 15-minute expiration (algorithm: HS512)
+6. Generate JWT refresh token with 7-day expiration
+7. Store refresh token in Redis with user session metadata
+8. Reset failed login counter on successful authentication
+9. Create audit log entry with IP address and user agent
+
+###### 3.1.1.2.4 Outputs
+- **Access Token:** JWT string for API authentication
+- **Refresh Token:** JWT string for token renewal
+- **User Profile:** JSON object containing user_id, email, first_name, last_name, roles
+- **Token Metadata:** Expiration timestamps for both tokens
+- **HTTP Status:** 200 OK
+
+###### 3.1.1.2.5 Error/Data Handling
+- **401 Unauthorized:** If email not found, password incorrect, or tenant mismatch
+- **423 Locked:** If account locked due to repeated failed attempts (requires admin unlock)
+- **403 Forbidden:** If account status is SUSPENDED or DELETED
+- **Rate Limiting:** Enforce 10 login attempts per IP per minute (return 429 Too Many Requests)
+- **Security:** Log all failed attempts for suspicious activity detection
+
+---
+
+##### 3.1.1.3 FR-1.3: Token Refresh
+
+###### 3.1.1.3.1 Description
+Allows clients to obtain a new access token using a valid refresh token without requiring re-authentication. This enables long-lived sessions while maintaining security through short access token lifetimes.
+
+###### 3.1.1.3.2 Inputs
+- **Refresh Token:** JWT string previously issued during login
+
+###### 3.1.1.3.3 Processing
+1. Validate JWT signature and expiration date
+2. Extract user_id and session_id from token claims
+3. Query Redis to verify token not revoked (check against session_id)
+4. Verify user account still active in database
+5. Generate new JWT access token with 15-minute expiration
+6. Generate new JWT refresh token with 7-day expiration
+7. Revoke old refresh token in Redis (add to revocation list)
+8. Store new refresh token in Redis
+
+###### 3.1.1.3.4 Outputs
+- **New Access Token:** JWT string
+- **New Refresh Token:** JWT string
+- **HTTP Status:** 200 OK
+
+###### 3.1.1.3.5 Error/Data Handling
+- **401 Unauthorized:** If refresh token expired, signature invalid, or token revoked
+- **403 Forbidden:** If user account no longer active
+- **Token Rotation:** Old refresh tokens immediately invalidated to prevent replay attacks
+- **Audit:** Log all token refresh operations with timestamp and IP
+
+---
+
+##### 3.1.1.4 FR-1.4: Password Reset
+
+###### 3.1.1.4.1 Description
+Initiates a password reset workflow for users who have forgotten their credentials. The system generates a time-limited reset token and sends it via email notification.
+
+###### 3.1.1.4.2 Inputs
+- **Email:** String (registered user email)
+
+###### 3.1.1.4.3 Processing
+1. Query user by email (do not reveal whether email exists for security)
+2. If user found, generate cryptographically random reset token (32 bytes)
+3. Store token hash in database with 24-hour expiration
+4. Send email with reset link containing token (e.g., /reset-password?token=...)
+5. If user not found, return same success message (prevent email enumeration)
+6. Rate limit reset requests to 3 per email per hour
+
+###### 3.1.1.4.4 Outputs
+- **Confirmation Message:** Generic success message (e.g., "If the email is registered, a reset link has been sent")
+- **HTTP Status:** 200 OK (regardless of email existence)
+
+###### 3.1.1.4.5 Error/Data Handling
+- **404 Not Found:** Never returned to prevent email enumeration attacks
+- **429 Too Many Requests:** If reset request limit exceeded for this email
+- **Email Delivery Failure:** Log error but still return success to client
+- **Token Security:** Reset tokens are single-use and expire after 24 hours
+
+---
+
+##### 3.1.1.5 FR-1.5: Profile Update
+
+###### 3.1.1.5.1 Description
+Allows authenticated users to update their profile information such as name, phone number, and preferences. Admin users can update other users' profiles within their tenant.
+
+###### 3.1.1.5.2 Inputs
+- **User ID:** UUID of user to update (from JWT or request body for admins)
+- **Profile Fields:** JSON object containing updatable fields (first_name, last_name, phone_number, preferences)
+
+###### 3.1.1.5.3 Processing
+1. Extract authenticated user from JWT access token
+2. Verify permission: user can update own profile OR has tenant_admin role
+3. Validate that target user belongs to same tenant
+4. Validate field formats (e.g., phone number regex)
+5. Update only allowed fields (prevent updating email, password, tenant_id directly)
+6. Save changes to database
+7. Invalidate cached user profile in Redis
+8. Create audit log entry
+
+###### 3.1.1.5.4 Outputs
+- **Updated User Profile:** JSON object with all current profile fields
+- **HTTP Status:** 200 OK
+
+###### 3.1.1.5.5 Error/Data Handling
+- **403 Forbidden:** If user attempts to update another user's profile without admin role
+- **404 Not Found:** If target user_id does not exist or belongs to different tenant
+- **400 Bad Request:** If field validation fails (e.g., invalid phone number format)
+- **Immutable Fields:** Email, password, tenant_id cannot be changed via this endpoint (return 400 with error details)
+
+---
+
+#### 3.1.2 FR-2: Biometric Enrollment
+
+##### 3.1.2.1 FR-2.1: Face Enrollment
+
+###### 3.1.2.1.1 Description
+Captures and processes a user's facial biometric data to create a digital enrollment record. The system performs liveness detection, quality assessment, and generates a mathematical embedding vector for future verification operations.
+
+###### 3.1.2.1.2 Inputs
+- **User ID:** UUID of user enrolling biometric
+- **Face Image(s):** One or more images in JPEG/PNG format (base64-encoded or multipart upload)
+- **Liveness Proof:** Video frames or challenge completion token from biometric puzzle
+- **Model Selection:** Optional string specifying face recognition model (Facenet, ArcFace, VGG-Face, etc.)
+
+###### 3.1.2.1.3 Processing
+1. Verify user authentication and biometric.enroll permission
+2. Check tenant enrollment quota not exceeded (max_biometric_enrollments)
+3. Validate liveness proof using Biometric Puzzle algorithm
+4. Decode and validate image format
+5. Detect face using MTCNN detector
+6. Assess image quality (brightness, sharpness, pose angle, occlusion)
+7. Reject if quality score < 0.5 (configurable threshold)
+8. Generate face embedding using selected model (default: Facenet with 128 dimensions)
+9. Normalize embedding vector for cosine similarity
+10. Store embedding in biometric_data table using pgvector data type
+11. Create IVFFlat index for vector similarity search
+12. Delete raw images immediately (GDPR compliance - store embeddings only)
+
+###### 3.1.2.1.4 Outputs
+- **Enrollment ID:** UUID of created biometric enrollment record
+- **Quality Score:** Float value 0.0-1.0 indicating image quality
+- **Quality Level:** Enum (EXCELLENT, GOOD, FAIR, POOR)
+- **Embedding Dimension:** Integer (128, 512, or 2622 depending on model)
+- **HTTP Status:** 201 Created
+
+###### 3.1.2.1.5 Error/Data Handling
+- **400 Bad Request:** If no face detected in image, or image format invalid
+- **422 Unprocessable Entity:** If quality score insufficient (< 0.5)
+- **403 Forbidden:** If tenant enrollment quota exceeded or user lacks permission
+- **409 Conflict:** If user already has active enrollment (prompt for re-enrollment)
+- **Liveness Failure:** Return 403 with failure reason if spoof detected
+- **Data Retention:** Raw images never persisted, only embeddings stored
+
+---
+
+##### 3.1.2.2 FR-2.2: Quality Assessment
+
+###### 3.1.2.2.1 Description
+Analyzes facial image quality across multiple dimensions to ensure enrollment and verification accuracy. The system provides real-time feedback to guide users in capturing optimal biometric samples.
+
+###### 3.1.2.2.2 Inputs
+- **Face Image:** JPEG or PNG image (base64-encoded or binary)
+
+###### 3.1.2.2.3 Processing
+1. Decode image and convert to RGB color space
+2. Detect face region using MTCNN
+3. Analyze brightness: compute mean pixel intensity (target: 100-200 range)
+4. Analyze sharpness: apply Laplacian operator and compute variance (threshold: > 100)
+5. Analyze pose: estimate yaw/pitch/roll angles (target: within ±15 degrees)
+6. Detect occlusions: identify sunglasses, masks, hands using MediaPipe
+7. Compute overall quality score as weighted average:
+   - Brightness: 20%
+   - Sharpness: 30%
+   - Pose: 30%
+   - Occlusion: 20%
+8. Map score to quality level:
+   - EXCELLENT: score ≥ 0.8
+   - GOOD: score ≥ 0.6
+   - FAIR: score ≥ 0.4
+   - POOR: score < 0.4
+
+###### 3.1.2.2.4 Outputs
+- **Quality Score:** Float value 0.0-1.0
+- **Quality Level:** Enum (EXCELLENT/GOOD/FAIR/POOR)
+- **Detailed Metrics:** JSON object containing brightness, sharpness, pose angles, occlusion flags
+- **Recommendations:** Array of strings suggesting improvements (e.g., "Move closer to light source", "Remove sunglasses")
+- **HTTP Status:** 200 OK
+
+###### 3.1.2.2.5 Error/Data Handling
+- **400 Bad Request:** If image format unrecognized or corrupted
+- **422 Unprocessable Entity:** If no face detected in image
+- **Graceful Degradation:** Return partial metrics if some analysis steps fail
+
+---
+
+##### 3.1.2.3 FR-2.3: Liveness Verification
+
+###### 3.1.2.3.1 Description
+Implements the Biometric Puzzle algorithm to detect presentation attacks (spoofing). The system issues random challenges requiring user actions (blink, smile, head turn) and verifies completion using facial landmark tracking.
+
+###### 3.1.2.3.2 Inputs
+- **Challenge ID:** UUID of active liveness challenge session
+- **Video Frames:** Array of images representing sequential frames (minimum 30 frames at 10 FPS)
+
+###### 3.1.2.3.3 Processing
+1. Retrieve challenge configuration from Redis (random 3-5 actions)
+2. Process frames sequentially using MediaPipe Face Mesh (468 landmarks)
+3. For each required action, compute metrics:
+   - **Blink:** Eye Aspect Ratio (EAR) < 0.2 for 2+ consecutive frames
+   - **Smile:** Mouth Aspect Ratio (MAR) > 0.5 for 3+ frames
+   - **Head Turn Left/Right:** Yaw angle < -20° or > +20°
+   - **Nod:** Pitch angle change > 15° over 1 second
+4. Verify actions completed in correct sequence
+5. Detect anomalies:
+   - Uniform texture (printed photo): compute Laplacian variance
+   - Screen reflections: analyze specular highlights
+   - Video replay: check for digital artifacts (JPEG compression patterns)
+6. Compute confidence score based on action completion quality
+7. Require confidence > 0.95 for PASS result
+
+###### 3.1.2.3.4 Outputs
+- **Liveness Result:** Enum (PASS, FAIL, INCONCLUSIVE)
+- **Confidence Score:** Float 0.0-1.0
+- **Completed Actions:** Array of successfully detected actions
+- **Failure Reason:** String describing why challenge failed (if applicable)
+- **HTTP Status:** 200 OK
+
+###### 3.1.2.3.5 Error/Data Handling
+- **400 Bad Request:** If insufficient frames provided (< 30) or challenge_id invalid
+- **403 Forbidden:** If spoof detected (confidence < 0.95, texture anomalies)
+- **410 Gone:** If challenge expired (timeout: 60 seconds)
+- **Retry Limit:** Allow maximum 3 attempts per enrollment session
+- **Security:** Log all failed liveness attempts with frame metadata for forensic analysis
+
+---
+
+##### 3.1.2.4 FR-2.4: Re-enrollment
+
+###### 3.1.2.4.1 Description
+Allows users to update their biometric enrollment with a new face capture. This may be necessary due to significant appearance changes or to improve enrollment quality. Admin override available for forced re-enrollment.
+
+###### 3.1.2.4.2 Inputs
+- **User ID:** UUID of user to re-enroll
+- **New Face Image:** JPEG/PNG image for new enrollment
+- **Admin Override:** Boolean flag (requires tenant_admin role)
+
+###### 3.1.2.4.3 Processing
+1. Verify requester is user themselves OR has tenant_admin role
+2. Query existing enrollment record for user_id
+3. If admin_override=false, require user authentication
+4. Delete existing enrollment record from biometric_data table
+5. Process new enrollment following FR-2.1 workflow
+6. Create audit log entry noting re-enrollment with reason
+7. Invalidate any cached verification results in Redis
+
+###### 3.1.2.4.4 Outputs
+- **New Enrollment ID:** UUID of newly created enrollment
+- **HTTP Status:** 201 Created
+
+###### 3.1.2.4.5 Error/Data Handling
+- **403 Forbidden:** If user attempts re-enrollment without proper authorization
+- **404 Not Found:** If no existing enrollment found for user_id
+- **Transactional:** Deletion and new enrollment executed atomically (rollback on failure)
+- **Backup:** Store old embedding in enrollment_history table for audit purposes (30-day retention)
+
+---
+
+#### 3.1.3 FR-3: Biometric Verification
+
+##### 3.1.3.1 FR-3.1: 1:1 Verification
+
+###### 3.1.3.1.1 Description
+Performs one-to-one biometric verification by comparing a presented face image against a specific user's enrolled embedding. This is the primary authentication mechanism for physical and digital access control.
+
+###### 3.1.3.1.2 Inputs
+- **User ID:** UUID of user claiming identity
+- **Face Image:** JPEG/PNG image of face to verify
+
+###### 3.1.3.1.3 Processing
+1. Retrieve enrolled embedding for user_id from biometric_data table
+2. Generate embedding from presented face image using same model as enrollment
+3. Compute cosine similarity between embeddings: similarity = (A · B) / (||A|| × ||B||)
+4. Retrieve tenant-configured similarity threshold (default: 0.7 for Facenet)
+5. Determine match result: MATCH if similarity ≥ threshold, NO_MATCH otherwise
+6. Create verification log entry with result, similarity score, timestamp
+7. Increment verification counter for analytics
+
+###### 3.1.3.1.4 Outputs
+- **Match Result:** Boolean (true/false)
+- **Similarity Score:** Float 0.0-1.0 indicating confidence
+- **Verification ID:** UUID of verification attempt for audit trail
+- **HTTP Status:** 200 OK
+
+###### 3.1.3.1.5 Error/Data Handling
+- **404 Not Found:** If user_id has no enrollment record
+- **401 Unauthorized:** If similarity score below threshold (log failed attempt)
+- **400 Bad Request:** If face not detected in presented image
+- **Rate Limiting:** Enforce maximum 10 verification attempts per user per minute (prevent brute-force attacks)
+- **Caching:** Cache recent negative results for 5 seconds to prevent rapid retry attacks
+
+---
+
+##### 3.1.3.2 FR-3.2: 1:N Search
+
+###### 3.1.3.2.1 Description
+Performs one-to-many search to identify a person across all enrolled users within a tenant. This supports use cases like identifying unknown visitors or finding duplicates during enrollment.
+
+###### 3.1.3.2.2 Inputs
+- **Face Image:** JPEG/PNG image of face to search
+- **Tenant ID:** UUID of tenant scope for search
+- **Top K:** Integer specifying number of top matches to return (default: 10, max: 100)
+- **Threshold:** Optional minimum similarity threshold (default: 0.6)
+
+###### 3.1.3.2.3 Processing
+1. Generate embedding from search face image
+2. Execute pgvector similarity search query:
+   ```sql
+   SELECT user_id, 1 - (embedding <=> :query_embedding) AS similarity
+   FROM biometric_data
+   WHERE tenant_id = :tenant_id
+   ORDER BY embedding <=> :query_embedding
+   LIMIT :top_k
+   ```
+3. Use IVFFlat index for fast approximate nearest neighbor search
+4. Filter results where similarity ≥ threshold
+5. Enrich results with user profile data (name, email) from users table
+6. Create search audit log entry
+
+###### 3.1.3.2.4 Outputs
+- **Matches:** JSON array of objects containing:
+  - user_id: UUID
+  - similarity: Float 0.0-1.0
+  - user_profile: Object with first_name, last_name, email
+  - rank: Integer position in results
+- **Total Results:** Integer count of matches above threshold
+- **HTTP Status:** 200 OK
+
+###### 3.1.3.2.5 Error/Data Handling
+- **404 Not Found:** If no matches found above threshold (return empty array with 200 OK)
+- **400 Bad Request:** If face not detected or top_k exceeds maximum
+- **Performance:** Query time increases with database size; monitor and enforce limits:
+  - < 50ms for 1K enrollments
+  - < 100ms for 10K enrollments
+  - < 200ms for 100K enrollments
+- **Privacy:** Limit search to users within same tenant (strict row-level security)
+
+---
+
+##### 3.1.3.3 FR-3.3: Verification with Liveness
+
+###### 3.1.3.3.1 Description
+Combines liveness detection with 1:1 verification to provide maximum security against presentation attacks. This two-stage process ensures the presented biometric is both genuine and matching the claimed identity.
+
+###### 3.1.3.3.2 Inputs
+- **User ID:** UUID of user claiming identity
+- **Face Image:** JPEG/PNG final face image after liveness
+- **Liveness Proof:** Challenge completion token or video frames
+
+###### 3.1.3.3.3 Processing
+1. **Stage 1 - Liveness Verification:**
+   - Execute FR-2.3 Liveness Verification workflow
+   - Require confidence > 0.95 to proceed
+   - If liveness fails, abort immediately without checking identity
+2. **Stage 2 - Identity Verification:**
+   - Execute FR-3.1 1:1 Verification workflow
+   - Use final frame from liveness challenge for embedding
+3. Combine results into single response
+4. Create audit log with both liveness and verification details
+
+###### 3.1.3.3.4 Outputs
+- **Overall Result:** Enum (VERIFIED, FAILED_LIVENESS, FAILED_VERIFICATION)
+- **Liveness Status:** Object containing result, confidence
+- **Verification Status:** Object containing match result, similarity
+- **Verification ID:** UUID for audit trail
+- **HTTP Status:** 200 OK
+
+###### 3.1.3.3.5 Error/Data Handling
+- **403 Forbidden:** If liveness verification fails (return liveness details)
+- **401 Unauthorized:** If liveness passes but identity verification fails
+- **Short-Circuit:** Abort after liveness failure to minimize processing time
+- **Audit:** Log all failed attempts with specific failure stage for security monitoring
+
+---
+
+#### 3.1.4 FR-4: Multi-Tenant Administration
+
+##### 3.1.4.1 FR-4.1: Tenant Creation
+
+###### 3.1.4.1.1 Description
+Allows system administrators to provision new tenant organizations within the SaaS platform. Each tenant receives isolated data storage, configurable quotas, and unique API credentials.
+
+###### 3.1.4.1.2 Inputs
+- **Name:** String (1-100 characters, tenant organization name)
+- **Domain:** String (unique domain identifier, e.g., "acme-corp")
+- **Subscription Plan:** Enum (FREE, BASIC, PROFESSIONAL, ENTERPRISE)
+- **Settings:** JSON object containing:
+  - max_users: Integer quota
+  - max_biometric_enrollments: Integer quota
+  - similarity_threshold: Float 0.0-1.0
+  - liveness_required: Boolean
+
+###### 3.1.4.1.3 Processing
+1. Validate system administrator role (requires system_admin permission)
+2. Check domain uniqueness across all tenants
+3. Create tenant record with status "ACTIVE"
+4. Generate tenant-specific API key (HMAC-SHA256 with secret)
+5. Initialize default quotas based on subscription plan
+6. Create default roles (TENANT_ADMIN, USER) for tenant
+7. Create default admin user account for tenant
+8. Initialize tenant-specific Redis namespace for caching
+9. Create audit log entry
+
+###### 3.1.4.1.4 Outputs
+- **Tenant ID:** UUID of created tenant
+- **API Key:** String for tenant API authentication
+- **Admin Credentials:** Temporary admin username and password
+- **HTTP Status:** 201 Created
+
+###### 3.1.4.1.5 Error/Data Handling
+- **409 Conflict:** If domain already exists (tenant domains must be globally unique)
+- **403 Forbidden:** If requester lacks system_admin role
+- **400 Bad Request:** If invalid subscription plan or quota settings
+- **Transactional:** Rollback all changes if any step fails (tenant, roles, admin user)
+
+---
+
+##### 3.1.4.2 FR-4.2: Tenant Configuration
+
+###### 3.1.4.2.1 Description
+Enables tenant administrators to customize system behavior for their organization, including biometric thresholds, liveness requirements, and rate limiting policies.
+
+###### 3.1.4.2.2 Inputs
+- **Tenant ID:** UUID of tenant to configure
+- **Settings:** JSON object with one or more of:
+  - similarity_threshold: Float 0.5-0.95 (verification threshold)
+  - liveness_required: Boolean (enforce liveness for all verifications)
+  - liveness_confidence_threshold: Float 0.8-0.99
+  - rate_limit_requests_per_minute: Integer 10-10000
+  - session_timeout_minutes: Integer 5-1440
+  - biometric_model: Enum (Facenet, ArcFace, VGG-Face)
+
+###### 3.1.4.2.3 Processing
+1. Verify requester has tenant_admin role for target tenant
+2. Validate each setting value against allowed ranges
+3. Update tenant configuration in tenants table
+4. Invalidate cached tenant settings in Redis
+5. Notify all active sessions to reload configuration (publish event)
+6. Create audit log entry with old and new values
+
+###### 3.1.4.2.4 Outputs
+- **Updated Configuration:** JSON object with all current tenant settings
+- **HTTP Status:** 200 OK
+
+###### 3.1.4.2.5 Error/Data Handling
+- **403 Forbidden:** If requester is not tenant admin for this tenant
+- **400 Bad Request:** If setting value out of allowed range or invalid setting key
+- **Validation:** Reject similarity_threshold > 0.95 (too strict, high false rejection)
+- **Validation:** Reject liveness_confidence_threshold < 0.8 (security risk)
+
+---
+
+##### 3.1.4.3 FR-4.3: User Quota Management
+
+###### 3.1.4.3.1 Description
+Tracks and enforces user account limits per tenant based on subscription plan. Prevents quota overruns and provides visibility into current usage.
+
+###### 3.1.4.3.2 Inputs
+- **Tenant ID:** UUID of tenant to query
+
+###### 3.1.4.3.3 Processing
+1. Query current user count for tenant:
+   ```sql
+   SELECT COUNT(*) FROM users WHERE tenant_id = :tenant_id AND status = 'ACTIVE'
+   ```
+2. Retrieve max_users quota from tenant configuration
+3. Calculate remaining quota: remaining = max_users - current_count
+4. Calculate usage percentage: usage_pct = (current_count / max_users) * 100
+
+###### 3.1.4.3.4 Outputs
+- **Current Users:** Integer count of active users
+- **Max Users:** Integer quota limit
+- **Remaining:** Integer available user slots
+- **Usage Percentage:** Float 0.0-100.0
+- **HTTP Status:** 200 OK
+
+###### 3.1.4.3.5 Error/Data Handling
+- **403 Forbidden:** If new user registration attempted when remaining = 0 (return quota details)
+- **Warning:** Return HTTP 200 with warning header when usage > 90% (approaching limit)
+- **Soft Delete:** Deleted users count toward quota for 30 days (prevent quota gaming)
+
+---
+
+##### 3.1.4.4 FR-4.4: Enrollment Quota Management
+
+###### 3.1.4.4.1 Description
+Tracks and enforces biometric enrollment limits per tenant. This controls storage costs and ensures fair resource allocation across tenants.
+
+###### 3.1.4.4.2 Inputs
+- **Tenant ID:** UUID of tenant to query
+
+###### 3.1.4.4.3 Processing
+1. Query current enrollment count for tenant:
+   ```sql
+   SELECT COUNT(*) FROM biometric_data WHERE tenant_id = :tenant_id AND status = 'ACTIVE'
+   ```
+2. Retrieve max_biometric_enrollments quota from tenant configuration
+3. Calculate storage usage (embeddings consume ~2KB each for 512D vectors)
+4. Calculate remaining quota
+
+###### 3.1.4.4.4 Outputs
+- **Current Enrollments:** Integer count
+- **Max Enrollments:** Integer quota
+- **Remaining:** Integer available slots
+- **Storage Usage MB:** Float estimated storage consumption
+- **HTTP Status:** 200 OK
+
+###### 3.1.4.4.5 Error/Data Handling
+- **403 Forbidden:** If new enrollment attempted when quota exceeded
+- **Quota Upgrade:** Provide upgrade path in error response for quota expansion
+- **Cleanup:** Old enrollments (> 1 year inactive) can be archived to reclaim quota
+
+---
+
+#### 3.1.5 FR-5: Role-Based Access Control
+
+##### 3.1.5.1 FR-5.1: Role Assignment
+
+###### 3.1.5.1.1 Description
+Assigns roles to users within a tenant scope to control access to system features and data. Supports hierarchical role management with permission validation.
+
+###### 3.1.5.1.2 Inputs
+- **User ID:** UUID of user receiving role
+- **Role ID:** UUID of role to assign (must belong to same tenant)
+
+###### 3.1.5.1.3 Processing
+1. Verify assigner has user.assign_role permission (typically tenant_admin)
+2. Validate user and role belong to same tenant
+3. Check role assignment doesn't create circular dependencies
+4. Create user_roles mapping record
+5. Invalidate user's cached permissions in Redis
+6. Force token refresh if user has active session
+7. Create audit log entry
+
+###### 3.1.5.1.4 Outputs
+- **Assignment Confirmation:** Success message with role details
+- **HTTP Status:** 201 Created
+
+###### 3.1.5.1.5 Error/Data Handling
+- **403 Forbidden:** If assigner lacks user.assign_role permission
+- **400 Bad Request:** If user and role belong to different tenants
+- **409 Conflict:** If user already has this role (idempotent - return 200 OK)
+
+---
+
+##### 3.1.5.2 FR-5.2: Permission Check
+
+###### 3.1.5.2.1 Description
+Evaluates whether a user has permission to perform a specific action on a resource. This is called on every API endpoint to enforce authorization policies.
+
+###### 3.1.5.2.2 Inputs
+- **User ID:** UUID of user requesting action
+- **Resource:** String identifying resource type (e.g., "user", "biometric_enrollment")
+- **Action:** String identifying action (e.g., "create", "read", "update", "delete")
+
+###### 3.1.5.2.3 Processing
+1. Retrieve user's roles from database (or Redis cache)
+2. For each role, retrieve associated permissions from role_permissions table
+3. Aggregate permissions across all roles (union operation)
+4. Check if (resource, action) pair exists in aggregated permissions
+5. Apply special rules:
+   - System admins have all permissions
+   - Users can always read/update their own profile
+   - Tenant admins have all permissions within tenant scope
+6. Cache result in Redis for 5 minutes
+
+###### 3.1.5.2.4 Outputs
+- **Authorized:** Boolean (true/false)
+- **HTTP Status:** Used internally (not exposed via API)
+
+###### 3.1.5.2.5 Error/Data Handling
+- **Fail-Secure:** Return false if database connection fails or user not found
+- **Performance:** Use Redis cache aggressively (95%+ cache hit rate expected)
+- **Audit:** Log permission denials for security monitoring
+
+---
+
+##### 3.1.5.3 FR-5.3: Custom Role Creation
+
+###### 3.1.5.3.1 Description
+Allows tenant administrators to define custom roles tailored to their organizational structure, selecting from available system permissions.
+
+###### 3.1.5.3.2 Inputs
+- **Tenant ID:** UUID of tenant creating role
+- **Role Name:** String (e.g., "Enrollment Operator")
+- **Permissions:** Array of permission objects (resource + action pairs)
+
+###### 3.1.5.3.3 Processing
+1. Verify requester has tenant_admin role
+2. Validate role name uniqueness within tenant
+3. Validate all requested permissions are valid system permissions
+4. Create role record with tenant scope
+5. Create role_permissions mappings for each permission
+6. Return created role with full permission details
+
+###### 3.1.5.3.4 Outputs
+- **Role ID:** UUID of created role
+- **Role Details:** Object with name, description, permissions array
+- **HTTP Status:** 201 Created
+
+###### 3.1.5.3.5 Error/Data Handling
+- **403 Forbidden:** If requester is not tenant admin
+- **400 Bad Request:** If attempting to assign system-level permissions (e.g., create_tenant)
+- **409 Conflict:** If role name already exists within tenant
+
+---
+
+#### 3.1.6 FR-6: Audit and Compliance
+
+##### 3.1.6.1 FR-6.1: Audit Logging
+
+###### 3.1.6.1.1 Description
+Creates immutable audit trail records for all security-relevant actions within the system. Supports compliance with GDPR, HIPAA, and SOC 2 requirements.
+
+###### 3.1.6.1.2 Inputs
+- **Action:** String describing action performed (e.g., "USER_LOGIN", "BIOMETRIC_ENROLLMENT")
+- **Resource:** String identifying affected resource (e.g., "user:123e4567")
+- **User:** UUID of user performing action
+- **Details:** JSON object with action-specific metadata
+
+###### 3.1.6.1.3 Processing
+1. Capture contextual metadata:
+   - Timestamp (UTC with microsecond precision)
+   - IP address from request
+   - User agent string
+   - Session ID if applicable
+2. Create audit_logs record (append-only table)
+3. Async write to prevent blocking API response
+4. Async replication to separate audit database (for tamper resistance)
+5. Retain logs for minimum 90 days (configurable up to 7 years)
+
+###### 3.1.6.1.4 Outputs
+- **Audit Log ID:** UUID of created record
+- **HTTP Status:** N/A (internal operation)
+
+###### 3.1.6.1.5 Error/Data Handling
+- **Write Failures:** Queue failed logs for retry (critical priority)
+- **Immutability:** Audit logs cannot be updated or deleted (enforced by database constraints)
+- **Async Processing:** Use message queue to avoid impacting API latency
+
+---
+
+##### 3.1.6.2 FR-6.2: Audit Log Query
+
+###### 3.1.6.2.1 Description
+Provides tenant administrators with ability to search and retrieve audit logs for compliance reporting and security investigations.
+
+###### 3.1.6.2.2 Inputs
+- **Tenant ID:** UUID of tenant (enforced tenant isolation)
+- **Filters:** JSON object with optional filters:
+  - action: String or array (e.g., ["USER_LOGIN", "BIOMETRIC_ENROLLMENT"])
+  - user_id: UUID
+  - date_from: ISO 8601 timestamp
+  - date_to: ISO 8601 timestamp
+  - resource: String pattern
+- **Pagination:** Object with offset and limit (max 1000 records per request)
+
+###### 3.1.6.2.3 Processing
+1. Verify requester has audit.read permission (tenant_admin role)
+2. Build query with tenant_id filter (strict row-level security)
+3. Apply additional filters from request
+4. Execute paginated query on audit_logs table
+5. Return results with total count for pagination
+
+###### 3.1.6.2.4 Outputs
+- **Audit Records:** JSON array of log objects with timestamp, action, user, details
+- **Total Count:** Integer total matching records (for pagination)
+- **HTTP Status:** 200 OK
+
+###### 3.1.6.2.5 Error/Data Handling
+- **403 Forbidden:** If requester lacks audit.read permission or attempts cross-tenant query
+- **Performance:** Enforce max date range of 90 days per query (prevent expensive scans)
+- **Retention:** Records older than retention period return 410 Gone
+
+---
+
+##### 3.1.6.3 FR-6.3: Verification History
+
+###### 3.1.6.3.1 Description
+Retrieves historical biometric verification attempts for a specific user to support security investigations and user self-service.
+
+###### 3.1.6.3.2 Inputs
+- **User ID:** UUID of user to query
+- **Pagination:** Optional offset and limit
+
+###### 3.1.6.3.3 Processing
+1. Verify requester is user themselves OR has tenant_admin role
+2. Query verification_logs table filtered by user_id
+3. Include: timestamp, result (MATCH/NO_MATCH), similarity score, IP address
+4. Order by timestamp descending (most recent first)
+5. Apply pagination
+
+###### 3.1.6.3.4 Outputs
+- **Verification Logs:** JSON array with verification attempt details
+- **Total Count:** Integer count of all verification attempts
+- **HTTP Status:** 200 OK
+
+###### 3.1.6.3.5 Error/Data Handling
+- **403 Forbidden:** If requester is not user or tenant admin
+- **Privacy:** Exclude raw biometric data from response (only similarity scores)
+- **Retention:** Verification logs retained for 90 days
 
 ### 3.2 Non-Functional Requirements
 
