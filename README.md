@@ -84,6 +84,12 @@
 - [KMP_IMPLEMENTATION_STATUS.md](07-status/KMP_IMPLEMENTATION_STATUS.md) - Kotlin Multiplatform status
 - [MOBILE_APP_STATUS.md](07-status/MOBILE_APP_STATUS.md) - Mobile app status
 
+### 8️⃣ [Website & Marketing](08-website/)
+**Landing website documentation for fivucsas.rollingcatsoftware.com**
+- [ADD_LANDING_WEBSITE.md](08-website/ADD_LANDING_WEBSITE.md) - ⭐ **Landing website Analysis & Design Document**
+- Domain: `fivucsas.rollingcatsoftware.com` (Hostinger)
+- Purpose: Marketing, branding, lead generation
+
 ---
 
 ## 🏗️ System Architecture
@@ -239,6 +245,6 @@ See design documentation:
 
 ---
 
-**Documentation Last Updated:** 2025-12-28
-**Documentation Version:** 2.2 (Updated for January 2026 Defense)
+**Documentation Last Updated:** 2026-02-03
+**Documentation Version:** 2.3 (Added Website & Marketing Module)
 **Project Version:** 1.0.0-SNAPSHOT
