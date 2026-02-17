@@ -4,7 +4,7 @@
 
 > Multi-tenant biometric authentication platform for face recognition, liveness detection, and identity management.
 
-**Project Status:** 65% Complete | **University:** Marmara University | **Department:** Computer Engineering
+**Project Status:** ~80% Complete | **University:** Marmara University | **Department:** Computer Engineering
 
 ---
 
@@ -90,6 +90,20 @@
 - Domain: `fivucsas.rollingcatsoftware.com` (Hostinger)
 - Purpose: Marketing, branding, lead generation
 
+### 9️⃣ [Multi-Modal Authentication](09-auth-flows/)
+**Complete architecture for the multi-modal authentication system**
+- [README.md](09-auth-flows/README.md) - ⭐ **Index & overview of all 10 documents**
+- [01-PLATFORM_CAPABILITY_MATRIX.md](09-auth-flows/01-PLATFORM_CAPABILITY_MATRIX.md) - Auth methods × platforms
+- [02-AUTH_FLOW_ARCHITECTURE.md](09-auth-flows/02-AUTH_FLOW_ARCHITECTURE.md) - Session state machine, Strategy pattern
+- [03-ENROLLMENT_FLOWS.md](09-auth-flows/03-ENROLLMENT_FLOWS.md) - Per-method enrollment flows
+- [04-DATABASE_SCHEMA.md](09-auth-flows/04-DATABASE_SCHEMA.md) - 8 new tables (V16 migration SQL)
+- [05-API_SPECIFICATION.md](09-auth-flows/05-API_SPECIFICATION.md) - REST + WebSocket endpoints
+- [06-SECURITY_DESIGN.md](09-auth-flows/06-SECURITY_DESIGN.md) - Threat model, anti-replay
+- [07-TENANT_ADMIN_UX.md](09-auth-flows/07-TENANT_ADMIN_UX.md) - Auth flow builder UI
+- [08-CROSS_DEVICE_PROTOCOL.md](09-auth-flows/08-CROSS_DEVICE_PROTOCOL.md) - QR bridge + WebSocket
+- [09-IMPLEMENTATION_PHASES.md](09-auth-flows/09-IMPLEMENTATION_PHASES.md) - 8-phase roadmap
+- [10-VOICE_RECOGNITION_DESIGN.md](09-auth-flows/10-VOICE_RECOGNITION_DESIGN.md) - ECAPA-TDNN voice endpoints
+
 ---
 
 ## 🏗️ System Architecture
@@ -127,7 +141,7 @@
 |-----------|-----------|--------|---------------|
 | **Biometric Processor** | FastAPI (Python 3.11) | ✅ 100% | [FastAPI Docs](http://localhost:8001/docs) |
 | **Demo GUI** | Next.js 14, TypeScript | ✅ 100% | Embedded in Biometric Processor |
-| **Identity Core API** | Spring Boot 3.2 (Java 21) | ⚠️ 68% | [Swagger UI](http://localhost:8080/swagger-ui.html) |
+| **Identity Core API** | Spring Boot 3.2 (Java 21) | ⚠️ 90% | [Swagger UI](http://localhost:8080/swagger-ui.html) |
 | **Web Admin Dashboard** | React 18, Material-UI | ✅ 100% | [web-app submodule](../web-app/) |
 | **Mobile/Desktop** | Kotlin Multiplatform | ⚠️ 60% (UI) | [KMP Guide](03-development/KOTLIN_MULTIPLATFORM_GUIDE.md) |
 | **NFC Reader** | Kotlin, Jetpack Compose | ✅ 85% | [practice-and-test](../practice-and-test/) |
@@ -138,15 +152,16 @@
 
 ## 📊 Project Completion Status
 
-**Overall:** ~65% Complete (December 2025)
+**Overall:** ~80% Complete (February 2026)
 
 ```
 Biometric Processor API:  ████████████████████ 100% ✅ Production Ready
 Demo Web GUI:             ████████████████████ 100% ✅ 14+ interactive pages
-Web Admin Dashboard:      ████████████████████ 100% ✅ React 18, Material-UI
-Database Schema:          ████████████████████ 100% ✅ PostgreSQL + pgvector
+Web Admin Dashboard:      ████████████████████ 100% ✅ React 18, Material-UI, deployed
+Database Schema:          ████████████████████ 100% ✅ PostgreSQL + pgvector, 15 migrations
+Auth Flow Architecture:   ████████████████████ 100% ✅ 10 design documents
 NFC Reader (Universal):   █████████████████░░░  85% ✅ 10+ card types
-Identity Core API:        █████████████░░░░░░░  68% ⚠️ JWT auth working
+Identity Core API:        ██████████████████░░  90% ⚠️ Multi-modal auth in progress
 Mobile/Desktop UI:        ████████████░░░░░░░░  60% ⚠️ UI complete, integration pending
 ```
 
@@ -170,7 +185,7 @@ Mobile/Desktop UI:        ████████████░░░░░░
 ### Start Backend API
 ```bash
 cd identity-core-api
-./gradlew bootRun
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 # Access: http://localhost:8080
 # API Docs: http://localhost:8080/swagger-ui.html
 ```
@@ -193,7 +208,7 @@ cd client-apps
 ### Run All Tests
 ```bash
 # Backend
-cd identity-core-api && ./gradlew test
+cd identity-core-api && mvn test
 
 # Mobile
 cd client-apps && ./gradlew :shared:test
@@ -245,6 +260,6 @@ See design documentation:
 
 ---
 
-**Documentation Last Updated:** 2026-02-03
-**Documentation Version:** 2.3 (Added Website & Marketing Module)
+**Documentation Last Updated:** 2026-02-17
+**Documentation Version:** 2.4 (Added Multi-Modal Authentication Module)
 **Project Version:** 1.0.0-SNAPSHOT
