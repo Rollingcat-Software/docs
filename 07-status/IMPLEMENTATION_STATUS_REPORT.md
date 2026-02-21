@@ -1,6 +1,6 @@
 # FIVUCSAS Implementation Status Report
 
-**Date:** February 20, 2026
+**Date:** February 21, 2026
 **Status:** 99% Complete
 **Course:** CSE4297/CSE4197 Engineering Project
 **Organization:** Marmara University - Computer Engineering Department
@@ -14,7 +14,7 @@ Identity Core API:       ██████████████████�
 Biometric Processor:     ████████████████████ 100% - 46+ endpoints, all handlers
 Web Admin Dashboard:     ████████████████████ 100% - Live on Hostinger
 Landing Website:         ████████████████████ 100% - Live on Hostinger
-Database Schema:         ████████████████████ 100% - 16 Flyway migrations
+Database Schema:         ████████████████████ 100% - 17 Flyway migrations (V1-V17)
 CI/CD Pipeline:          ████████████████████ 100% - GitHub Actions
 Documentation:           ████████████████████ 100% - Comprehensive
 Auth System:             ████████████████████ 100% - 10 handlers, E2E tested
@@ -44,7 +44,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 
 **Backend Foundation**
 - Spring Boot 3.2, Java 21, Hexagonal Architecture
-- 16 Flyway database migrations (V1-V16)
+- 17 Flyway database migrations (V1-V17)
 - 8 JPA entities: AuthMethod, TenantAuthMethod, AuthFlow, AuthFlowStep, AuthSession, AuthSessionStep, UserDevice, UserEnrollment
 - 8 repositories with Spring Data JPA
 - PostgreSQL 16 + pgvector for face embeddings
@@ -53,7 +53,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 - Multi-tenancy with row-level isolation
 - RBAC (roles and permissions)
 
-**API Controllers (6 controllers, 508 tests pass)**
+**API Controllers (11 controllers, 528+ tests pass)**
 - AuthController - login, logout, token refresh
 - UserController - CRUD, search, pagination
 - TenantController - multi-tenant management
@@ -64,6 +64,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 - AuthFlowController - configurable auth flows
 - AuthSessionController - runtime session management
 - DeviceController - user device management (userId OR tenantId)
+- StepUpController - fingerprint step-up auth (register-device, challenge, verify-challenge)
 
 **Auth Handler System (10 handlers)**
 - PasswordAuthHandler - mandatory for APP_LOGIN and API_ACCESS
@@ -84,16 +85,26 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 - EmailService - SMTP email delivery
 - Device constraint enforcement (PASSWORD mandatory for APP_LOGIN/API_ACCESS)
 
+**Step-Up Authentication (NEW - Feb 21, 2026)**
+- StepUpController: 3 endpoints (POST /register-device, /challenge, /verify-challenge)
+- StepUpAuthService: device registration, ECDSA P-256 challenge-response flow
+- StepUpChallengeService: Redis-backed challenge storage, 5-min TTL, signature verification
+- V17 migration: adds public_key, public_key_algorithm, step_up_registered_at to user_devices
+- Designed for mobile fingerprint step-up (Android Keystore ECDSA keys)
+
 **Testing**
-- 508 unit tests passing
+- 528+ unit tests passing
 - 24 TestContainers integration tests (5 auth flow + 19 user API)
 - 10 handler unit test files
 - ManageAuthFlowService constraint tests
+- 8 StepUpChallengeService tests (Redis mock, ECDSA crypto)
+- 12 StepUpAuthService tests (register, challenge, verify flows)
 
 **Production**
 - Deployed on GCP VM (europe-central2-a, external IP 34.116.233.134)
 - Running in Docker container: fivucsas-identity-core-api (port 8080)
-- V16 migration applied, sample data seeded (3 tenants, 8 users, audit logs)
+- V17 migration applied, sample data seeded (3 tenants, 8 users, audit logs)
+- Step-up endpoints live and smoke-tested (register-device → 201, challenge → 200)
 - Audit log persistence fix applied (@Transactional/@Async conflict resolved)
 
 ---
@@ -130,7 +141,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 - Tenant management: create, edit, tenant dropdown
 - Audit log viewer: filtering by action, pagination
 - Enrollment status tracking per user
-- Playwright E2E tests: 14/14 pass (auth setup pattern with sessionStorage injection)
+- Playwright E2E tests: 224 tests (217 pass, 7 skipped — covers all 16 pages)
 - Deployed live to https://ica-fivucsas.rollingcatsoftware.com (Hostinger)
 
 ---
@@ -163,6 +174,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 | V14 | User enrollments: user_enrollments |
 | V15 | Sample data: 3 tenants, 8 users, audit logs |
 | V16 | Auth flow constraint enforcement |
+| V17 | Device step-up public key (public_key, public_key_algorithm, step_up_registered_at) |
 
 ---
 
@@ -193,11 +205,12 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 
 | Test Type | Count | Status |
 |-----------|-------|--------|
-| Identity Core unit tests | 508 | Pass |
+| Identity Core unit tests | 528+ | Pass |
+| Step-up unit tests | 20 | Pass |
 | TestContainers auth flow integration | 5 | Pass |
 | TestContainers user API integration | 19 | Pass |
 | Handler unit tests | 10 files | Pass |
-| Playwright E2E (web dashboard) | 14/14 | Pass |
+| Playwright E2E (web dashboard) | 224 (217+7 skip) | Pass |
 | Mobile app unit tests | 7 files | Pending Android SDK |
 
 ---
@@ -249,9 +262,10 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 
 ## Next Steps
 
-1. Setup Cloudflare Tunnel for biometric-processor on laptop GPU (scripts ready)
-2. Mobile app E2E integration testing with Android SDK
-3. Final presentation delivery (Spring 2026)
+1. Coordinate with Aysenur: share step-up endpoint docs, verify public key format compatibility (X.509 DER Base64 vs Android Keystore)
+2. Setup Cloudflare Tunnel for biometric-processor on laptop GPU (scripts ready)
+3. Mobile app E2E integration testing with Android SDK
+4. Final presentation delivery (Spring 2026)
 
 ---
 
@@ -278,5 +292,5 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 
 ---
 
-*Last Updated: February 20, 2026*
+*Last Updated: February 21, 2026*
 *Report Author: FIVUCSAS Team, Marmara University*
