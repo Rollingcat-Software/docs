@@ -10,7 +10,7 @@
 ## Overall Progress: 99% Complete
 
 ```
-Identity Core API:       ████████████████████ 100% - Complete, deployed on GCP
+Identity Core API:       ████████████████████ 100% - Complete, deployed on Hetzner VPS
 Biometric Processor:     ████████████████████ 100% - 46+ endpoints, all handlers
 Web Admin Dashboard:     ████████████████████ 100% - Live on Hostinger
 Landing Website:         ████████████████████ 100% - Live on Hostinger
@@ -30,8 +30,8 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 
 | Service | URL | Status |
 |---------|-----|--------|
-| Identity Core API | http://34.116.233.134:8080 | Running |
-| Swagger UI | http://34.116.233.134:8080/swagger-ui.html | Available |
+| Identity Core API | http://116.203.222.213:8080 | Running |
+| Swagger UI | http://116.203.222.213:8080/swagger-ui.html | Available |
 | Web Dashboard | https://ica-fivucsas.rollingcatsoftware.com | Live |
 | Landing Website | https://fivucsas.rollingcatsoftware.com | Live |
 | Biometric API | https://bpa-fivucsas.rollingcatsoftware.com | Pending (tunnel) |
@@ -101,7 +101,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 - 12 StepUpAuthService tests (register, challenge, verify flows)
 
 **Production**
-- Deployed on GCP VM (europe-central2-a, external IP 34.116.233.134)
+- Deployed on Hetzner VPS (Nuremberg, Germany, external IP 116.203.222.213)
 - Running in Docker container: fivucsas-identity-core-api (port 8080)
 - V17 migration applied, sample data seeded (3 tenants, 8 users, audit logs)
 - Step-up endpoints live and smoke-tested (register-device → 201, challenge → 200)
@@ -241,7 +241,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 
 - Kotlin Multiplatform structure in place
 - 7 test files written
-- Production API URLs configured (http://34.116.233.134:8080)
+- Production API URLs configured (http://116.203.222.213:8080)
 - Shared module: domain models, repository interfaces, Ktor API client
 - Desktop app: Launcher, Kiosk Mode, Admin Dashboard (MVVM, 53 components)
 - Blocked: Android SDK required to run `./gradlew :shared:test`

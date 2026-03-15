@@ -584,8 +584,8 @@ librosa>=0.10.0           # Audio feature extraction
 ## 12. Deployment Order
 
 ```
-1. identity-core-api V16 migration    → Apply to GCP PostgreSQL
-2. identity-core-api new code         → Build JAR → Deploy to GCP VM
+1. identity-core-api V16 migration    → Apply to Hetzner VPS PostgreSQL
+2. identity-core-api new code         → Build JAR → Deploy to Hetzner VPS
 3. biometric-processor voice          → Deploy when Cloudflare Tunnel ready
 4. web-app                           → Build → Upload to Hostinger
 5. client-apps                       → Build APK/Desktop binary
