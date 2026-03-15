@@ -37,7 +37,7 @@ This document analyses the FIVUCSAS platform against the requirements of **Regul
 
 The analysis covers all system components that process biometric data:
 
-- **Identity Core API** — Spring Boot 3.2 / Java 21, deployed on GCP (34.116.233.134:8080)
+- **Identity Core API** — Spring Boot 3.2 / Java 21, deployed on Hetzner VPS (116.203.222.213:8080)
 - **Biometric Processor** — FastAPI / Python, using DeepFace for face recognition
 - **Web Admin Dashboard** — React 18 / TypeScript, deployed at ica-fivucsas.rollingcatsoftware.com
 - **Client Applications** — Kotlin Multiplatform (Android, Desktop)
@@ -563,7 +563,7 @@ Complete API documentation is maintained and publicly accessible:
 
 | Documentation | Location | Format |
 |--------------|----------|--------|
-| Identity Core API | http://34.116.233.134:8080/swagger-ui.html | OpenAPI 3.0 / Swagger UI |
+| Identity Core API | http://116.203.222.213:8080/swagger-ui.html | OpenAPI 3.0 / Swagger UI |
 | Biometric Processor API | https://bpa-fivucsas.rollingcatsoftware.com/docs | FastAPI auto-generated OpenAPI |
 | Architecture Documentation | `docs/02-architecture/` | Markdown, C4 model diagrams |
 | API Services Overview | `docs/04-api/SERVICES_OVERVIEW.md` | Markdown |
@@ -687,7 +687,7 @@ If FIVUCSAS were to be developed into a commercial product, the following additi
 
 ### 12.3 Production Deployment Note
 
-The current deployment at `34.116.233.134:8080` processes biometric data in a **controlled research environment** with a small number of known test users. This does not constitute large-scale commercial biometric processing and falls within the typical academic research exception considered under the EU AI Act's proportionality provisions.
+The current deployment at `116.203.222.213:8080` processes biometric data in a **controlled research environment** with a small number of known test users. This does not constitute large-scale commercial biometric processing and falls within the typical academic research exception considered under the EU AI Act's proportionality provisions.
 
 ---
 

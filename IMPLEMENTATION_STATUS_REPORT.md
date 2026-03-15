@@ -109,7 +109,7 @@ biometric-processor/
 ## 3. Identity Core API
 
 **Location:** `identity-core-api/`
-**Status:** 100% Complete - Deployed on GCP VM (34.116.233.134:8080)
+**Status:** 100% Complete - Deployed on Hetzner VPS (116.203.222.213:8080)
 **Technology:** Spring Boot 3.2, Java 21
 
 ### Implemented Features
@@ -376,7 +376,7 @@ UniversalNfcReader/
 9. Database Schema (16 migrations, pgvector)
 10. Universal NFC Reader (10+ card types)
 11. Turkish eID NFC Reader (functional)
-12. Identity Core API (10 auth handlers, 508 tests, deployed on GCP)
+12. Identity Core API (10 auth handlers, 508 tests, deployed on Hetzner VPS)
 13. Web Admin Dashboard (React 18, deployed to Hostinger)
 14. Landing Website (deployed to fivucsas.rollingcatsoftware.com)
 15. E2E Testing (14/14 Playwright tests pass against production)
@@ -409,7 +409,7 @@ UniversalNfcReader/
 | Demo Frontend | Next.js 14, TypeScript, shadcn/ui |
 | E2E Testing | Playwright (14 tests against production) |
 | CI/CD | GitHub Actions (Java 21, Python 3.11, Node 20) |
-| Infrastructure | Docker, Redis, GCP VM, Hostinger |
+| Infrastructure | Docker, Redis, Hetzner VPS, Hostinger |
 
 ---
 

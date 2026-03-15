@@ -183,7 +183,7 @@ Spring 2026
 - Auth flow system: 8 new tables for configurable multi-step auth
 - Sample data: 3 tenants, 8 users, audit log entries
 
-**Deployed:** GCP VM (34.116.233.134:8080)
+**Deployed:** Hetzner VPS (116.203.222.213:8080)
 
 ---
 
@@ -239,8 +239,8 @@ Spring 2026
 
 ```
 ┌─────────────────┐     ┌──────────────────────┐
-│   Hostinger      │     │    GCP VM             │
-│                  │     │    (europe-central2)   │
+│   Hostinger      │     │  Hetzner VPS          │
+│                  │     │  (Nuremberg, Germany)  │
 │  Web Dashboard   │────▶│  Identity Core API    │
 │  Landing Website │     │  PostgreSQL + Redis    │
 └─────────────────┘     └──────────┬───────────┘
@@ -256,7 +256,7 @@ Spring 2026
 |---------|-----|---------|
 | Web Dashboard | ica-fivucsas.rollingcatsoftware.com | Hostinger |
 | Landing Page | fivucsas.rollingcatsoftware.com | Hostinger |
-| Identity API | 34.116.233.134:8080 | GCP VM |
+| Identity API | 116.203.222.213:8080 | Hetzner VPS |
 | Biometric API | bpa-fivucsas.rollingcatsoftware.com | Cloudflare Tunnel |
 
 **CI/CD:** GitHub Actions — 3 parallel jobs (Java 21 + Python 3.11 + Node 20)
@@ -425,7 +425,7 @@ Spring 2026
 **Live System:**
 - Dashboard: https://ica-fivucsas.rollingcatsoftware.com
 - Landing: https://fivucsas.rollingcatsoftware.com
-- API Docs: http://34.116.233.134:8080/swagger-ui.html
+- API Docs: http://116.203.222.213:8080/swagger-ui.html
 
 **Repository:** github.com/Rollingcat-Software/FIVUCSAS
 
