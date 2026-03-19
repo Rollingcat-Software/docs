@@ -1,6 +1,6 @@
 # Biometric Engine Architecture: Browser TypeScript Port
 
-**Version:** 1.0
+**Version:** 2.0
 **Date:** 2026-03-19
 **Status:** Design Document (Pre-Implementation)
 **Source of Truth:** `biometric-processor/demo_local_fast.py` (2551 lines)
@@ -11,14 +11,33 @@
 
 1. [Executive Summary](#1-executive-summary)
 2. [System Architecture Diagram](#2-system-architecture-diagram)
-3. [Engine Classes — Direct Port Mapping](#3-engine-classes--direct-port-mapping)
-4. [Type Definitions](#4-type-definitions)
-5. [React Hook Contracts](#5-react-hook-contracts)
-6. [Auth-Test Adapter](#6-auth-test-adapter)
-7. [Migration Plan](#7-migration-plan)
-8. [Browser API Compatibility](#8-browser-api-compatibility)
-9. [Performance Budgets](#9-performance-budgets)
-10. [Threshold Reference Table](#10-threshold-reference-table)
+3. [Design Principles and Naming Conventions](#3-design-principles-and-naming-conventions)
+4. [Component Priority Tiers](#4-component-priority-tiers)
+5. [Engine Classes — Direct Port Mapping](#5-engine-classes--direct-port-mapping)
+   - 5a. [BiometricEngine (Orchestrator)](#5a-biometricengine-orchestrator)
+   - 5b. [FrameProcessor](#5b-frameprocessor)
+   - 5c. [EnrollmentController](#5c-enrollmentcontroller)
+   - 5d. [FaceMetricsCalculator (Shared)](#5d-facemetricscalculator-shared)
+   - 5e. [FaceDetector](#5e-facedetector)
+   - 5f. [QualityAssessor](#5f-qualityassessor)
+   - 5g. [PassiveLivenessDetector](#5g-passivelivenessdetector)
+   - 5h. [BiometricPuzzle (Strategy Pattern)](#5h-biometricpuzzle-strategy-pattern)
+   - 5i. [HeadPoseEstimator](#5i-headposeestimator)
+   - 5j. [FaceTracker](#5j-facetracker)
+   - 5k. [EmbeddingComputer](#5k-embeddingcomputer)
+   - 5l. [CardDetector](#5l-carddetector)
+   - 5m. [VoiceProcessor](#5m-voiceprocessor)
+6. [Type Definitions](#6-type-definitions)
+7. [Enrollment State Machine](#7-enrollment-state-machine)
+8. [Error Handling Strategy](#8-error-handling-strategy)
+9. [React Hook Contracts](#9-react-hook-contracts)
+10. [Auth-Test Adapter](#10-auth-test-adapter)
+11. [Testing Strategy](#11-testing-strategy)
+12. [Migration Plan](#12-migration-plan)
+13. [Browser API Compatibility](#13-browser-api-compatibility)
+14. [Performance Budgets](#14-performance-budgets)
+15. [Threshold Reference Table](#15-threshold-reference-table)
+16. [Versioning](#16-versioning)
 
 ---
 
@@ -44,6 +63,9 @@ The engine serves three consumers through a layered architecture:
 - **Thin integration layer**: React hooks are lightweight wrappers (~50 lines each) that connect engine classes to React state.
 - **1:1 Python parity**: Every threshold, formula, landmark index, and algorithm from `demo_local_fast.py` is preserved exactly. Deviations are documented with rationale.
 - **Progressive loading**: Heavy models (ONNX, MediaPipe) load lazily on first use. The engine is usable immediately for lightweight operations.
+- **Dependency Inversion**: All components depend on interfaces, not concrete implementations. The orchestrator accepts injected dependencies via a builder.
+- **Single Responsibility**: Each class has one reason to change. The orchestrator does not own the frame loop or enrollment flow.
+- **Open/Closed**: New puzzle challenges can be added by implementing a `ChallengeDetector` interface and registering it, without modifying any existing code.
 
 ### What Changes from Current Web-App
 
@@ -98,22 +120,33 @@ After migration, all real-time detection logic moves into the engine library. Th
 |  |                    ENGINE LAYER (Pure TypeScript)                     |  |
 |  |                    Package: @fivucsas/biometric-engine               |  |
 |  |                                                                      |  |
+|  |  Orchestrator:                                                       |  |
+|  |  +-------------------+  +---------------------+  +----------------+  |  |
+|  |  | BiometricEngine   |  | FrameProcessor      |  | Enrollment     |  |  |
+|  |  | (Config/Dispose)  |  | (Detection Loop)    |  | Controller     |  |  |
+|  |  +-------------------+  +---------------------+  +----------------+  |  |
+|  |                                                                      |  |
+|  |  P0 (Required):                                                      |  |
 |  |  +-------------------+  +--------------------+  +-----------------+  |  |
-|  |  | BiometricEngine   |  | BiometricPuzzle    |  | CardDetector    |  |  |
-|  |  | (Orchestrator)    |  | (14 challenges)    |  | (ONNX YOLO)    |  |  |
+|  |  | FaceDetector      |  | QualityAssessor    |  | BiometricPuzzle |  |  |
+|  |  | (MediaPipe)       |  | (Canvas)           |  | (14 challenges) |  |  |
 |  |  +-------------------+  +--------------------+  +-----------------+  |  |
+|  |  +-------------------+  +--------------------+                       |  |
+|  |  | HeadPoseEstimator |  | FaceMetrics        |                       |  |
+|  |  | (Geometry)        |  | Calculator (DRY)   |                       |  |
+|  |  +-------------------+  +--------------------+                       |  |
+|  |                                                                      |  |
+|  |  P1 (Important):                                                     |  |
+|  |  +-------------------+  +--------------------+                       |  |
+|  |  | FaceTracker       |  | VoiceProcessor     |                       |  |
+|  |  | (Centroid)        |  | (Web Audio API)    |                       |  |
+|  |  +-------------------+  +--------------------+                       |  |
+|  |                                                                      |  |
+|  |  P2 (Enhancement — deferrable to Phase 3+):                          |  |
 |  |  +-------------------+  +--------------------+  +-----------------+  |  |
-|  |  | FaceDetector      |  | PassiveLiveness    |  | EmbeddingPC     |  |  |
-|  |  | (MediaPipe)       |  | Detector           |  | (MobileFaceNet) |  |  |
+|  |  | PassiveLiveness   |  | EmbeddingComputer  |  | CardDetector    |  |  |
+|  |  | Detector          |  | (MobileFaceNet)    |  | (ONNX YOLO)    |  |  |
 |  |  +-------------------+  +--------------------+  +-----------------+  |  |
-|  |  +-------------------+  +--------------------+  +-----------------+  |  |
-|  |  | QualityAssessor   |  | HeadPoseEstimator  |  | FaceTracker     |  |  |
-|  |  | (Canvas)          |  | (Geometry)         |  | (Centroid)      |  |  |
-|  |  +-------------------+  +--------------------+  +-----------------+  |  |
-|  |  +-------------------+                                               |  |
-|  |  | VoiceProcessor    |                                               |  |
-|  |  | (Web Audio API)   |                                               |  |
-|  |  +-------------------+                                               |  |
 |  +=====================================================================+  |
 |                             |                                              |
 |                             v                                              |
@@ -152,16 +185,19 @@ After migration, all real-time detection logic moves into the engine library. Th
 Camera Frame (getUserMedia)
     |
     v
-FaceDetector.detect(videoFrame)          ~15-25ms
+FrameProcessor.processFrame(videoFrame)
     |
-    +---> FaceTracker.update(detections)  ~1ms
+    +---> FaceDetector.detect(videoFrame)           ~15-25ms
+    |
+    +---> FaceTracker.update(detections)             ~1ms
     |
     +---> For each tracked face:
     |       |
-    |       +---> QualityAssessor.assess(faceROI)        ~5-10ms
-    |       +---> HeadPoseEstimator.estimate(landmarks)  ~2ms
-    |       +---> PassiveLivenessDetector.check(faceROI) ~3-5ms
-    |       +---> BiometricPuzzle.checkChallenge(...)     ~1ms
+    |       +---> FaceMetricsCalculator.calculateAll(landmarks)  ~1ms
+    |       +---> QualityAssessor.assess(faceROI)                ~5-10ms
+    |       +---> HeadPoseEstimator.estimate(landmarks)          ~2ms
+    |       +---> PassiveLivenessDetector.check(faceROI)         ~3-5ms  [P2]
+    |       +---> BiometricPuzzle.checkChallenge(...)             ~1ms
     |
     +---> Emit results via callbacks / state update
     |
@@ -171,73 +207,474 @@ Total: <50ms per frame (20+ FPS)
 
 ---
 
-## 3. Engine Classes -- Direct Port Mapping
+## 3. Design Principles and Naming Conventions
 
-### 3a. BiometricEngine (Orchestrator)
+### SOLID Compliance
+
+| Principle | How It Is Applied |
+|-----------|-------------------|
+| **Single Responsibility** | `BiometricEngine` is configuration/disposal only. `FrameProcessor` owns the detection loop. `EnrollmentController` owns multi-angle enrollment. Each component has one reason to change. |
+| **Open/Closed** | `BiometricPuzzle` uses a `ChallengeDetector` strategy interface with a registry. New challenge types are added by implementing the interface and calling `registerDetector()`, with zero changes to existing code. |
+| **Liskov Substitution** | All component interfaces (`IFaceDetector`, `IQualityAssessor`, etc.) define contracts that any implementation must honor. Mock implementations substitute freely in tests. |
+| **Interface Segregation** | Consumers depend on narrow interfaces. The React hook layer sees only `FrameResult` and control methods. The auth-test adapter sees only callbacks. |
+| **Dependency Inversion** | `BiometricEngine` accepts `IBiometricEngineConfig` with interface-typed dependencies. A `BiometricEngineBuilder` provides defaults while allowing mock injection for tests. |
+
+### DRY Compliance
+
+Face metric calculations (EAR, MAR, smile, eyebrow raise) are implemented once in `FaceMetricsCalculator`. Both `BiometricPuzzle` and `FrameProcessor` depend on this shared calculator instead of duplicating the logic.
+
+### KISS — Optional Complexity
+
+Components are tiered by priority (see Section 4). P2 components (PassiveLivenessDetector's Gabor convolution, EmbeddingComputer, CardDetector) are marked as deferrable. Server-side liveness is the primary authority; client-side passive liveness is a supplementary signal only.
+
+### Naming Conventions
+
+| Category | Convention | Examples |
+|----------|-----------|----------|
+| Classes | PascalCase | `BiometricEngine`, `FaceDetector`, `FrameProcessor` |
+| Interfaces | I-prefix + PascalCase | `IFaceDetector`, `IQualityAssessor`, `IChallengeDetector` |
+| Type aliases / data types | PascalCase | `FaceDetection`, `QualityReport`, `HeadPose` |
+| Constants | UPPER_SNAKE_CASE | `EAR_THRESHOLD`, `LEFT_EYE`, `HOLD_DURATION` |
+| Methods | camelCase | `detectFace()`, `calculateEAR()`, `processFrame()` |
+| Files — classes | PascalCase | `FaceDetector.ts`, `BiometricPuzzle.ts` |
+| Files — utilities | kebab-case | `image-utils.ts`, `gabor-kernels.ts` |
+| Enums | PascalCase name, UPPER_SNAKE members | `enum ChallengeType { BLINK, SMILE }` |
+
+These conventions match the existing web-app codebase.
+
+---
+
+## 4. Component Priority Tiers
+
+Each component has a priority tier that determines when it must be implemented:
+
+### P0 — Required (Phase 1-2)
+
+Must be present for any biometric operation. Without these, the engine cannot function.
+
+| Component | Responsibility |
+|-----------|---------------|
+| `FaceDetector` | MediaPipe face detection + 478-point landmarks |
+| `QualityAssessor` | Blur, brightness, size scoring |
+| `BiometricPuzzle` | 14-challenge active liveness |
+| `HeadPoseEstimator` | Geometric yaw/pitch from landmarks |
+| `FaceMetricsCalculator` | Shared EAR, MAR, smile, eyebrow calculations |
+| `FrameProcessor` | Detection loop orchestration |
+| `EnrollmentController` | Multi-angle enrollment state machine |
+
+### P1 — Important (Phase 2-3)
+
+Needed for production quality but the engine can start without them.
+
+| Component | Responsibility |
+|-----------|---------------|
+| `FaceTracker` | Centroid-based multi-face tracking with IDs |
+| `VoiceProcessor` | Web Audio recording + WAV conversion |
+
+### P2 — Enhancement (Phase 3+, deferrable)
+
+Nice to have. Server-side alternatives exist for all of these.
+
+| Component | Responsibility | Server Fallback |
+|-----------|---------------|-----------------|
+| `PassiveLivenessDetector` | Texture/color/moire liveness scoring | Server-side liveness via `biometric-processor` is the primary authority. Client-side is supplementary. Gabor convolution is expensive; defer to Phase 3. |
+| `EmbeddingComputer` | ONNX MobileFaceNet face embeddings | Server-side DeepFace embedding via REST API |
+| `CardDetector` | ONNX YOLO card detection | Server-side YOLO (current production path) |
+
+---
+
+## 5. Engine Classes — Direct Port Mapping
+
+### 5a. BiometricEngine (Orchestrator)
 
 **Python source:** `FastBiometricDemo` class (lines 1227-2537)
-**Pattern:** Singleton
-
-The orchestrator owns all sub-components and manages the per-frame processing pipeline.
+**Pattern:** Singleton with dependency injection via Builder
+**Responsibility:** Configuration, lifecycle management, and component wiring. Does NOT own the frame loop or enrollment flow.
 
 ```typescript
+// ===== Interfaces for Dependency Inversion =====
+
+interface IFaceDetector {
+  initialize(): Promise<void>;
+  dispose(): void;
+  detect(video: HTMLVideoElement, timestamp: number): FaceDetection[];
+  isAvailable(): boolean;
+}
+
+interface IQualityAssessor {
+  assess(faceImageData: ImageData): QualityReport;
+  isAvailable(): boolean;
+}
+
+interface IPassiveLivenessDetector {
+  check(faceImageData: ImageData): LivenessResult;
+  isAvailable(): boolean;
+}
+
+interface IHeadPoseEstimator {
+  estimate(landmarks: PixelLandmark[], frameSize: { width: number; height: number }): HeadPose;
+  isAvailable(): boolean;
+}
+
+interface IFaceTracker {
+  update(detections: FaceDetection[]): Map<number, FaceDetection>;
+  isAvailable(): boolean;
+}
+
+interface IBiometricPuzzle {
+  start(challengeTypes?: ChallengeType[], numChallenges?: number): void;
+  stop(): void;
+  getCurrentChallenge(): ChallengeInfo | null;
+  checkChallenge(
+    landmarks: NormalizedLandmark[],
+    yaw: number,
+    pitch: number,
+  ): ChallengeCheckResult;
+  isAvailable(): boolean;
+}
+
+interface IEmbeddingComputer {
+  initialize(modelUrl: string): Promise<void>;
+  dispose(): void;
+  extract(faceImageData: ImageData): Promise<Float32Array | null>;
+  isAvailable(): boolean;
+}
+
+interface ICardDetector {
+  initialize(modelUrl: string): Promise<void>;
+  dispose(): void;
+  detect(video: HTMLVideoElement, useSmoothing?: boolean): Promise<CardDetectionResult>;
+  isAvailable(): boolean;
+}
+
+interface IVoiceProcessor {
+  startRecording(): Promise<void>;
+  stopRecording(): Promise<Blob>;
+  dispose(): void;
+  isAvailable(): boolean;
+}
+
+interface IFaceMetricsCalculator {
+  calculateEAR(landmarks: NormalizedLandmark[], eyeIndices: number[]): number;
+  calculateMAR(landmarks: NormalizedLandmark[]): number;
+  calculateSmile(landmarks: NormalizedLandmark[]): SmileMetrics;
+  calculateEyebrowRaise(landmarks: NormalizedLandmark[], baseline?: EyebrowBaseline): EyebrowMetrics;
+  calculateAll(landmarks: NormalizedLandmark[], baseline?: EyebrowBaseline): FaceMetrics;
+}
+
+// ===== Configuration Interface =====
+
+interface IBiometricEngineConfig {
+  faceDetector?: IFaceDetector;
+  qualityAssessor?: IQualityAssessor;
+  livenessDetector?: IPassiveLivenessDetector;
+  headPoseEstimator?: IHeadPoseEstimator;
+  faceTracker?: IFaceTracker;
+  puzzle?: IBiometricPuzzle;
+  embeddingComputer?: IEmbeddingComputer;
+  cardDetector?: ICardDetector;
+  voiceProcessor?: IVoiceProcessor;
+  metricsCalculator?: IFaceMetricsCalculator;
+}
+
+// ===== Builder Pattern =====
+
+class BiometricEngineBuilder {
+  private config: IBiometricEngineConfig = {};
+
+  withFaceDetector(detector: IFaceDetector): this {
+    this.config.faceDetector = detector;
+    return this;
+  }
+  withQualityAssessor(assessor: IQualityAssessor): this {
+    this.config.qualityAssessor = assessor;
+    return this;
+  }
+  withLivenessDetector(detector: IPassiveLivenessDetector): this {
+    this.config.livenessDetector = detector;
+    return this;
+  }
+  withHeadPoseEstimator(estimator: IHeadPoseEstimator): this {
+    this.config.headPoseEstimator = estimator;
+    return this;
+  }
+  withFaceTracker(tracker: IFaceTracker): this {
+    this.config.faceTracker = tracker;
+    return this;
+  }
+  withPuzzle(puzzle: IBiometricPuzzle): this {
+    this.config.puzzle = puzzle;
+    return this;
+  }
+  withEmbeddingComputer(computer: IEmbeddingComputer): this {
+    this.config.embeddingComputer = computer;
+    return this;
+  }
+  withCardDetector(detector: ICardDetector): this {
+    this.config.cardDetector = detector;
+    return this;
+  }
+  withVoiceProcessor(processor: IVoiceProcessor): this {
+    this.config.voiceProcessor = processor;
+    return this;
+  }
+  withMetricsCalculator(calculator: IFaceMetricsCalculator): this {
+    this.config.metricsCalculator = calculator;
+    return this;
+  }
+
+  build(): BiometricEngine {
+    return new BiometricEngine(this.config);
+  }
+}
+
+// ===== Orchestrator (SRP: config + lifecycle only) =====
+
 class BiometricEngine {
   // Singleton
   private static instance: BiometricEngine | null = null;
-  static getInstance(): BiometricEngine;
+  static getInstance(config?: IBiometricEngineConfig): BiometricEngine;
   static destroy(): void;
 
-  // Sub-components (lazy-initialized)
-  readonly faceDetector: FaceDetector;
-  readonly qualityAssessor: QualityAssessor;
-  readonly livenessDetector: PassiveLivenessDetector;
-  readonly headPoseEstimator: HeadPoseEstimator;
-  readonly faceTracker: FaceTracker;
-  readonly puzzle: BiometricPuzzle;
-  readonly embeddingComputer: EmbeddingComputer;
-  readonly cardDetector: CardDetector;
-  readonly voiceProcessor: VoiceProcessor;
+  // Sub-components (injected or default, lazy-initialized)
+  readonly faceDetector: IFaceDetector;
+  readonly qualityAssessor: IQualityAssessor;
+  readonly livenessDetector: IPassiveLivenessDetector;
+  readonly headPoseEstimator: IHeadPoseEstimator;
+  readonly faceTracker: IFaceTracker;
+  readonly puzzle: IBiometricPuzzle;
+  readonly embeddingComputer: IEmbeddingComputer;
+  readonly cardDetector: ICardDetector;
+  readonly voiceProcessor: IVoiceProcessor;
+  readonly metricsCalculator: IFaceMetricsCalculator;
+
+  // Separated concerns (SRP)
+  readonly frameProcessor: FrameProcessor;
+  readonly enrollmentController: EnrollmentController;
 
   // State
   readonly isReady: boolean;
-  readonly fps: number;
 
-  // Lifecycle
+  // Lifecycle (ONLY responsibility of BiometricEngine)
+  constructor(config?: IBiometricEngineConfig);
   async initialize(): Promise<void>;  // Load MediaPipe models
   dispose(): void;                     // Release all resources
-
-  // Per-frame processing
-  processFrame(video: HTMLVideoElement): FrameResult;
-
-  // Enrollment flow
-  startEnrollment(name: string): void;
-  cancelEnrollment(): void;
-
-  // Event callbacks
-  onFrameProcessed: ((result: FrameResult) => void) | null;
-  onPuzzleComplete: ((passed: boolean, results: PuzzleStepResult[]) => void) | null;
-  onEnrollmentCapture: ((step: number, total: number, pose: string) => void) | null;
 }
 ```
 
 **Key differences from Python:**
 - No OpenCV window management or keyboard handling (browser handles UI)
 - No video capture management (browser provides `HTMLVideoElement`)
-- Frame processing returns data instead of drawing directly (UI layer renders)
+- Frame processing is delegated to `FrameProcessor` (SRP)
+- Enrollment flow is delegated to `EnrollmentController` (SRP)
+- All dependencies are injected via interfaces (DIP)
+- Builder provides convenient construction with defaults
 - Profiler is replaced by browser `performance.mark()`/`performance.measure()`
 
-### 3b. FaceDetector
+### 5b. FrameProcessor
 
-**Python source:** `FastFaceDetector` class (lines 144-325)
-**Pattern:** Singleton (mirrors Python `_instance` pattern)
+**Responsibility:** Runs the per-frame detection loop. Emits `FrameResult` per frame. Does NOT own any sub-components; they are injected.
 
 ```typescript
-class FaceDetector {
+class FrameProcessor {
+  private running: boolean = false;
+  private animationFrameId: number | null = null;
+
+  constructor(
+    private faceDetector: IFaceDetector,
+    private faceTracker: IFaceTracker,
+    private qualityAssessor: IQualityAssessor,
+    private headPoseEstimator: IHeadPoseEstimator,
+    private metricsCalculator: IFaceMetricsCalculator,
+    private livenessDetector?: IPassiveLivenessDetector,
+  );
+
+  /**
+   * Start continuous detection loop using requestAnimationFrame.
+   * Calls processFrame() each frame, emits results via callback.
+   */
+  start(video: HTMLVideoElement, onResult: (result: FrameResult) => void): void;
+
+  /**
+   * Stop the detection loop.
+   */
+  stop(): void;
+
+  /**
+   * Process a single frame. Called by start() or manually.
+   * Runs: detect -> track -> metrics -> quality -> pose -> liveness
+   */
+  processFrame(video: HTMLVideoElement): FrameResult;
+
+  readonly fps: number;
+  readonly isRunning: boolean;
+}
+```
+
+### 5c. EnrollmentController
+
+**Responsibility:** Manages the multi-angle enrollment state machine (see Section 7). Orchestrates puzzle phase and capture phase. Does NOT perform detection; it consumes `FrameResult` from `FrameProcessor`.
+
+```typescript
+class EnrollmentController {
+  constructor(
+    private puzzle: IBiometricPuzzle,
+    private headPoseEstimator: IHeadPoseEstimator,
+    private qualityAssessor: IQualityAssessor,
+    private metricsCalculator: IFaceMetricsCalculator,
+    private embeddingComputer?: IEmbeddingComputer,
+  );
+
+  // Control
+  start(name: string): void;
+  cancel(): void;
+
+  // Per-frame update (fed from FrameProcessor output)
+  update(frameResult: FrameResult): EnrollmentUpdate;
+
+  // State (read-only)
+  readonly state: EnrollmentState;
+  readonly currentPose: EnrollmentPose | null;
+  readonly step: number;
+  readonly totalSteps: number;
+  readonly captures: EnrollmentCapture[];
+
+  // Event callbacks
+  onCapture: ((step: number, total: number, pose: string) => void) | null;
+  onComplete: ((result: EnrollmentResult) => void) | null;
+  onFailed: ((reason: string) => void) | null;
+}
+
+type EnrollmentState =
+  | 'IDLE'
+  | 'PUZZLE_ACTIVE'
+  | 'CAPTURE_STRAIGHT'
+  | 'CAPTURE_LEFT'
+  | 'CAPTURE_RIGHT'
+  | 'CAPTURE_UP'
+  | 'CAPTURE_DOWN'
+  | 'SUBMITTING'
+  | 'COMPLETE'
+  | 'FAILED';
+```
+
+### 5d. FaceMetricsCalculator (Shared)
+
+**Responsibility:** Single implementation of all face metric calculations. Both `BiometricPuzzle` and `FrameProcessor` depend on this, eliminating duplicate EAR/MAR/smile/eyebrow logic (DRY).
+
+**Python source:** Extracted from `BiometricPuzzle.calculate_ear()` (lines 575-597), `calculate_mar()` (lines 600-620), `calculate_smile()` (lines 622-665), `calculate_eyebrow_raise()` (lines 667-700).
+
+```typescript
+class FaceMetricsCalculator implements IFaceMetricsCalculator {
+  // --- MediaPipe Face Mesh Landmark Indices (lines 462-473) ---
+  static readonly LEFT_EYE  = [362, 385, 387, 263, 373, 380];
+  static readonly RIGHT_EYE = [33, 160, 158, 133, 153, 144];
+  static readonly UPPER_LIP = 13;
+  static readonly LOWER_LIP = 14;
+  static readonly MOUTH_LEFT = 61;
+  static readonly MOUTH_RIGHT = 291;
+  static readonly LEFT_EYEBROW  = [70, 63, 105, 66, 107];
+  static readonly RIGHT_EYEBROW = [300, 293, 334, 296, 336];
+  static readonly LEFT_EYE_CENTER  = 468;  // iris landmark
+  static readonly RIGHT_EYE_CENTER = 473;  // iris landmark
+  static readonly NOSE_TIP = 1;
+  static readonly CHIN = 152;
+
+  /**
+   * Eye Aspect Ratio (EAR)
+   * Python: calculate_ear() (lines 575-597)
+   *
+   * EAR = (|p2-p6| + |p3-p5|) / (2 * |p1-p4|)
+   *
+   * For LEFT_EYE [362, 385, 387, 263, 373, 380]:
+   *   p1=362 (outer), p2=385 (upper-outer), p3=387 (upper-inner),
+   *   p4=263 (inner), p5=373 (lower-inner), p6=380 (lower-outer)
+   *
+   * For RIGHT_EYE [33, 160, 158, 133, 153, 144]:
+   *   p1=33 (outer), p2=160 (upper-outer), p3=158 (upper-inner),
+   *   p4=133 (inner), p5=153 (lower-inner), p6=144 (lower-outer)
+   *
+   * Low EAR = closed, High EAR = open
+   * Default open: 0.3 if horizontal distance is 0
+   */
+  calculateEAR(landmarks: NormalizedLandmark[], eyeIndices: number[]): number;
+
+  /**
+   * Mouth Aspect Ratio (MAR)
+   * Python: calculate_mar() (lines 600-620)
+   *
+   * MAR = |lower_lip - upper_lip| / |mouth_right - mouth_left|
+   * Uses landmarks: UPPER_LIP(13), LOWER_LIP(14), MOUTH_LEFT(61), MOUTH_RIGHT(291)
+   */
+  calculateMAR(landmarks: NormalizedLandmark[]): number;
+
+  /**
+   * Smile Detection
+   * Python: calculate_smile() (lines 622-665)
+   *
+   * Returns: { cornerRaise: number, widthRatio: number }
+   *
+   * cornerRaise = avg(mouth_center_y - corner_y) / face_height
+   *   where mouth_center_y = (upper_lip_y + lower_lip_y) / 2
+   *   face_height = |chin - nose_tip|
+   *   Positive = corners raised above center (smiling)
+   *
+   * widthRatio = |mouth_right - mouth_left| / face_height
+   *
+   * SMILE detected when:
+   *   cornerRaise > SMILE_CORNER_THRESHOLD (0.05)
+   *   AND widthRatio > SMILE_WIDTH_THRESHOLD (0.60)
+   */
+  calculateSmile(landmarks: NormalizedLandmark[]): SmileMetrics;
+
+  /**
+   * Eyebrow Raise Detection
+   * Python: calculate_eyebrow_raise() (lines 667-700)
+   *
+   * Returns: { bothRatio: number, leftRatio: number, rightRatio: number }
+   * All values are ratios relative to baseline (1.0 = no change).
+   *
+   * left_dist = avg(LEFT_EYE[i].y) - avg(LEFT_EYEBROW[i].y)
+   * right_dist = avg(RIGHT_EYE[i].y) - avg(RIGHT_EYEBROW[i].y)
+   *
+   * NOTE on coordinate system:
+   *   MediaPipe Y increases downward. Eye is below eyebrow.
+   *   So eye_y > eyebrow_y, and dist = eye_y - eyebrow_y > 0.
+   *   When eyebrow raises, eyebrow_y decreases, dist increases.
+   *
+   * First call sets baseline. Subsequent calls return ratio to baseline.
+   *
+   * NOTE on mirroring:
+   *   MediaPipe LEFT_EYE = anatomical left = user's left eye.
+   *   In mirrored camera, user's left appears on LEFT of screen.
+   *   Python swaps at check time (line 729-730):
+   *     user_left_ear = right_ear (MediaPipe RIGHT = user's LEFT)
+   *   BUT for eyebrows, Python uses LEFT_EYEBROW directly for "left"
+   *   because the calculate function already works in user-perspective.
+   */
+  calculateEyebrowRaise(landmarks: NormalizedLandmark[], baseline?: EyebrowBaseline): EyebrowMetrics;
+
+  /**
+   * Calculate all metrics in one pass.
+   * Returns a complete FaceMetrics object.
+   * Used by both FrameProcessor (for TrackedFace) and BiometricPuzzle (for challenge detection).
+   */
+  calculateAll(landmarks: NormalizedLandmark[], baseline?: EyebrowBaseline): FaceMetrics;
+}
+```
+
+### 5e. FaceDetector
+
+**Python source:** `FastFaceDetector` class (lines 144-325)
+
+```typescript
+class FaceDetector implements IFaceDetector {
   private landmarker: FaceLandmarker | null = null;
   private ready: boolean = false;
 
   async initialize(): Promise<void>;
   dispose(): void;
+  isAvailable(): boolean;
 
   /**
    * Detect faces and return 478-point landmarks.
@@ -276,15 +713,16 @@ const landmarker = await FaceLandmarker.createFromOptions(vision, {
 });
 ```
 
-### 3c. QualityAssessor
+### 5f. QualityAssessor
 
 **Python source:** `FastQualityAssessor` class (lines 332-366)
 
 ```typescript
-class QualityAssessor {
+class QualityAssessor implements IQualityAssessor {
   private blurThreshold: number;  // Default: 100.0
 
   constructor(blurThreshold?: number);
+  isAvailable(): boolean;
 
   /**
    * Assess face image quality.
@@ -345,16 +783,18 @@ function computeLaplacianVariance(gray: Float32Array, width: number, height: num
 }
 ```
 
-### 3d. PassiveLivenessDetector
+### 5g. PassiveLivenessDetector
 
 **Python source:** `FastLivenessDetector` class (lines 369-444)
+**Priority:** P2 (Enhancement). Server-side liveness is the primary authority. This client-side detector is a supplementary signal. Gabor convolution is expensive and deferrable to Phase 3.
 
 ```typescript
-class PassiveLivenessDetector {
+class PassiveLivenessDetector implements IPassiveLivenessDetector {
   private threshold: number;           // Default: 50.0
   private gaborKernels: Float32Array[]; // 4 oriented Gabor kernels
 
   constructor(threshold?: number);
+  isAvailable(): boolean;
 
   /**
    * Passive liveness check via texture + color analysis.
@@ -441,44 +881,94 @@ const GABOR_KERNELS = [0, Math.PI/4, Math.PI/2, 3*Math.PI/4].map(
 );
 ```
 
-### 3e. BiometricPuzzle (14 Challenge Types)
+### 5h. BiometricPuzzle (Strategy Pattern)
 
 **Python source:** `BiometricPuzzle` class (lines 451-921)
 **This is the most critical class to port faithfully.**
 
+The puzzle uses the **Strategy pattern** with a registry of `ChallengeDetector` implementations. New challenge types can be added by implementing the interface and registering, without modifying any existing code (Open/Closed Principle).
+
 ```typescript
-class BiometricPuzzle {
-  // --- MediaPipe Face Mesh Landmark Indices (lines 462-473) ---
-  static readonly LEFT_EYE  = [362, 385, 387, 263, 373, 380];
-  static readonly RIGHT_EYE = [33, 160, 158, 133, 153, 144];
-  static readonly UPPER_LIP = 13;
-  static readonly LOWER_LIP = 14;
-  static readonly MOUTH_LEFT = 61;
-  static readonly MOUTH_RIGHT = 291;
-  static readonly LEFT_EYEBROW  = [70, 63, 105, 66, 107];
-  static readonly RIGHT_EYEBROW = [300, 293, 334, 296, 336];
-  static readonly LEFT_EYE_CENTER  = 468;  // iris landmark
-  static readonly RIGHT_EYE_CENTER = 473;  // iris landmark
-  static readonly NOSE_TIP = 1;
-  static readonly CHIN = 152;
+// ===== Strategy Interface =====
+
+interface IChallengeDetector {
+  readonly type: ChallengeType;
+  detect(metrics: FaceMetrics, headPose: HeadPose): boolean;
+  getMessage(metrics: FaceMetrics, headPose: HeadPose): string;
+}
+
+// ===== Challenge Detector Implementations =====
+
+class BlinkDetector implements IChallengeDetector {
+  readonly type = ChallengeType.BLINK;
+  detect(metrics: FaceMetrics, headPose: HeadPose): boolean {
+    // avg_ear < EAR_CLOSED_THRESHOLD (0.17)
+    return metrics.eyes.avgEAR < THRESHOLDS.EAR_CLOSED_THRESHOLD;
+  }
+  getMessage(metrics: FaceMetrics): string {
+    return metrics.eyes.avgEAR < THRESHOLDS.EAR_CLOSED_THRESHOLD
+      ? 'Blink detected!' : 'Please blink both eyes';
+  }
+}
+
+class CloseLeftDetector implements IChallengeDetector {
+  readonly type = ChallengeType.CLOSE_LEFT;
+  detect(metrics: FaceMetrics): boolean {
+    // user_left_ear < 0.17 AND user_right_ear > 0.22
+    return metrics.eyes.userLeftEAR < THRESHOLDS.EAR_CLOSED_THRESHOLD
+      && metrics.eyes.userRightEAR > THRESHOLDS.EAR_THRESHOLD;
+  }
+  getMessage(metrics: FaceMetrics): string {
+    return this.detect(metrics, {} as HeadPose)
+      ? 'Left eye closed!' : 'Close your LEFT eye only';
+  }
+}
+
+class SmileDetector implements IChallengeDetector {
+  readonly type = ChallengeType.SMILE;
+  detect(metrics: FaceMetrics): boolean {
+    return metrics.mouth.smileCornerRaise > THRESHOLDS.SMILE_CORNER_THRESHOLD
+      && metrics.mouth.smileWidthRatio > THRESHOLDS.SMILE_WIDTH_THRESHOLD;
+  }
+  getMessage(metrics: FaceMetrics): string {
+    return this.detect(metrics, {} as HeadPose)
+      ? 'Smile detected!' : 'Please smile';
+  }
+}
+
+class TurnLeftDetector implements IChallengeDetector {
+  readonly type = ChallengeType.TURN_LEFT;
+  detect(_metrics: FaceMetrics, headPose: HeadPose): boolean {
+    return headPose.yaw < -THRESHOLDS.YAW_THRESHOLD;
+  }
+  getMessage(_metrics: FaceMetrics, headPose: HeadPose): string {
+    return headPose.yaw < -THRESHOLDS.YAW_THRESHOLD
+      ? 'Turn detected!' : 'Turn your head LEFT';
+  }
+}
+
+// ... (similar implementations for all 14 challenge types)
+
+class NodDetector implements IChallengeDetector {
+  readonly type = ChallengeType.NOD;
+  detect(_metrics: FaceMetrics, headPose: HeadPose, motionHistory?: MotionEntry[]): boolean {
+    // Requires motionHistory context — pitch_range > 25 over last 20 frames
+    if (!motionHistory || motionHistory.length < THRESHOLDS.MOTION_MIN_FRAMES) return false;
+    const recent = motionHistory.slice(-THRESHOLDS.MOTION_MIN_FRAMES);
+    const pitchRange = Math.max(...recent.map(m => m.pitch)) - Math.min(...recent.map(m => m.pitch));
+    return pitchRange > THRESHOLDS.NOD_PITCH_RANGE;
+  }
+  getMessage(): string { return 'Nod your head up and down'; }
+}
+
+// ===== Puzzle Class with Registry =====
+
+class BiometricPuzzle implements IBiometricPuzzle {
+  private detectors: Map<ChallengeType, IChallengeDetector> = new Map();
+  private metricsCalculator: IFaceMetricsCalculator;
 
   // --- Thresholds (lines 495-503) ---
-  static readonly EAR_THRESHOLD = 0.22;           // Above = eye open
-  static readonly EAR_CLOSED_THRESHOLD = 0.17;    // Below = eye closed
-  static readonly SMILE_CORNER_THRESHOLD = 0.05;  // Lip corner raise ratio
-  static readonly SMILE_WIDTH_THRESHOLD = 0.60;   // Mouth width / face height
-  static readonly MOUTH_OPEN_THRESHOLD = 0.12;    // MAR for open mouth
-  static readonly YAW_THRESHOLD = 20;             // Degrees for turn L/R
-  static readonly PITCH_THRESHOLD = 12;           // Degrees for look up/down
-  static readonly EYEBROW_RAISE_THRESHOLD = 1.20; // Both eyebrows ratio
-  static readonly SINGLE_BROW_THRESHOLD = 1.25;   // Single eyebrow ratio
-
-  // --- Dynamic challenge thresholds (lines 890, 898) ---
-  static readonly NOD_PITCH_RANGE = 25;           // Degrees of pitch oscillation
-  static readonly SHAKE_YAW_RANGE = 35;           // Degrees of yaw oscillation
-
-  // --- Challenge definitions (lines 477-492) ---
-  static readonly CHALLENGES: Record<ChallengeType, ChallengeDefinition>;
+  // (Thresholds are in the shared THRESHOLDS constant, see Section 15)
 
   // --- Hold timer (line 515) ---
   private holdDuration: number = 0.6;  // seconds
@@ -488,117 +978,67 @@ class BiometricPuzzle {
   // maxlen=30 in Python, use ring buffer or slice
 
   // --- Eyebrow baseline (line 520) ---
-  private baselineEyebrowDist: {
-    left: number; right: number; avg: number;
-  } | null = null;
+  private baselineEyebrowDist: EyebrowBaseline | null = null;
 
-  constructor(numChallenges?: number);  // Default: 3
+  constructor(metricsCalculator: IFaceMetricsCalculator, numChallenges?: number);
+
+  /**
+   * Register a challenge detector. Open/Closed: new challenges are added
+   * here without modifying any existing code.
+   */
+  registerDetector(detector: IChallengeDetector): void {
+    this.detectors.set(detector.type, detector);
+  }
 
   // --- Control ---
-  start(challengeTypes?: ChallengeType[]): void;
+  start(challengeTypes?: ChallengeType[], numChallenges?: number): void;
   stop(): void;
   getCurrentChallenge(): ChallengeInfo | null;
-
-  // --- Metric Calculators ---
-
-  /**
-   * Eye Aspect Ratio (EAR)
-   * Python: calculate_ear() (lines 575-597)
-   *
-   * EAR = (|p2-p6| + |p3-p5|) / (2 * |p1-p4|)
-   *
-   * For LEFT_EYE [362, 385, 387, 263, 373, 380]:
-   *   p1=362 (outer), p2=385 (upper-outer), p3=387 (upper-inner),
-   *   p4=263 (inner), p5=373 (lower-inner), p6=380 (lower-outer)
-   *
-   * For RIGHT_EYE [33, 160, 158, 133, 153, 144]:
-   *   p1=33 (outer), p2=160 (upper-outer), p3=158 (upper-inner),
-   *   p4=133 (inner), p5=153 (lower-inner), p6=144 (lower-outer)
-   *
-   * Low EAR = closed, High EAR = open
-   * Default open: 0.3 if horizontal distance is 0
-   */
-  calculateEAR(landmarks: NormalizedLandmark[], eyeIndices: number[]): number;
-
-  /**
-   * Mouth Aspect Ratio (MAR)
-   * Python: calculate_mar() (lines 600-620)
-   *
-   * MAR = |lower_lip - upper_lip| / |mouth_right - mouth_left|
-   * Uses landmarks: UPPER_LIP(13), LOWER_LIP(14), MOUTH_LEFT(61), MOUTH_RIGHT(291)
-   */
-  calculateMAR(landmarks: NormalizedLandmark[]): number;
-
-  /**
-   * Smile Detection
-   * Python: calculate_smile() (lines 622-665)
-   *
-   * Returns: { cornerRaise: number, widthRatio: number }
-   *
-   * cornerRaise = avg(mouth_center_y - corner_y) / face_height
-   *   where mouth_center_y = (upper_lip_y + lower_lip_y) / 2
-   *   face_height = |chin - nose_tip|
-   *   Positive = corners raised above center (smiling)
-   *
-   * widthRatio = |mouth_right - mouth_left| / face_height
-   *
-   * SMILE detected when:
-   *   cornerRaise > SMILE_CORNER_THRESHOLD (0.05)
-   *   AND widthRatio > SMILE_WIDTH_THRESHOLD (0.60)
-   */
-  calculateSmile(landmarks: NormalizedLandmark[]): { cornerRaise: number; widthRatio: number };
-
-  /**
-   * Eyebrow Raise Detection
-   * Python: calculate_eyebrow_raise() (lines 667-700)
-   *
-   * Returns: { both: number, left: number, right: number }
-   * All values are ratios relative to baseline (1.0 = no change).
-   *
-   * left_dist = avg(LEFT_EYE[i].y) - avg(LEFT_EYEBROW[i].y)
-   * right_dist = avg(RIGHT_EYE[i].y) - avg(RIGHT_EYEBROW[i].y)
-   *
-   * NOTE on coordinate system:
-   *   MediaPipe Y increases downward. Eye is below eyebrow.
-   *   So eye_y > eyebrow_y, and dist = eye_y - eyebrow_y > 0.
-   *   When eyebrow raises, eyebrow_y decreases, dist increases.
-   *
-   * First call sets baseline. Subsequent calls return ratio to baseline.
-   *
-   * NOTE on mirroring:
-   *   MediaPipe LEFT_EYE = anatomical left = user's left eye.
-   *   In mirrored camera, user's left appears on LEFT of screen.
-   *   Python swaps at check time (line 729-730):
-   *     user_left_ear = right_ear (MediaPipe RIGHT = user's LEFT)
-   *   BUT for eyebrows, Python uses LEFT_EYEBROW directly for "left"
-   *   because the calculate function already works in user-perspective.
-   */
-  calculateEyebrowRaise(landmarks: NormalizedLandmark[]): {
-    both: number; left: number; right: number;
-  };
+  isAvailable(): boolean;
 
   /**
    * Check current challenge against face metrics.
    * Python: check_challenge() (lines 702-881)
    *
    * This is the main per-frame check. It:
-   * 1. Computes all metrics (EAR, MAR, smile, eyebrow, head pose)
-   * 2. Checks if current challenge condition is met
-   * 3. Manages hold timer (0.6s continuous detection)
-   * 4. Advances to next challenge on completion
+   * 1. Computes all metrics via FaceMetricsCalculator (DRY)
+   * 2. Looks up the registered ChallengeDetector for the current challenge type
+   * 3. Delegates detection to the strategy
+   * 4. Manages hold timer (0.6s continuous detection)
+   * 5. Advances to next challenge on completion
    *
    * IMPORTANT mirror swap (Python lines 729-730):
    *   user_left_ear  = right_ear   // MediaPipe RIGHT = User's LEFT
    *   user_right_ear = left_ear    // MediaPipe LEFT  = User's RIGHT
    *
    * This swap applies to BLINK, CLOSE_LEFT, CLOSE_RIGHT challenges.
-   * For eyebrows, the swap is handled differently (see calculateEyebrowRaise).
+   * For eyebrows, the swap is handled differently (see FaceMetricsCalculator).
    */
   checkChallenge(
     landmarks: NormalizedLandmark[],
     yaw: number,
     pitch: number,
   ): ChallengeCheckResult;
+}
+
+// Default registration (all 14 built-in challenges):
+function createDefaultPuzzle(metricsCalculator: IFaceMetricsCalculator): BiometricPuzzle {
+  const puzzle = new BiometricPuzzle(metricsCalculator);
+  puzzle.registerDetector(new BlinkDetector());
+  puzzle.registerDetector(new CloseLeftDetector());
+  puzzle.registerDetector(new CloseRightDetector());
+  puzzle.registerDetector(new SmileDetector());
+  puzzle.registerDetector(new OpenMouthDetector());
+  puzzle.registerDetector(new TurnLeftDetector());
+  puzzle.registerDetector(new TurnRightDetector());
+  puzzle.registerDetector(new LookUpDetector());
+  puzzle.registerDetector(new LookDownDetector());
+  puzzle.registerDetector(new RaiseBothBrowsDetector());
+  puzzle.registerDetector(new RaiseLeftBrowDetector());
+  puzzle.registerDetector(new RaiseRightBrowDetector());
+  puzzle.registerDetector(new NodDetector());
+  puzzle.registerDetector(new ShakeHeadDetector());
+  return puzzle;
 }
 ```
 
@@ -637,12 +1077,14 @@ else:
     return { detected: false, progress: 0 }
 ```
 
-### 3f. HeadPoseEstimator
+### 5i. HeadPoseEstimator
 
 **Python source:** `estimate_pose()` method (lines 1413-1437)
 
 ```typescript
-class HeadPoseEstimator {
+class HeadPoseEstimator implements IHeadPoseEstimator {
+  isAvailable(): boolean;
+
   /**
    * Estimate head yaw and pitch from 478-point landmarks.
    *
@@ -679,17 +1121,18 @@ class HeadPoseEstimator {
 
 **Important:** The Python implementation does NOT use solvePnP despite the initial requirement suggesting it. The actual code uses a simpler geometric ratio approach that is equally portable to the browser. The TypeScript port should match the actual Python logic.
 
-### 3g. FaceTracker
+### 5j. FaceTracker
 
 **Python source:** `FaceTracker` class (lines 987-1047)
 
 ```typescript
-class FaceTracker {
+class FaceTracker implements IFaceTracker {
   private nextId: number = 0;
   private tracks: Map<number, { centroid: [number, number]; gone: number }>;
   private maxGone: number;  // Default: 15 frames
 
   constructor(maxGone?: number);
+  isAvailable(): boolean;
 
   /**
    * Update tracks with new detections.
@@ -718,12 +1161,13 @@ class FaceTracker {
 }
 ```
 
-### 3h. EmbeddingComputer
+### 5k. EmbeddingComputer
 
 **Python source:** `EmbeddingExtractor` class (lines 1192-1220)
+**Priority:** P2 (Enhancement). Server-side DeepFace embedding is the primary path. Client-side embedding is for offline/low-latency use cases.
 
 ```typescript
-class EmbeddingComputer {
+class EmbeddingComputer implements IEmbeddingComputer {
   private session: ort.InferenceSession | null = null;
   private ready: boolean = false;
 
@@ -741,6 +1185,7 @@ class EmbeddingComputer {
    */
   async initialize(modelUrl: string): Promise<void>;
   dispose(): void;
+  isAvailable(): boolean;
 
   /**
    * Extract face embedding from image.
@@ -771,12 +1216,13 @@ class EmbeddingComputer {
 }
 ```
 
-### 3i. CardDetector
+### 5l. CardDetector
 
 **Python source:** `CardDetector` class (lines 1054-1185)
+**Priority:** P2 (Enhancement). Server-side YOLO is the current production path. Client-side ONNX is for offline/low-latency use.
 
 ```typescript
-class CardDetector {
+class CardDetector implements ICardDetector {
   private session: ort.InferenceSession | null = null;
   private ready: boolean = false;
 
@@ -805,6 +1251,7 @@ class CardDetector {
    */
   async initialize(modelUrl: string): Promise<void>;
   dispose(): void;
+  isAvailable(): boolean;
 
   /**
    * Detect card in frame.
@@ -822,20 +1269,18 @@ class CardDetector {
    * Confidence threshold: 0.35 (Python line 1151)
    */
   detect(video: HTMLVideoElement, useSmoothing?: boolean): Promise<CardDetectionResult>;
-
-  isAvailable(): boolean;
 }
 ```
 
 **CLAHE in browser (replacing cv2.createCLAHE):**
 The CLAHE algorithm can be approximated in the browser using Canvas pixel manipulation. A simplified version applies histogram equalization per tile with contrast limiting. For the card detector, a simpler approach may suffice: just apply global histogram equalization on the luminance channel.
 
-### 3j. VoiceProcessor
+### 5m. VoiceProcessor
 
 **No direct Python equivalent in demo_local_fast.py** — this is a browser-specific component for Web Audio recording.
 
 ```typescript
-class VoiceProcessor {
+class VoiceProcessor implements IVoiceProcessor {
   private audioContext: AudioContext | null = null;
   private mediaRecorder: MediaRecorder | null = null;
   private analyser: AnalyserNode | null = null;
@@ -849,6 +1294,7 @@ class VoiceProcessor {
    */
   async startRecording(): Promise<void>;
   stopRecording(): Promise<Blob>;
+  isAvailable(): boolean;
 
   /**
    * Convert WebM blob to WAV 16kHz mono.
@@ -873,7 +1319,7 @@ class VoiceProcessor {
 
 ---
 
-## 4. Type Definitions
+## 6. Type Definitions
 
 ```typescript
 // ===== Landmark Types =====
@@ -1008,6 +1454,17 @@ interface HeadPose {
 
 // ===== Metric Types =====
 
+interface SmileMetrics {
+  cornerRaise: number;
+  widthRatio: number;
+}
+
+interface EyebrowBaseline {
+  left: number;
+  right: number;
+  avg: number;
+}
+
 interface EyeMetrics {
   leftEAR: number;       // Left eye aspect ratio (MediaPipe LEFT = user's right)
   rightEAR: number;      // Right eye aspect ratio (MediaPipe RIGHT = user's left)
@@ -1028,6 +1485,13 @@ interface EyebrowMetrics {
   rightRatio: number;    // Right eyebrow raise ratio
 }
 
+/** Combined face metrics from FaceMetricsCalculator */
+interface FaceMetrics {
+  eyes: EyeMetrics;
+  mouth: MouthMetrics;
+  eyebrows: EyebrowMetrics;
+}
+
 // ===== Embedding Types =====
 
 interface Embedding {
@@ -1046,6 +1510,16 @@ interface EnrollmentResult {
   name: string;
   captures: EnrollmentCapture[];
   puzzlePassed: boolean;
+}
+
+interface EnrollmentUpdate {
+  state: EnrollmentState;
+  yawOk: boolean;
+  pitchOk: boolean;
+  isStable: boolean;
+  stabilityScore: number;
+  holdProgress: number;
+  message: string;
 }
 
 interface VerificationResult {
@@ -1079,11 +1553,7 @@ interface TrackedFace {
   quality: QualityReport | null;
   liveness: LivenessResult | null;
   headPose: HeadPose | null;
-  metrics: {
-    eyes: EyeMetrics;
-    mouth: MouthMetrics;
-    eyebrows: EyebrowMetrics;
-  } | null;
+  metrics: FaceMetrics | null;
 }
 
 // ===== Enrollment Pose Targets =====
@@ -1103,24 +1573,188 @@ const ENROLLMENT_POSES: EnrollmentPose[] = [
   { name: 'UP',       targetYaw: 0,    targetPitch: 18,  tolerance: 15 },
   { name: 'DOWN',     targetYaw: 0,    targetPitch: -18, tolerance: 15 },
 ];
+
+// ===== Motion History (for Nod/Shake detection) =====
+
+interface MotionEntry {
+  yaw: number;
+  pitch: number;
+  time: number;
+}
 ```
 
 ---
 
-## 5. React Hook Contracts
+## 7. Enrollment State Machine
+
+The enrollment flow is a two-phase process managed by `EnrollmentController`. Phase 1 is active liveness verification via the puzzle. Phase 2 is multi-angle face capture.
+
+### State Diagram
+
+```
+                         start()
+  [IDLE] ─────────────────────────────────> [PUZZLE_ACTIVE]
+    ^                                             |
+    |                                             |
+    |  cancel() (from any state)                  |
+    |<──────────────────────────────────────────  |
+    |                                             |
+    |                              puzzle passed  |   puzzle failed
+    |                                    |        └──────> [FAILED]
+    |                                    v
+    |                           [CAPTURE_STRAIGHT]
+    |                                    |
+    |                         stable + captured
+    |                                    v
+    |                            [CAPTURE_LEFT]
+    |                                    |
+    |                         stable + captured
+    |                                    v
+    |                            [CAPTURE_RIGHT]
+    |                                    |
+    |                         stable + captured
+    |                                    v
+    |                             [CAPTURE_UP]
+    |                                    |
+    |                         stable + captured
+    |                                    v
+    |                            [CAPTURE_DOWN]
+    |                                    |
+    |                         stable + captured
+    |                                    v
+    |                             [SUBMITTING]
+    |                              /          \
+    |                         success        error
+    |                            v              v
+    |                       [COMPLETE]      [FAILED]
+    |                                          |
+    └──────────────────────────────────────────┘
+                     (reset to IDLE)
+```
+
+### State Transitions
+
+| From State | Event | To State | Action |
+|-----------|-------|----------|--------|
+| `IDLE` | `start()` | `PUZZLE_ACTIVE` | Initialize puzzle with random challenges |
+| `PUZZLE_ACTIVE` | Puzzle passed | `CAPTURE_STRAIGHT` | Begin multi-angle capture, set first pose target |
+| `PUZZLE_ACTIVE` | Puzzle failed / timeout | `FAILED` | Report failure reason |
+| `CAPTURE_STRAIGHT` | Stable + quality OK + captured | `CAPTURE_LEFT` | Store embedding, advance to left pose |
+| `CAPTURE_LEFT` | Stable + quality OK + captured | `CAPTURE_RIGHT` | Store embedding, advance to right pose |
+| `CAPTURE_RIGHT` | Stable + quality OK + captured | `CAPTURE_UP` | Store embedding, advance to up pose |
+| `CAPTURE_UP` | Stable + quality OK + captured | `CAPTURE_DOWN` | Store embedding, advance to down pose |
+| `CAPTURE_DOWN` | Stable + quality OK + captured | `SUBMITTING` | All 5 captures complete, submit to server |
+| `SUBMITTING` | Server success | `COMPLETE` | Enrollment persisted |
+| `SUBMITTING` | Server error | `FAILED` | Report error, allow retry |
+| Any state | `cancel()` | `IDLE` | Clean up, release resources |
+
+### Capture Conditions (per pose)
+
+A capture is taken when ALL of the following hold for `HOLD_TO_CAPTURE` (0.8s):
+
+1. **Pose match**: `|currentYaw - targetYaw| < tolerance` AND `|currentPitch - targetPitch| < tolerance`
+2. **Stability**: Max face movement < 15px over last 10 frames (Python lines 1298-1301)
+3. **Quality**: `qualityScore >= 65` (Python line 2223)
+
+### Stability Tracking (Python lines 1298-1301)
+
+```typescript
+// Track last 10 face centroid positions
+const positionHistory: Array<{ x: number; y: number }>;  // maxlen = 10
+
+function isStable(history: Array<{ x: number; y: number }>): boolean {
+  if (history.length < STABILITY_MIN_FRAMES) return false;
+  const maxDx = Math.max(...history.map(p => p.x)) - Math.min(...history.map(p => p.x));
+  const maxDy = Math.max(...history.map(p => p.y)) - Math.min(...history.map(p => p.y));
+  return Math.max(maxDx, maxDy) < STABILITY_THRESHOLD;  // 15px
+}
+```
+
+---
+
+## 8. Error Handling Strategy
+
+Each component follows a consistent error handling pattern: detect failure, report availability, and degrade gracefully. The engine never crashes on a component failure; it reduces functionality instead.
+
+### Component Availability Pattern
+
+Every component implements `isAvailable(): boolean`. The engine checks availability before delegating work:
+
+```typescript
+// Pattern used by FrameProcessor and EnrollmentController:
+if (this.livenessDetector?.isAvailable()) {
+  trackedFace.liveness = this.livenessDetector.check(faceROI);
+} else {
+  trackedFace.liveness = null;  // graceful skip
+}
+```
+
+### Failure Modes and Recovery
+
+| Failure | Detection | Degradation | User Message |
+|---------|-----------|------------|--------------|
+| **MediaPipe WASM load failure** | `FaceDetector.initialize()` rejects | Engine unusable. `isReady = false`. | "Face detection is unavailable. Please try a different browser or reload the page." |
+| **MediaPipe model 404** | HTTP fetch fails during init | Same as above. | "Could not load face detection model. Check your network connection." |
+| **Camera access denied** | `getUserMedia()` rejects with `NotAllowedError` | No detection loop. Clear error, no retry loop. | "Camera access was denied. Please allow camera access in your browser settings." |
+| **Camera not found** | `getUserMedia()` rejects with `NotFoundError` | No detection loop. | "No camera found. Please connect a camera and reload." |
+| **ONNX model 404** | `EmbeddingComputer.initialize()` or `CardDetector.initialize()` rejects | Skip embedding/card features. `isAvailable() = false`. Server fallback for embedding and card detection. | "Advanced features unavailable. Basic detection still works." |
+| **ONNX Runtime WASM load failure** | WASM binary fails to load | Same as above. | (same) |
+| **Network failure during enrollment submission** | `fetch()` rejects or returns 5xx | Queue captures locally with retry. `EnrollmentController` transitions to `SUBMITTING` with retry logic. | "Network error. Your enrollment data has been saved locally and will be submitted when connection is restored." |
+| **Gabor kernel computation timeout** | Processing exceeds frame budget | Disable passive liveness for this session. Set `livenessDetector.isAvailable() = false`. | (Silent. Server-side liveness is the authority anyway.) |
+| **Out of memory (large ONNX model)** | OOM error during ONNX session creation | Fall back to geometry-based embeddings. | "Using lightweight face matching. For best results, use a device with more memory." |
+| **Web Audio API unavailable** | `AudioContext` constructor throws | Voice recording disabled. `isAvailable() = false`. | "Voice recording is not supported in this browser." |
+
+### Error Propagation Rules
+
+1. **Component initialization errors** are caught and logged. The component sets `isAvailable() = false`. The engine continues initializing other components.
+2. **Per-frame processing errors** are caught per-component. A failing component returns `null` for that frame. Other components continue.
+3. **Enrollment errors** transition the state machine to `FAILED` with a reason string.
+4. **Network errors** during submission use a local queue with exponential backoff retry (max 3 retries, backoff: 1s, 4s, 16s).
+
+### Local Queue for Network Failures
+
+```typescript
+interface QueuedEnrollment {
+  result: EnrollmentResult;
+  attemptCount: number;
+  lastAttempt: number;
+  nextRetryAt: number;
+}
+
+class EnrollmentQueue {
+  private queue: QueuedEnrollment[] = [];
+
+  enqueue(result: EnrollmentResult): void;
+  async flush(): Promise<void>;  // Try submitting all queued items
+  readonly pendingCount: number;
+}
+```
+
+---
+
+## 9. React Hook Contracts
 
 ### useBiometricEngine
 
 ```typescript
-function useBiometricEngine(): {
+function useBiometricEngine(config?: IBiometricEngineConfig): {
   engine: BiometricEngine | null;
   isReady: boolean;
   isLoading: boolean;
   error: string | null;
+  /** Which optional components are available */
+  availability: {
+    faceDetector: boolean;
+    qualityAssessor: boolean;
+    livenessDetector: boolean;
+    embeddingComputer: boolean;
+    cardDetector: boolean;
+    voiceProcessor: boolean;
+  };
 }
 ```
 
-Manages singleton lifecycle. Calls `engine.initialize()` on mount, `engine.dispose()` on unmount. Returns null engine until MediaPipe models are loaded.
+Manages singleton lifecycle. Calls `engine.initialize()` on mount, `engine.dispose()` on unmount. Returns null engine until MediaPipe models are loaded. Accepts optional config for dependency injection (testing).
 
 ### useFaceDetection
 
@@ -1139,7 +1773,7 @@ function useFaceDetection(
 }
 ```
 
-Runs the detection loop via `requestAnimationFrame` when `active` is true. Calls `engine.faceDetector.detect()` and `engine.faceTracker.update()` each frame. Quality and head pose are computed for the primary (largest) face.
+Runs the detection loop via `engine.frameProcessor.start()` when `active` is true. Quality and head pose are computed for the primary (largest) face.
 
 **Replaces:** Current `useFaceDetection.ts` (195 lines) and `useQualityAssessment.ts` (196 lines).
 
@@ -1172,12 +1806,7 @@ function useLivenessPuzzle(
   results: PuzzleStepResult[];
 
   // All metrics (for debug UI)
-  metrics: {
-    eyes: EyeMetrics;
-    mouth: MouthMetrics;
-    eyebrows: EyebrowMetrics;
-    headPose: HeadPose;
-  } | null;
+  metrics: FaceMetrics | null;
 }
 ```
 
@@ -1195,12 +1824,13 @@ function useFaceEnrollment(
   startMultiAngle: (name: string) => void;
   cancelEnrollment: () => void;
 
-  // State
+  // State (delegates to EnrollmentController)
   isEnrolling: boolean;
   phase: 'idle' | 'puzzle' | 'capture' | 'complete';
   currentPose: EnrollmentPose | null;
   step: number;        // 0-4 (5 poses)
   totalSteps: number;  // 5
+  enrollmentState: EnrollmentState;  // Full state machine state
 
   // Pose matching
   yawOk: boolean;
@@ -1215,9 +1845,7 @@ function useFaceEnrollment(
 }
 ```
 
-Implements the full 2-phase enrollment:
-1. Puzzle phase (liveness verification via BiometricPuzzle)
-2. Capture phase (5 poses: STRAIGHT, LEFT, RIGHT, UP, DOWN)
+Implements the full 2-phase enrollment by delegating to `engine.enrollmentController`.
 
 Stability tracking (Python lines 1298-1301): tracks last 10 face positions, requires max movement < 15 pixels.
 
@@ -1265,7 +1893,7 @@ function useCardDetection(
 
 ---
 
-## 6. Auth-Test Adapter
+## 10. Auth-Test Adapter
 
 The auth-test page (`/auth-test/app.js`) currently contains inline biometric logic. After migration, it imports the engine directly.
 
@@ -1278,12 +1906,10 @@ The auth-test page (`/auth-test/app.js`) currently contains inline biometric log
   const engine = BiometricEngine.getInstance();
   await engine.initialize();
 
-  // Face detection loop
-  function loop() {
-    const result = engine.faceDetector.detect(videoEl, performance.now());
+  // Face detection loop (via FrameProcessor)
+  engine.frameProcessor.start(videoEl, (result) => {
     // ... use result
-    requestAnimationFrame(loop);
-  }
+  });
 
   // Start puzzle
   engine.puzzle.start([ChallengeType.BLINK, ChallengeType.SMILE, ChallengeType.TURN_LEFT]);
@@ -1328,6 +1954,10 @@ class BiometricEngineAdapter {
 }
 ```
 
+### Version Compatibility
+
+The adapter must handle engine version mismatches gracefully. See Section 16 for the versioning strategy. The adapter checks `engine.version` on construction and warns if the adapter was built against a different major version.
+
 ### Build Configuration
 
 The engine library is built with two output formats:
@@ -1347,11 +1977,190 @@ Build tool: Vite library mode or Rollup with TypeScript plugin.
 
 ---
 
-## 7. Migration Plan
+## 11. Testing Strategy
+
+### Unit Testing (Vitest)
+
+Each component is tested in isolation using mock data. The interface-based architecture (Section 5a) makes mocking straightforward.
+
+**Test structure:**
+```
+tests/
+  core/
+    FaceDetector.test.ts
+    QualityAssessor.test.ts
+    HeadPoseEstimator.test.ts
+    FaceTracker.test.ts
+    FaceMetricsCalculator.test.ts
+    PassiveLivenessDetector.test.ts
+    EmbeddingComputer.test.ts
+    CardDetector.test.ts
+    VoiceProcessor.test.ts
+  puzzle/
+    BlinkDetector.test.ts
+    SmileDetector.test.ts
+    TurnLeftDetector.test.ts
+    ... (one per ChallengeDetector)
+    BiometricPuzzle.test.ts
+  orchestration/
+    FrameProcessor.test.ts
+    EnrollmentController.test.ts
+    BiometricEngine.test.ts
+  integration/
+    enrollment-flow.test.ts
+    puzzle-full-run.test.ts
+```
+
+### Mock Landmark Data (Save/Replay Pattern)
+
+Record real MediaPipe landmark data from sessions, save as JSON fixtures, and replay in tests:
+
+```typescript
+// Record (run once with real camera):
+function recordLandmarkSession(duration: number): LandmarkFrame[] {
+  const frames: LandmarkFrame[] = [];
+  // ... capture landmarks from FaceLandmarker for N seconds
+  return frames;
+}
+
+// Save to fixture:
+// tests/fixtures/blink-session.json
+// tests/fixtures/smile-session.json
+// tests/fixtures/turn-left-session.json
+
+// Replay in test:
+import blinkSession from '../fixtures/blink-session.json';
+
+describe('BlinkDetector', () => {
+  it('detects blink in recorded session', () => {
+    const calculator = new FaceMetricsCalculator();
+    const detector = new BlinkDetector();
+
+    const blinkFrame = blinkSession.frames.find(f => f.label === 'eyes_closed');
+    const metrics = calculator.calculateAll(blinkFrame.landmarks);
+    expect(detector.detect(metrics, blinkFrame.headPose)).toBe(true);
+  });
+
+  it('does not detect blink with eyes open', () => {
+    const openFrame = blinkSession.frames.find(f => f.label === 'eyes_open');
+    const metrics = calculator.calculateAll(openFrame.landmarks);
+    expect(detector.detect(metrics, openFrame.headPose)).toBe(false);
+  });
+});
+```
+
+### Canvas-Based Test Fixtures
+
+For components that operate on `ImageData` (QualityAssessor, PassiveLivenessDetector):
+
+```typescript
+// Create test ImageData from pre-rendered face images
+function createTestImageData(width: number, height: number, pattern: 'sharp' | 'blurry' | 'dark'): ImageData {
+  const data = new Uint8ClampedArray(width * height * 4);
+  // Fill with pattern-specific pixel values
+  return new ImageData(data, width, height);
+}
+
+describe('QualityAssessor', () => {
+  it('flags blurry images', () => {
+    const assessor = new QualityAssessor();
+    const blurryImage = createTestImageData(100, 100, 'blurry');
+    const report = assessor.assess(blurryImage);
+    expect(report.issues).toContain('Blurry');
+    expect(report.blur).toBeLessThan(50);
+  });
+});
+```
+
+### Threshold Validation: Python vs TypeScript Parity
+
+Run both Python and TypeScript implementations on the same test images and compare outputs:
+
+```bash
+# 1. Generate reference data from Python
+cd biometric-processor
+python -m tests.generate_threshold_reference \
+  --input tests/fixtures/face_images/ \
+  --output tests/fixtures/threshold_reference.json
+
+# 2. Run TypeScript against same images
+cd biometric-engine
+npx vitest run tests/parity/threshold-parity.test.ts
+```
+
+```typescript
+// tests/parity/threshold-parity.test.ts
+import reference from '../fixtures/threshold_reference.json';
+
+describe('Python-TypeScript parity', () => {
+  for (const entry of reference.ears) {
+    it(`EAR matches for ${entry.name}`, () => {
+      const calculator = new FaceMetricsCalculator();
+      const ear = calculator.calculateEAR(entry.landmarks, entry.eyeIndices);
+      expect(ear).toBeCloseTo(entry.pythonEAR, 3);  // 3 decimal places
+    });
+  }
+
+  for (const entry of reference.quality) {
+    it(`Quality score matches for ${entry.name}`, () => {
+      const assessor = new QualityAssessor();
+      const report = assessor.assess(entry.imageData);
+      expect(report.score).toBeCloseTo(entry.pythonScore, 0);  // within 1 point
+    });
+  }
+});
+```
+
+### Integration Tests (Playwright with Camera Mock)
+
+Use Playwright's camera mock to simulate webcam input:
+
+```typescript
+// tests/e2e/enrollment.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('full enrollment flow with mocked camera', async ({ browser }) => {
+  const context = await browser.newContext({
+    permissions: ['camera'],
+    // Use pre-recorded video as camera input
+    recordVideo: undefined,
+  });
+
+  // Playwright camera mock: provide frames from a video file
+  // This requires the @playwright/test camera mock API
+  const page = await context.newPage();
+  await page.goto('/auth-test/');
+
+  // Start enrollment
+  await page.click('#face-enroll-btn');
+
+  // Wait for puzzle to appear
+  await expect(page.locator('.puzzle-challenge')).toBeVisible({ timeout: 5000 });
+
+  // ... verify puzzle progression
+  // ... verify capture phases
+  // ... verify submission
+});
+```
+
+### Unit Test Examples per Component
+
+| Component | Key Test Cases |
+|-----------|---------------|
+| `FaceMetricsCalculator` | EAR=0.3 for open eyes, EAR=0.15 for closed, MAR=0.0 for closed mouth, MAR>0.12 for open, smile detection positive/negative |
+| `BiometricPuzzle` | Hold timer advances to 100% after 0.6s, resets on detection loss, advances to next challenge on completion, all 14 challenges work with fixture data |
+| `HeadPoseEstimator` | Yaw=0 for centered face, yaw<-20 for left turn, pitch>12 for look down, clamping works at boundaries |
+| `FaceTracker` | New track assigned ID, track survives 14 frames without detection, track removed at frame 16, centroid matching within 120px |
+| `QualityAssessor` | Sharp image scores >80 blur, dark image flagged, small face flagged, overall score computed correctly |
+| `EnrollmentController` | State transitions match diagram (Section 7), cancel from any state returns to IDLE, network failure queues locally |
+
+---
+
+## 12. Migration Plan
 
 ### Phase 1: Engine Core (Week 1-2)
 
-**Goal:** FaceDetector, QualityAssessor, HeadPoseEstimator, FaceTracker working in isolation.
+**Goal:** FaceDetector, QualityAssessor, HeadPoseEstimator, FaceTracker, FaceMetricsCalculator working in isolation.
 
 | File | Description | Source |
 |------|-------------|--------|
@@ -1359,30 +2168,34 @@ Build tool: Vite library mode or Rollup with TypeScript plugin.
 | `src/core/QualityAssessor.ts` | Canvas-based blur/brightness/size | Python lines 332-366 |
 | `src/core/HeadPoseEstimator.ts` | Geometric yaw/pitch from landmarks | Python lines 1413-1437 |
 | `src/core/FaceTracker.ts` | Centroid-based multi-face tracking | Python lines 987-1047 |
+| `src/core/FaceMetricsCalculator.ts` | Shared EAR/MAR/smile/eyebrow (DRY) | Python lines 575-700 |
 | `src/core/image-utils.ts` | Grayscale, HSV, convolution helpers | Replaces cv2 calls |
-| `src/types/index.ts` | All TypeScript interfaces | Section 4 of this doc |
+| `src/interfaces/index.ts` | All component interfaces | Section 5a of this doc |
+| `src/types/index.ts` | All TypeScript interfaces | Section 6 of this doc |
 | `tests/core/` | Unit tests for each class | |
 
 **Validation:** Detect face, draw landmarks on canvas, show quality score, show head pose angles.
 
-### Phase 2: BiometricPuzzle (Week 2-3)
+### Phase 2: BiometricPuzzle + FrameProcessor + EnrollmentController (Week 2-3)
 
-**Goal:** All 14 challenges working with hold timer and motion detection.
+**Goal:** All 14 challenges working with hold timer and motion detection. Frame loop and enrollment state machine operational.
 
 | File | Description | Source |
 |------|-------------|--------|
-| `src/core/BiometricPuzzle.ts` | Full 14-challenge puzzle engine | Python lines 451-921 |
-| `src/core/metrics/ear.ts` | Eye Aspect Ratio calculator | Python lines 575-597 |
-| `src/core/metrics/mar.ts` | Mouth Aspect Ratio calculator | Python lines 600-620 |
-| `src/core/metrics/smile.ts` | Smile detection (corner + width) | Python lines 622-665 |
-| `src/core/metrics/eyebrow.ts` | Eyebrow raise with baseline | Python lines 667-700 |
+| `src/core/BiometricPuzzle.ts` | Strategy-based 14-challenge puzzle engine | Python lines 451-921 |
+| `src/core/challenges/BlinkDetector.ts` | Blink challenge strategy | Python lines 732-742 |
+| `src/core/challenges/SmileDetector.ts` | Smile challenge strategy | Python lines 766-777 |
+| `src/core/challenges/...` | (one file per ChallengeDetector) | |
+| `src/core/FrameProcessor.ts` | Detection loop orchestration | New (extracted from BiometricEngine) |
+| `src/core/EnrollmentController.ts` | Multi-angle enrollment state machine | Python lines 1287-1301, 2161-2223 |
+| `src/core/BiometricEngine.ts` | Orchestrator with DI builder | New structure |
 | `tests/core/puzzle/` | Tests for each challenge type | |
 
-**Validation:** Run each of the 14 challenges. Verify thresholds match Python. Test hold timer. Test nod/shake motion detection.
+**Validation:** Run each of the 14 challenges. Verify thresholds match Python. Test hold timer. Test nod/shake motion detection. Test enrollment state transitions.
 
 ### Phase 3: PassiveLiveness + EmbeddingComputer (Week 3-4)
 
-**Goal:** Texture/color liveness analysis and ONNX face embedding extraction.
+**Goal:** Texture/color liveness analysis and ONNX face embedding extraction. These are P2 components and can be deferred.
 
 | File | Description | Source |
 |------|-------------|--------|
@@ -1434,7 +2247,7 @@ Build tool: Vite library mode or Rollup with TypeScript plugin.
 
 ---
 
-## 8. Browser API Compatibility
+## 13. Browser API Compatibility
 
 | API | Chrome | Edge | Firefox | Safari | Notes |
 |-----|--------|------|---------|--------|-------|
@@ -1467,7 +2280,7 @@ worker-src: blob: (ONNX WASM workers)
 
 ---
 
-## 9. Performance Budgets
+## 14. Performance Budgets
 
 Based on Python demo targets (20-30+ FPS) and browser overhead.
 
@@ -1495,7 +2308,7 @@ Based on Python demo targets (20-30+ FPS) and browser overhead.
 
 ---
 
-## 10. Threshold Reference Table
+## 15. Threshold Reference Table
 
 All thresholds from `demo_local_fast.py` in one reference table.
 
@@ -1650,6 +2463,75 @@ user_right_ear = left_ear    // MediaPipe LEFT_EYE  = User's RIGHT
 ```
 
 This swap is ONLY applied for BLINK, CLOSE_LEFT, CLOSE_RIGHT challenges where the UI says "Close YOUR left/right eye." For eyebrow challenges, the swap works differently because the `calculate_eyebrow_raise` function already uses the correct perspective internally.
+
+---
+
+## 16. Versioning
+
+### Semantic Versioning
+
+The `@fivucsas/biometric-engine` package follows [Semantic Versioning](https://semver.org/):
+
+```
+MAJOR.MINOR.PATCH
+
+MAJOR: Breaking changes to public API (interface signatures, removed methods, renamed types)
+MINOR: New features, new components, new challenge types (backward-compatible)
+PATCH: Bug fixes, threshold adjustments, performance improvements
+```
+
+**Current version:** `1.0.0` (initial release after Phase 2 completion).
+
+### Version History Plan
+
+| Version | Milestone | Content |
+|---------|-----------|---------|
+| `0.1.0` | Phase 1 complete | FaceDetector, QualityAssessor, HeadPoseEstimator, FaceTracker, FaceMetricsCalculator |
+| `0.2.0` | Phase 2 complete | BiometricPuzzle (14 challenges), FrameProcessor, EnrollmentController |
+| `0.3.0` | Phase 3 complete | PassiveLivenessDetector, EmbeddingComputer |
+| `1.0.0` | Phase 4 complete | React hooks, stable public API, all tests green |
+| `1.1.0` | Phase 5 complete | Auth-test adapter, IIFE bundle |
+| `1.2.0` | Phase 6 complete | CardDetector ONNX |
+
+### Auth-Test Adapter Version Compatibility
+
+The auth-test page (`app.js`) imports the engine as a standalone bundle. It must handle version mismatches gracefully:
+
+```typescript
+class BiometricEngineAdapter {
+  static readonly COMPATIBLE_MAJOR = 1;
+
+  constructor(engine: BiometricEngine) {
+    const [major] = engine.version.split('.').map(Number);
+    if (major !== BiometricEngineAdapter.COMPATIBLE_MAJOR) {
+      console.warn(
+        `BiometricEngineAdapter was built for engine v${BiometricEngineAdapter.COMPATIBLE_MAJOR}.x, ` +
+        `but engine v${engine.version} is loaded. Some features may not work correctly.`
+      );
+    }
+  }
+}
+```
+
+### Backward-Compatible API Evolution
+
+Rules for evolving the public API without breaking consumers:
+
+1. **New optional parameters** can be added to existing methods (with defaults).
+2. **New methods** can be added to interfaces if they have default implementations or are optional.
+3. **New challenge types** are added via the registry (Section 5h) and do not change existing code.
+4. **Threshold changes** are PATCH-level only if they improve accuracy without changing detection semantics.
+5. **Interface extensions** use the TypeScript `extends` pattern so existing implementations remain valid.
+6. **Deprecation**: Methods are marked `@deprecated` for one MINOR version before removal in the next MAJOR.
+
+```typescript
+// Example: Adding a new optional method without breaking existing code
+interface IFaceDetector {
+  detect(video: HTMLVideoElement, timestamp: number): FaceDetection[];
+  // Added in v1.1.0 — optional, default behavior if not implemented
+  detectWithROI?(video: HTMLVideoElement, roi: BoundingBox, timestamp: number): FaceDetection[];
+}
+```
 
 ---
 
