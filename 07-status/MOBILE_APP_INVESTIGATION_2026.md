@@ -3,7 +3,7 @@
 **Date:** March 20, 2026
 **Repository:** `Rollingcat-Software/client-apps`
 **Platform:** Kotlin Multiplatform (Android + Desktop)
-**Overall Status:** ~70% functionally complete - NOT production-ready
+**Overall Status:** ~80% functionally complete - approaching production-ready (post-fix)
 
 ---
 
@@ -17,26 +17,26 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 
 ### P0 - Blockers
 
-| # | Issue | Details |
-|---|-------|---------|
-| 1 | **AGP Version Conflict** | `build.gradle.kts` declares conflicting Android Gradle Plugin versions: 8.9.2 vs 8.2.2. This will cause build failures or unpredictable behavior. |
-| 2 | **Cleartext Traffic Enabled** | `android:usesCleartextTraffic="true"` in `AndroidManifest.xml` allows unencrypted HTTP traffic. Must be removed before production. |
-| 3 | **Default Environment Set to PRODUCTION** | `ApiConfig.kt` line 21 defaults to `PRODUCTION`. Should default to `DEVELOPMENT` to prevent accidental production usage during development. |
+| # | Issue | Details | Status |
+|---|-------|---------|--------|
+| 1 | ~~AGP Version Conflict~~ | Root build.gradle.kts uses 8.2.2 consistently. Original report was incorrect — no conflict exists. | **FALSE POSITIVE** |
+| 2 | ~~Cleartext Traffic Enabled~~ | `android:usesCleartextTraffic="false"` already set in AndroidManifest. Original report was incorrect. | **FALSE POSITIVE** |
+| 3 | ~~Default Environment Set to PRODUCTION~~ | Changed to `Environment.DEVELOPMENT` in `ApiConfig.kt`. | **FIXED** (c9ae87e0) |
 
 ### P1 - High Priority
 
-| # | Issue | Details |
-|---|-------|---------|
-| 4 | **CameraX Version Mismatch** | shared module uses 1.3.1, androidApp uses 1.4.1. May cause runtime crashes. |
-| 5 | **Koin Version Mismatch** | 3.5.0 vs 3.5.3 across modules. |
-| 6 | **All Environment URLs Identical** | DEV, STAGING, and PRODUCTION all point to the same servers - no environment isolation. |
+| # | Issue | Details | Status |
+|---|-------|---------|--------|
+| 4 | ~~CameraX Version Mismatch~~ | Aligned shared module to 1.4.1. | **FIXED** (c9ae87e0) |
+| 5 | ~~Koin Version Mismatch~~ | Aligned to 3.5.3 across all modules. | **FIXED** (c9ae87e0) |
+| 6 | **All Environment URLs Identical** | DEV, STAGING, and PRODUCTION all point to the same servers - no environment isolation. | OPEN |
 
 ### P2 - Medium Priority
 
-| # | Issue | Details |
-|---|-------|---------|
-| 7 | **ProGuard/R8 Disabled** | APK ships unobfuscated - code can be trivially reverse-engineered. |
-| 8 | **Camera Hardware Required=true** | `uses-feature` blocks installation on devices without cameras. Should use `required="false"` with runtime checks. |
+| # | Issue | Details | Status |
+|---|-------|---------|--------|
+| 7 | ~~ProGuard/R8 Disabled~~ | Enabled R8 for release builds + comprehensive ProGuard rules. | **FIXED** (c9ae87e0) |
+| 8 | ~~Camera Hardware Required=true~~ | Changed to `required="false"`. | **FIXED** (c9ae87e0) |
 
 ---
 
@@ -131,7 +131,7 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 **Status:** Mostly Complete
 
 **Issues:**
-- Line 85: `onNavigateToGuestFaceCheck = { }` - empty lambda, guest face check not wired
+- ~~Line 85: `onNavigateToGuestFaceCheck = { }` - empty lambda~~ **FIXED** (c9ae87e0) — now navigates to `AppRoute.GuestFaceCheckCapture`
 - No deep link handling
 - No error handling for missing platform routes (falls back to `MissingRouteScreen`)
 
@@ -148,9 +148,8 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 **Status:** Mostly Complete
 
 **Issues:**
-- Line 166: `val activityItems = emptyList<ActivityItemData>()` - activity items never loaded from API
+- ~~Line 166: `val activityItems = emptyList<ActivityItemData>()`~~ **FIXED** (c9ae87e0) — now loads from `SessionRepository.getSessions()` API
 - Lines 245-256: Hardcoded warning message for non-tenant users
-- Comment: "Activity items will be loaded from API when available; show empty state for now"
 
 #### SettingsScreen.kt
 `androidApp/src/main/kotlin/com/fivucsas/mobile/android/ui/screen/SettingsScreen.kt`
@@ -158,9 +157,8 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 **Status:** Mostly Complete - Multiple issues
 
 **Issues:**
-- Line 405: `Button(onClick = { /* System settings save not yet implemented */ })` - TODO
+- ~~Line 405: `Button(onClick = { /* ... */ })`~~ **FIXED** (c9ae87e0) — now calls `TenantSettingsViewModel.saveSettings()`
 - Line 78: Hardcoded mock state: `rateLimitInput = remember { mutableStateOf("120") }`
-- **Settings are never persisted to backend** - no API calls for any settings modifications
 - Language selection calls `StringResources.setLanguage()` but localization is incomplete
 - Hardcoded strings: "Turkish / English", "Data and privacy", "Session Policy", "Password Policy", "Default rate limit per minute"
 
@@ -179,13 +177,10 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 #### RequestMembershipScreen.kt
 `androidApp/src/main/kotlin/com/fivucsas/mobile/android/ui/screen/RequestMembershipScreen.kt`
 
-**Status:** INCOMPLETE/STUB
+**Status:** ~~INCOMPLETE/STUB~~ **FIXED** (c9ae87e0)
 
-**Issues:**
-- Line 54: `val allTenants = remember { emptyList<TenantInfo>() }` - hardcoded empty list
-- Comment: "Tenants will be loaded from API when endpoint is available"
-- **Zero backend integration** - no API to fetch tenants, no submission to backend
-- Line 170: Success message shown but no actual API call made
+- Now loads tenants from `RootAdminRepository.getTenants()` API via `LaunchedEffect`
+- Loading state, error handling, and tenant list display all functional
 
 ---
 
@@ -196,13 +191,13 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 | `ApiConfig.kt` | All 3 environments use identical URLs | No environment isolation |
 | `SettingsScreen.kt` | Rate limit "120", language text, category titles | Settings non-functional |
 | `DashboardScreen.kt` | "You are not a tenant member yet..." warning | UX hardcoded |
-| `RequestMembershipScreen.kt` | `emptyList<TenantInfo>()` | Feature non-functional |
-| `RootScreens.kt` (9 instances) | `MockRootAdminRepository()` | Admin features use fake data |
-| `RootDesktopScreens.kt` (8 instances) | `MockRootAdminRepository()` | Desktop admin uses fake data |
+| ~~`RequestMembershipScreen.kt`~~ | ~~`emptyList<TenantInfo>()`~~ | **FIXED** — now uses API |
+| ~~`RootScreens.kt`~~ | ~~`MockRootAdminRepository()`~~ | **FALSE POSITIVE** — uses `koinInject<RootAdminRepository>()` (DI) |
+| ~~`RootDesktopScreens.kt`~~ | ~~`MockRootAdminRepository()`~~ | **FALSE POSITIVE** — uses DI |
 | `HomeScreen.kt` | All UI text hardcoded in English | No i18n |
 | `SettingsScreen.kt:141` | Language display names hardcoded | No i18n |
 
-**Total:** 17 instances of `MockRootAdminRepository` in production code paths (P0 blocker).
+**Note:** The original report's claim of 17 `MockRootAdminRepository` instances was incorrect. The code uses `koinInject<RootAdminRepository>()` with DI-injected `RootAdminRepositoryImpl`. Mock references were only in documentation files.
 
 ---
 
@@ -210,16 +205,16 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 
 | Feature | Location | Status | Notes |
 |---------|----------|--------|-------|
-| Settings Persistence | SettingsScreen.kt:405 | TODO | UI exists but no save() call |
+| ~~Settings Persistence~~ | SettingsScreen.kt | **FIXED** | Wired to `TenantSettingsViewModel.saveSettings()` |
 | Export Functionality | AppNavigation.kt:637 | TODO | `onExport = { /* TODO: implement export */ }` |
 | Delete Enrollment | desktopApp/Main.kt:303 | TODO | Not implemented |
 | Filter Users | UsersTab.kt:87 | TODO | Empty lambda |
 | Export Users | UsersTab.kt:88 | TODO | Empty lambda |
-| Guest Face Check | LoginScreen | STUB | Empty lambda |
+| ~~Guest Face Check~~ | LoginScreen / AppRoot.kt | **FIXED** | Wired to `AppRoute.GuestFaceCheckCapture` |
 | Password Reset | ForgotPasswordScreen | INCOMPLETE | UI only, no email-based reset flow |
-| Request Membership | RequestMembershipScreen.kt | STUB | Empty tenant list, no API |
-| Activity History | DashboardScreen.kt:166 | STUB | Empty list, no API |
-| RootAdminApi Implementation | (missing) | MISSING | Interface exists, no implementation class |
+| ~~Request Membership~~ | RequestMembershipScreen.kt | **FIXED** | Now loads tenants from API |
+| ~~Activity History~~ | DashboardScreen.kt | **FIXED** | Now loads from `SessionRepository.getSessions()` |
+| ~~RootAdminApi~~ | RootAdminRepositoryImpl | **FALSE POSITIVE** | Implementation exists, injected via Koin DI |
 
 ---
 
@@ -228,11 +223,11 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 | Feature | Priority | Notes |
 |---------|----------|-------|
 | Auth Flow Configuration | P1 | Web-app has AuthFlowBuilder, client-apps has nothing |
-| Device Management Page | P1 | No screens to list/manage registered devices |
-| Auth Sessions Page | P1 | No UI to view active sessions |
-| Multi-Step Auth UI | P1 | No UI for complex auth flows |
-| TOTP Enrollment UI | P2 | No QR-based TOTP setup screen |
-| WebAuthn Enrollment UI | P2 | No hardware key registration screen |
+| Device Management Page | P1 | Screen exists (`Devices` route in AppNavigation) |
+| Auth Sessions Page | P1 | Screen exists (`Sessions` route in AppNavigation) |
+| Multi-Step Auth UI | P1 | AuthFlows screen exists with tenant-specific auth configuration |
+| TOTP Enrollment UI | P2 | Screen exists (`TotpEnroll` route) |
+| WebAuthn Enrollment UI | P2 | `HardwareToken` screen exists |
 | i18n/Localization System | P1 | `StringResources.kt` exists but all strings hardcoded in English |
 | Dark Mode | P2 | Theme defined in `AppColors.kt` but hardcoded to `false` |
 
@@ -252,6 +247,9 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 
 | Commit | Description |
 |--------|-------------|
+| `b492d067` | **Fix TENANT_MEMBER bottom nav, expand nav items for all roles** |
+| `9e8e4b2f` | Wire desktop UserJoinTenantScreen to RootAdminRepository API |
+| `c9ae87e0` | Resolve build issues, wire stub screens to APIs, harden security config |
 | `8e7b024f` | Kotlin/Native compatibility: `Math.PI` -> `kotlin.math.PI` |
 | `1936f070` | Added Voice Verify, Face Liveness, Card Detection screens |
 | `f1871737` | Fixed Android theme alignment with web-app design tokens |
@@ -264,41 +262,41 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 ## 9. Recommended Action Plan (Priority Order)
 
 ### Phase 1 - Build & Security Fixes (Blockers)
-1. Fix AGP version conflict (8.9.2 vs 8.2.2)
-2. Remove `usesCleartextTraffic="true"` from AndroidManifest
-3. Change default environment from PRODUCTION to DEVELOPMENT
-4. Implement `RootAdminApiImpl` and replace all 17 `MockRootAdminRepository` instances
-5. Encrypt desktop token storage
-6. Persist refresh tokens to survive process death
-7. Fix token refresh recursion risk
+1. ~~Fix AGP version conflict~~ — **FALSE POSITIVE** (no conflict)
+2. ~~Remove `usesCleartextTraffic`~~ — **FALSE POSITIVE** (already `false`)
+3. ~~Change default environment from PRODUCTION to DEVELOPMENT~~ — **FIXED** (c9ae87e0)
+4. ~~Replace MockRootAdminRepository~~ — **FALSE POSITIVE** (code uses DI)
+5. Encrypt desktop token storage — OPEN
+6. Persist refresh tokens to survive process death — OPEN
+7. Fix token refresh recursion risk — OPEN
 
 ### Phase 2 - Core Feature Completion
-8. Implement settings persistence (API integration)
-9. Wire up password reset flow (email-based)
-10. Implement request membership API integration
-11. Connect activity history to API
-12. Implement auth flow configuration (parity with web-app)
-13. Add device management screens
-14. Add auth sessions viewing
+8. ~~Settings persistence~~ — **FIXED** (c9ae87e0)
+9. Wire up password reset flow (email-based) — OPEN
+10. ~~Request membership API integration~~ — **FIXED** (c9ae87e0)
+11. ~~Activity history API~~ — **FIXED** (c9ae87e0)
+12. Auth flow configuration (parity with web-app) — screens exist, wiring needed
+13. ~~Device management screens~~ — screens exist
+14. ~~Auth sessions viewing~~ — screens exist
 
 ### Phase 3 - Quality & Compliance
-15. Add certificate pinning
-16. Enable ProGuard/R8 code obfuscation
-17. Add root/jailbreak detection
-18. Implement KVKK consent dialog
-19. Complete i18n/localization system
-20. Fix CameraX and Koin version mismatches
-21. Add HTTP response caching
-22. Fix NFC photo memory leak
-23. Implement dark mode toggle
+15. Add certificate pinning — OPEN
+16. ~~Enable ProGuard/R8~~ — **FIXED** (c9ae87e0)
+17. Add root/jailbreak detection — OPEN
+18. Implement KVKK consent dialog — OPEN
+19. Complete i18n/localization system — OPEN
+20. ~~Fix CameraX and Koin version mismatches~~ — **FIXED** (c9ae87e0)
+21. Add HTTP response caching — OPEN
+22. Fix NFC photo memory leak — OPEN
+23. Implement dark mode toggle — OPEN
 
-### Phase 4 - Feature Parity
-24. TOTP enrollment UI
-25. WebAuthn enrollment UI
-26. Multi-step auth UI
-27. Export functionality (users, data)
-28. Guest face check flow
-29. Deep link handling
+### Phase 4 - Navigation & UX
+24. ~~Fix TENANT_MEMBER bottom nav~~ — **FIXED** (b492d067)
+25. ~~Expand bottom nav items for all roles~~ — **FIXED** (b492d067)
+26. ~~Wire desktop UserJoinTenantScreen to API~~ — **FIXED** (9e8e4b2f)
+27. ~~Wire guest face check navigation~~ — **FIXED** (c9ae87e0)
+28. Export functionality (users, data) — OPEN
+29. Deep link handling — OPEN
 
 ---
 
@@ -306,16 +304,16 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 
 | Feature | Web App | Mobile App | Gap |
 |---------|---------|------------|-----|
-| Auth Flow Builder | Complete | Missing | Full feature missing |
-| Device Management | Complete | Missing | Full feature missing |
-| Session Management | Complete | Missing | Full feature missing |
-| Settings Persistence | Complete | UI Only | No backend calls |
+| Auth Flow Builder | Complete | Screen exists | Wiring needed |
+| Device Management | Complete | Screen exists | Route wired in NavHost |
+| Session Management | Complete | Screen exists | Route wired in NavHost |
+| Settings Persistence | Complete | **FIXED** | Wired to TenantSettingsViewModel |
 | i18n | Partial | None | All strings hardcoded |
 | Dark Mode | Supported | Hardcoded off | Theme exists but unused |
 | Password Reset | Complete | UI Only | No email flow |
 | Export | Complete | TODO stubs | Empty lambdas |
-| TOTP Setup | Complete | Missing | No screens |
-| Root Admin | Complete | Mock Data | 17 mock repository instances |
+| TOTP Setup | Complete | Screen exists | TotpEnroll route wired |
+| Root Admin | Complete | **Uses real DI** | koinInject<RootAdminRepository>() |
 
 ---
 
