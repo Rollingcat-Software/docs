@@ -1,15 +1,15 @@
 FACE AND IDENTITY VERIFICATION USING CLOUD BASED SAAS MODELS
 by
-Ahmet Abdullah Gültekin - 150121025
-Ayþe Gülsüm Eren - 150120005
-Ayþenur Arýcý - 150123825
+Ahmet Abdullah Gï¿½ltekin - 150121025
+Ayï¿½e Gï¿½lsï¿½m Eren - 150120005
+Ayï¿½enur Arï¿½cï¿½ - 150123825
 
 
 CSE4297 Engineering Project 1
 Analysis and Design Document
 
 Supervised by:
-Assoc. Prof. Dr. Mustafa Aðaoðlu
+Assoc. Prof. Dr. Mustafa Aï¿½aoï¿½lu
 
 
 
@@ -99,7 +99,7 @@ ModelEmbedding DimensionArchitectureLFW AccuracyVGG-Face2,622VGGNet98.95%
 The comparison highlights a clear trade-off between embedding dimensionality and recognition accuracy. While earlier architectures such as DeepFace rely on high-dimensional feature vectors, more recent margin-based models such as ArcFace achieve superior accuracy with significantly smaller embeddings. This reduction in dimensionality is particularly advantageous for large-scale biometric systems, as it improves storage efficiency and accelerates similarity search operations in production environments.
 2.3 Liveness Detection and Anti-Spoofing
 Liveness detection has become a critical component of biometric authentication systems due to the increasing prevalence of presentation attacks, including printed photographs, replayed videos, and high-quality deepfake content. Face anti-spoofing techniques are commonly categorized into passive, active, and hybrid approaches , as standardized in ISO/IEC 30107-3 [9].
-Passive liveness detection methods analyze visual cues from single images or video streams without requiring user interaction. Common techniques include texture analysis using Local Binary Patterns, frequency-domain analysis for detecting moiré artifacts, color space consistency checks, and CNN-based classifiers trained on spoofing datasets. Although passive approaches offer a seamless user experience, they remain vulnerable to high-quality attacks, three-dimensional masks, and generative AI-based spoofing.
+Passive liveness detection methods analyze visual cues from single images or video streams without requiring user interaction. Common techniques include texture analysis using Local Binary Patterns, frequency-domain analysis for detecting moirï¿½ artifacts, color space consistency checks, and CNN-based classifiers trained on spoofing datasets. Although passive approaches offer a seamless user experience, they remain vulnerable to high-quality attacks, three-dimensional masks, and generative AI-based spoofing.
 Active liveness detection introduces challenge-response mechanisms that require deliberate user actions, such as blinking, smiling, head movements, or gaze tracking. Quantitative metrics such as Eye Aspect Ratio (EAR) and Mouth Aspect Ratio (MAR) are widely used to detect these actions. The emergence of real-time facial landmark frameworks such as Google MediaPipe Face Mesh, which provides 468 facial landmarks, has significantly improved the feasibility of on-device active liveness verification.
 Hybrid approaches combine passive and active techniques to maximize robustness against both traditional and AI-generated attacks. Recent literature highlights that hybrid pipelines achieve superior security while maintaining acceptable latency and usability. However, many proposed solutions remain model-centric and lack integration into complete, end-to-end authentication workflows.
 The increasing sophistication of generative adversarial attacks underscores the need for liveness mechanisms that are dynamic, randomized, and context-aware-capabilities that static classifiers alone cannot reliably provide.
@@ -159,7 +159,7 @@ The system shall support the secure enrollment of facial biometric data after ve
 * Tenant context
 3.1.2.3 Processing
 1. Detect facial region using configurable backend (RetinaFace, MTCNN, or MediaPipe)
-2. Assess biometric sample quality (brightness > 0.3, sharpness > 0.5, frontal pose within 15°)
+2. Assess biometric sample quality (brightness > 0.3, sharpness > 0.5, frontal pose within 15ï¿½)
 3. Validate liveness through 'Biometric Puzzle' challenge sequence
 4. Generate standardized biometric embedding using selected model (default: Facenet512)
 5. Store embedding vector in PostgreSQL with pgvector extension
@@ -356,7 +356,7 @@ ServiceTest Files	Test CasesCoverageIdentity Core API2915672%Biometric P
 4.4.5 Test Timeline 
 This subsection provides estimated calendar time required for testing tasks.
 
-Task NoTest Task / MilestoneDeadlineStatusPhase 1: Unit TestingT-1.1Identity Core - Unit TestsDec 22, 2025CompleteT-1.2Biometric Processor - Unit TestsDec 26, 2025CompleteT-1.3Liveness Detection - Unit TestsDec 29, 2025CompleteT-1.4Client Apps - Unit TestsJan 2, 2026CompletePhase 2: Integration TestingT-2.1Identity Core - PostgreSQLJan 5, 2026CompleteT-2.2Biometric Processor - pgvectorJan 9, 2026CompleteT-2.3Identity Core - RedisJan 12, 2026CompleteT-2.4Biometric Processor - DeepFaceJan 16, 2026CompletePhase 3: End-to-End TestingT-3.1User Registration › Enrollment FlowJan 26, 2026PendingT-3.2Liveness › Verification › Access FlowFeb 2, 2026PendingT-3.3Multi-tenant Isolation TestsFeb 9, 2026PendingT-3.4Mobile App Integration TestsFeb 16, 2026PendingPhase 4: Performance TestingT-4.1API Load Testing (500 RPS)Feb 23, 2026PendingT-4.2Vector Search BenchmarkMar 2, 2026PendingT-4.3Liveness Detection LatencyMar 9, 2026PendingPhase 5: Security TestingT-5.1OWASP Vulnerability ScanMar 23, 2026PendingT-5.2Authentication Bypass TestsMar 30, 2026PendingT-5.3Spoofing Attack TestsApr 6, 2026PendingPhase 6: Final ValidationT-6.1Full Regression SuiteApr 20, 2026PendingT-6.2Bug Fixes & Re-testingMay 4, 2026PendingT-6.3Documentation & Test ReportMay 15, 2026PendingTable 11: Test Timeline
+Task NoTest Task / MilestoneDeadlineStatusPhase 1: Unit TestingT-1.1Identity Core - Unit TestsDec 22, 2025CompleteT-1.2Biometric Processor - Unit TestsDec 26, 2025CompleteT-1.3Liveness Detection - Unit TestsDec 29, 2025CompleteT-1.4Client Apps - Unit TestsJan 2, 2026CompletePhase 2: Integration TestingT-2.1Identity Core - PostgreSQLJan 5, 2026CompleteT-2.2Biometric Processor - pgvectorJan 9, 2026CompleteT-2.3Identity Core - RedisJan 12, 2026CompleteT-2.4Biometric Processor - DeepFaceJan 16, 2026CompletePhase 3: End-to-End TestingT-3.1User Registration ï¿½ Enrollment FlowJan 26, 2026PendingT-3.2Liveness ï¿½ Verification ï¿½ Access FlowFeb 2, 2026PendingT-3.3Multi-tenant Isolation TestsFeb 9, 2026PendingT-3.4Mobile App Integration TestsFeb 16, 2026PendingPhase 4: Performance TestingT-4.1API Load Testing (500 RPS)Feb 23, 2026PendingT-4.2Vector Search BenchmarkMar 2, 2026PendingT-4.3Liveness Detection LatencyMar 9, 2026PendingPhase 5: Security TestingT-5.1OWASP Vulnerability ScanMar 23, 2026PendingT-5.2Authentication Bypass TestsMar 30, 2026PendingT-5.3Spoofing Attack TestsApr 6, 2026PendingPhase 6: Final ValidationT-6.1Full Regression SuiteApr 20, 2026PendingT-6.2Bug Fixes & Re-testingMay 4, 2026PendingT-6.3Documentation & Test ReportMay 15, 2026PendingTable 11: Test Timeline
 
 5. Software Architecture
 The software architecture of FIVUCSAS is designed as a scalable, cloud-native ecosystem that prioritizes modularity, high-performance biometric processing, and strict multi-tenant isolation. By adopting a microservices-based approach, the system decouples administrative identity management from compute-intensive machine learning tasks, ensuring that each component can scale independently based on demand. The architecture is organized into distinct logical layers-ranging from cross-platform client interfaces to a robust data layer optimized for vector similarity search all orchestrated through a centralized API Gateway that ensures secure and efficient request routing across the entire platform.[7][16]
@@ -390,25 +390,25 @@ Technology Stack:
 * Flyway for migrations
 Package Structure:
 com.fivucsas.identity/
-+¦¦ adapter/
--   +¦¦ in/
--   -   L¦¦ web/           # REST Controllers (8 controllers)
--   L¦¦ out/
--       +¦¦ persistence/    # JPA Repositories
--       L¦¦ messaging/      # Redis messaging
-+¦¦ application/
--   +¦¦ port/
--   -   +¦¦ in/            # Use case interfaces (13 use cases)
--   -   L¦¦ out/           # Repository interfaces
--   +¦¦ service/           # Use case implementations
--   L¦¦ dto/               # Data Transfer Objects
-+¦¦ domain/
--   +¦¦ model/             # Entities (10 entities)
--   L¦¦ service/           # Domain services
-L¦¦ infrastructure/
-    +¦¦ config/            # Spring configuration
-    +¦¦ security/          # Security configuration
-    L¦¦ persistence/       # JPA entities and configs
++ï¿½ï¿½ adapter/
+-   +ï¿½ï¿½ in/
+-   -   Lï¿½ï¿½ web/           # REST Controllers (8 controllers)
+-   Lï¿½ï¿½ out/
+-       +ï¿½ï¿½ persistence/    # JPA Repositories
+-       Lï¿½ï¿½ messaging/      # Redis messaging
++ï¿½ï¿½ application/
+-   +ï¿½ï¿½ port/
+-   -   +ï¿½ï¿½ in/            # Use case interfaces (13 use cases)
+-   -   Lï¿½ï¿½ out/           # Repository interfaces
+-   +ï¿½ï¿½ service/           # Use case implementations
+-   Lï¿½ï¿½ dto/               # Data Transfer Objects
++ï¿½ï¿½ domain/
+-   +ï¿½ï¿½ model/             # Entities (10 entities)
+-   Lï¿½ï¿½ service/           # Domain services
+Lï¿½ï¿½ infrastructure/
+    +ï¿½ï¿½ config/            # Spring configuration
+    +ï¿½ï¿½ security/          # Security configuration
+    Lï¿½ï¿½ persistence/       # JPA entities and configs
 Key Controllers:
 ControllerEndpointsDescriptionAuthController/api/v1/auth/*Login, logout, token refreshUserController/api/v1/users/*User CRUD operationsTenantController/api/v1/tenants/*Tenant managementRoleController/api/v1/roles/*Role and permission managementBiometricController/api/v1/biometric/*Proxy to biometric processorAuditController/api/v1/audit/*Audit log queriesHealthController/health/*Health checksSettingsController/api/v1/settings/*Configuration managementTable 12: Identity Core API Key Controllers and Endpoint Definitions
 This table outlines the primary REST controllers within the Identity Core API, mapping their respective base URL patterns to their specific administrative and operational responsibilities.
@@ -416,36 +416,36 @@ This table outlines the primary REST controllers within the Identity Core API, m
 The Biometric Processor is designed as a compute-intensive microservice responsible for all face analysis and biometric operations. It follows the same Hexagonal Architecture principles, where API routes act as inbound adapters, application use cases encapsulate biometric workflows, and infrastructure adapters wrap machine learning models and external dependencies. This separation allows independent scaling, efficient GPU utilization, and seamless integration of new biometric models without affecting higher-level services. [15]
 Package Structure:
 app/
-+¦¦ api/
--   L¦¦ routes/           # 19 route modules               
--       +¦¦ health.py
--       +¦¦ enrollment.py
--       +¦¦ verification.py                                 
--       +¦¦ search.py
--       +¦¦ liveness.py
--       +¦¦ quality.py
--       +¦¦ admin.py
--       +¦¦ analytics.py
--       +¦¦ config.py
--       +¦¦ detection.py
--       +¦¦ embedding.py
--       +¦¦ landmarks.py
--       +¦¦ processing.py
--       +¦¦ proctoring.py (WebSocket)
--       L¦¦ ... (5 more)
-+¦¦ application/
--   L¦¦ usecases/         # Business logic
-+¦¦ domain/
--   +¦¦ entities/         # Domain models
--   L¦¦ interfaces/       # Repository interfaces
-+¦¦ infrastructure/
--   +¦¦ ml/               # ML model wrappers
--   +¦¦ persistence/      # Database adapters
--   L¦¦ external/         # External service clients
-L¦¦ config.py             # 552-line configuration
++ï¿½ï¿½ api/
+-   Lï¿½ï¿½ routes/           # 19 route modules               
+-       +ï¿½ï¿½ health.py
+-       +ï¿½ï¿½ enrollment.py
+-       +ï¿½ï¿½ verification.py                                 
+-       +ï¿½ï¿½ search.py
+-       +ï¿½ï¿½ liveness.py
+-       +ï¿½ï¿½ quality.py
+-       +ï¿½ï¿½ admin.py
+-       +ï¿½ï¿½ analytics.py
+-       +ï¿½ï¿½ config.py
+-       +ï¿½ï¿½ detection.py
+-       +ï¿½ï¿½ embedding.py
+-       +ï¿½ï¿½ landmarks.py
+-       +ï¿½ï¿½ processing.py
+-       +ï¿½ï¿½ proctoring.py (WebSocket)
+-       Lï¿½ï¿½ ... (5 more)
++ï¿½ï¿½ application/
+-   Lï¿½ï¿½ usecases/         # Business logic
++ï¿½ï¿½ domain/
+-   +ï¿½ï¿½ entities/         # Domain models
+-   Lï¿½ï¿½ interfaces/       # Repository interfaces
++ï¿½ï¿½ infrastructure/
+-   +ï¿½ï¿½ ml/               # ML model wrappers
+-   +ï¿½ï¿½ persistence/      # Database adapters
+-   Lï¿½ï¿½ external/         # External service clients
+Lï¿½ï¿½ config.py             # 552-line configuration
 Technology Stack:
-• FastAPI 0.104+      • Python 3.11+      • DeepFace 0.0.79+
-• MediaPipe 0.10+  • SQLAlchemy       • asyncpg for async PostgreSQL     • OpenCV
+ï¿½ FastAPI 0.104+      ï¿½ Python 3.11+      ï¿½ DeepFace 0.0.79+
+ï¿½ MediaPipe 0.10+  ï¿½ SQLAlchemy       ï¿½ asyncpg for async PostgreSQL     ï¿½ OpenCV
 API Endpoint Summary (46+ endpoints):
 CategoryEndpointsDescriptionHealth3Readiness, liveness, model statusEnrollment6Enroll, re-enroll, delete, statusVerification51:1 verify, verify with livenessSearch41:N search, batch searchLiveness8Challenge generation, verification, puzzle stepsQuality4Assess, batch assess, metricsDetection5Detect faces, landmarks, attributesEmbedding4Generate, compare, batch generateAnalytics4Usage stats, accuracy metricsAdmin3Model management, cache controlTable 13: Functional Categorization and Distribution of Biometric Processor API Endpoints
 This table provides a comprehensive summary of the Biometric Processor's interface, highlighting a diverse set of over 46 specialized endpoints-ranging from real-time Liveness challenges to deep-learning Search operations that collectively support the core biometric logic and proctoring capabilities of the FIVUCSAS platform.
@@ -524,7 +524,7 @@ The facial analysis pipeline begins with a face detection module supporting robu
 
 Figure 13: Multi-face detection, landmark extraction, and real-time identity matching results
 The face recognition component processes normalized facial images to generate high-dimensional biometric embeddings. These embeddings are stored in a multi-tenant PostgreSQL database enhanced with pgvector, enabling efficient similarity search and identity comparison. The subsystem supports embedding comparison as well as batch processing, allowing the system to be evaluated under both real-time and higher-volume identification scenarios.
-To address spoofing and presentation attacks, the platform incorporates a multi-layer liveness detection strategy that combines active and passive approaches. The active liveness mechanism follows a Biometric Puzzle concept implemented using MediaPipe, where users are required to complete randomized challenge sequences. These challenges include blink detection based on the Eye Aspect Ratio (EAR), smile detection using the Mouth Aspect Ratio (MAR), and head pose tracking across yaw, pitch, and roll axes. This challenge-response structure is designed to reduce susceptibility to replay-based attacks. Complementing this, the passive liveness layer analyzes intrinsic image characteristics without explicit user interaction (Figure 14), employing texture analysis via Local Binary Patterns (LBP), color distribution analysis, moiré pattern detection, and frequency-domain analysis to identify presentation artifacts.
+To address spoofing and presentation attacks, the platform incorporates a multi-layer liveness detection strategy that combines active and passive approaches. The active liveness mechanism follows a Biometric Puzzle concept implemented using MediaPipe, where users are required to complete randomized challenge sequences. These challenges include blink detection based on the Eye Aspect Ratio (EAR), smile detection using the Mouth Aspect Ratio (MAR), and head pose tracking across yaw, pitch, and roll axes. This challenge-response structure is designed to reduce susceptibility to replay-based attacks. Complementing this, the passive liveness layer analyzes intrinsic image characteristics without explicit user interaction (Figure 14), employing texture analysis via Local Binary Patterns (LBP), color distribution analysis, moirï¿½ pattern detection, and frequency-domain analysis to identify presentation artifacts.
 In parallel, a dedicated quality assessment module evaluates facial samples prior to biometric processing. This module assesses brightness levels, sharpness and blur metrics, facial pose compliance, occlusion presence, and minimum resolution requirements, ensuring that unsuitable samples are filtered out before reaching subsequent processing stages.
 
 
@@ -715,7 +715,7 @@ Available: https://github.com/pgvector/pgvector
 Accessed: Jan. 2026. 
 [4] Y. Taigman, M. Yang, M. Ranzato, and L. Wolf, "DeepFace: Closing the Gap to Human-Level Performance in Face Verification," IEEE CVPR, 2014.  
 [5] Google, MediaPipe Face Landmark Detection.
-Available: https://developers.google.com/mediapipe/solutions/vision/face_landmarker
+Available: https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker
 Accessed: Jan. 2026. 
 [6] Redis Ltd., Redis Documentation.
 Available: https://redis.io/docs/

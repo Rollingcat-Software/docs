@@ -357,7 +357,7 @@ Meeting#1:
 ✅ All sources appear cited in text
 
 **Minor Issue:**
-- Reference #16: GitHub URL is placeholder `[organization]/FIVUCSAS`
+- Reference #16: GitHub URL is placeholder `Rollingcat-Software/FIVUCSAS`
 - **Fix:** Provide actual repository URL or state "Private repository"
 
 ---

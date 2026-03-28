@@ -3016,7 +3016,7 @@ graph LR
 
 ### 7.2 Technical Documentation
 
-7. Google. (2024). MediaPipe Face Landmark Detection. https://developers.google.com/mediapipe/solutions/vision/face_landmarker
+7. Google. (2024). MediaPipe Face Landmark Detection. https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker
 
 8. PostgreSQL Global Development Group. (2024). pgvector: Open-source vector similarity search for Postgres. https://github.com/pgvector/pgvector
 
@@ -3038,7 +3038,7 @@ graph LR
 
 ### 7.4 Project Resources
 
-16. FIVUCSAS GitHub Organization. (2025). Project Repository. https://github.com/[organization]/FIVUCSAS
+16. FIVUCSAS GitHub Organization. (2025). Project Repository. https://github.com/Rollingcat-Software/FIVUCSAS
 
 17. FIVUCSAS Documentation. (2025). Project Documentation Repository. `docs/` submodule.
 

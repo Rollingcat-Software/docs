@@ -102,7 +102,7 @@ This document analyzes the FIVUCSAS ADD against the official CSE4197 ADD Guide r
   title={MediaPipe Face Mesh},
   author={Google},
   year={2023},
-  howpublished={\url{https://developers.google.com/mediapipe/solutions/vision/face_landmarker}}
+  howpublished={\url{https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker}}
 }
 
 @standard{iso30107,
@@ -593,7 +593,7 @@ Data Handling: Storage/retrieval
 
 9. PostgreSQL pgvector Extension. https://github.com/pgvector/pgvector
 
-10. MediaPipe Face Mesh. https://developers.google.com/mediapipe/solutions/vision/face_landmarker
+10. MediaPipe Face Mesh. https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker
 
 ---
 
