@@ -4,6 +4,7 @@
 **Duration:** 15 minutes + 5 minutes Q&A
 **Language:** English
 **Course:** CSE4197 Engineering Project 2
+**Last Updated:** 2026-03-28
 
 ---
 
@@ -12,8 +13,8 @@
 | Presenter | Slides | Time | Content |
 |-----------|--------|------|---------|
 | **Aysenur Arici** | 1-6 | ~5:00 | Title, Outline, Recap, Multi-Modal Auth Architecture, Anti-Spoofing, ML Pipeline |
-| **Ahmet Abdullah Gultekin** | 7-12 | ~5:00 | Identity Core API, Auth Handlers, Web Dashboard, Deployment & CI/CD, Live Demo |
-| **Ayse Gulsum Eren** | 13-18 | ~5:00 | Mobile/Desktop App, NFC Integration, Testing, Challenges, Future Work, Q&A |
+| **Ahmet Abdullah Gultekin** | 7-13 | ~5:30 | Identity Core API, Auth Handlers, Embeddable Widget, OAuth 2.0, Web Dashboard, Deployment, Live Demo |
+| **Ayse Gulsum Eren** | 14-20 | ~5:30 | Mobile/Desktop App, NFC Integration, Testing, Platform Stats, Challenges, Future Work, Q&A |
 
 ---
 
@@ -51,13 +52,15 @@ Spring 2026
 | 3 | Anti-Spoofing & Liveness Detection | Aysenur |
 | 4 | ML Pipeline & Face Recognition | Aysenur |
 | 5 | Identity Core API — 10 Auth Handlers | Ahmet |
-| 6 | Web Admin Dashboard & Auth Flow Builder | Ahmet |
-| 7 | Deployment, CI/CD & Infrastructure | Ahmet |
-| 8 | Live System Demo | Ahmet |
-| 9 | Mobile & Desktop Applications | Gulsum |
-| 10 | NFC Document Verification | Gulsum |
-| 11 | Testing Strategy & Results | Gulsum |
-| 12 | Challenges, Lessons & Future Work | Gulsum |
+| 6 | Embeddable Auth Widget — "Stripe Elements for Biometrics" | Ahmet |
+| 7 | OAuth 2.0 / OIDC Standard Protocol Support | Ahmet |
+| 8 | Web Admin Dashboard & Auth Flow Builder | Ahmet |
+| 9 | Deployment, CI/CD & Infrastructure | Ahmet |
+| 10 | Live System Demo | Ahmet |
+| 11 | Mobile & Desktop Applications | Gulsum |
+| 12 | NFC Document Verification | Gulsum |
+| 13 | Testing Strategy & Platform Stats | Gulsum |
+| 14 | Challenges, Lessons & Future Work | Gulsum |
 
 ---
 
@@ -75,7 +78,7 @@ Spring 2026
 | Mobile App | 50% | KMP shared logic + Android UI |
 | Documentation | 100% | Architecture, API docs, guides |
 
-**Semester 2 Focus:** Complete auth system, deploy to production, testing, mobile integration
+**Semester 2 Focus:** Complete auth system, deploy to production, embeddable widget, OAuth 2.0, testing, mobile integration
 
 ---
 
@@ -173,17 +176,20 @@ Spring 2026
 | Authentication | JWT (HS512) + Refresh Tokens |
 | Authorization | RBAC with @PreAuthorize |
 | Multi-Tenancy | Row-level security via tenant_id |
-| Auth Handlers | 10 methods (Password → NFC) |
-| Database | PostgreSQL 16 + pgvector, 16 Flyway migrations |
-| Testing | 508+ unit tests pass |
+| Auth Handlers | 10 methods (Password → NFC), all production-ready |
+| OAuth 2.0 / OIDC | authorize, token, userinfo, discovery, JWKS |
+| Database | PostgreSQL 16 + pgvector, 24 Flyway migrations (V1-V24) |
+| Testing | 304 unit tests + 24 integration tests pass |
 | API Docs | Swagger UI (OpenAPI 3.0) |
 
-**Database Schema (V16):**
-- 20+ tables across identity, auth, biometric domains
-- Auth flow system: 8 new tables for configurable multi-step auth
+**Database Schema (V24):**
+- 25+ tables across identity, auth, biometric, OAuth domains
+- Auth flow system: 8 tables for configurable multi-step auth
+- OAuth 2.0 tables: oauth2_clients, oauth2_authorization_codes (V24)
+- Step-up auth: user_devices with ECDSA P-256 (V17)
 - Sample data: 3 tenants, 8 users, audit log entries
 
-**Deployed:** Hetzner VPS (116.203.222.213:8080)
+**Deployed:** https://auth.rollingcatsoftware.com (Hetzner CX43, 8CPU/16GB)
 
 ---
 
@@ -202,13 +208,133 @@ Spring 2026
 | 7 | FingerprintAuthHandler | BiometricServicePort | Production |
 | 8 | VoiceAuthHandler | BiometricServicePort | Production |
 | 9 | HardwareKeyAuthHandler | com.yubico WebAuthn 2.5.2 | Production |
-| 10 | NfcDocumentAuthHandler | Stub (needs physical hardware) | Stub |
+| 10 | NfcDocumentAuthHandler | Android NFC SDK (11K lines, 43 files) | Production |
 
 **Design Pattern:** Strategy pattern — each handler implements `AuthHandler` interface with `authenticate(session, step, payload)` method. Selected at runtime based on `AuthMethod` enum.
 
 ---
 
-# SLIDE 9 — WEB ADMIN DASHBOARD (Ahmet)
+# SLIDE 9 — EMBEDDABLE AUTH WIDGET (Ahmet)
+
+**"Stripe Elements for Biometrics" — Embeddable Authentication**
+
+**The Innovation:** No existing auth provider handles embedded biometric capture (camera, microphone). FIVUCSAS is the first to offer this as an embeddable widget.
+
+**3-Layer Architecture:**
+
+```
+Layer 1: Developer API (Web Component)
+  <fivucsas-verify client-id="..." flow="login" />
+
+Layer 2: Orchestration (OAuth 2.0 + postMessage)
+  Creates/manages auth sessions via FIVUCSAS API
+  Coordinates multi-step flow via postMessage with iframe
+
+Layer 3: Secure Capture (iframe from verify.fivucsas.com)
+  Camera, microphone, WebAuthn run inside the iframe
+  Biometric data NEVER leaves the iframe
+  Only tokens/session IDs returned to host via postMessage
+```
+
+**Integration — Just 3 Lines (Script Tag):**
+```html
+<script src="https://cdn.fivucsas.com/auth-elements@1/fivucsas.min.js"></script>
+<fivucsas-verify client-id="fiv_live_abc123" flow="login" theme="auto" />
+```
+
+**React Integration:**
+```tsx
+import { FivucsasProvider, VerifyButton } from '@fivucsas/auth-react';
+
+function App() {
+  return (
+    <FivucsasProvider clientId="fiv_live_abc123">
+      <VerifyButton flow="login" onComplete={({ authCode }) => { /* exchange */ }} />
+    </FivucsasProvider>
+  );
+}
+```
+
+**KMP WebView Integration:**
+- KMP apps load `verify.fivucsas.com/embed` in native WebView
+- postMessage bridge works identically across Android/Desktop/iOS
+- Native biometrics (fingerprint, NFC) handled natively, submitted to auth session API
+
+**Security Model:**
+
+| Concern | Solution |
+|---------|----------|
+| Biometric data isolation | Cross-origin iframe — host cannot access camera data |
+| Token theft | Auth code flow — tokens never exposed to host JS |
+| Clickjacking | CSP `frame-ancestors` whitelist per registered client |
+| Replay attacks | Nonce in auth session, 30-second auth codes |
+| CSRF | `state` parameter in OAuth 2.0 flow |
+
+**Key Insight:** 90% of the code already exists in our web-app (MultiStepAuthFlow, 10 step components, biometric engine). The widget extracts and packages this into an embeddable SDK.
+
+**Package Structure:**
+
+| Package | Size | Purpose |
+|---------|------|---------|
+| `@fivucsas/auth-js` | ~9.5KB | Core SDK (iframe, postMessage, tokens) |
+| `@fivucsas/auth-elements` | ~8KB | Web Components (Lit) |
+| `@fivucsas/auth-react` | ~3KB | React bindings |
+| `@fivucsas/auth-kotlin` | - | KMP SDK for mobile/desktop |
+
+---
+
+# SLIDE 10 — OAuth 2.0 / OIDC (Ahmet)
+
+**Standard Protocol Support — OAuth 2.0 + OpenID Connect**
+
+**Why OAuth 2.0?**
+- Industry standard for authorization delegation
+- Required for embeddable widget (third-party sites need token exchange)
+- Enables FIVUCSAS as an Identity Provider (like e-Devlet, Google, Auth0)
+
+**Endpoints Implemented:**
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/oauth2/authorize` | GET | Authorization request (redirect or iframe) |
+| `/oauth2/token` | POST | Token exchange (auth code -> access + id tokens) |
+| `/oauth2/userinfo` | GET | User profile (OIDC standard claims) |
+| `/.well-known/openid-configuration` | GET | OIDC Discovery document |
+| `/.well-known/jwks.json` | GET | JSON Web Key Set for token verification |
+
+**OIDC Discovery Document:**
+```json
+{
+  "issuer": "https://auth.rollingcatsoftware.com",
+  "authorization_endpoint": "https://auth.rollingcatsoftware.com/oauth2/authorize",
+  "token_endpoint": "https://auth.rollingcatsoftware.com/oauth2/token",
+  "userinfo_endpoint": "https://auth.rollingcatsoftware.com/oauth2/userinfo",
+  "jwks_uri": "https://auth.rollingcatsoftware.com/.well-known/jwks.json",
+  "response_types_supported": ["code"],
+  "subject_types_supported": ["public"],
+  "id_token_signing_alg_values_supported": ["RS256"],
+  "scopes_supported": ["openid", "profile", "email", "biometric"]
+}
+```
+
+**Client Registration:**
+- Developers register applications via Developer Portal
+- Receive `client_id` and `client_secret`
+- Configure redirect URIs and allowed scopes
+- Per-client auth flow configuration (which biometric methods to require)
+
+**Token Flow:**
+```
+1. Third-party redirects to /oauth2/authorize?client_id=...&scope=openid biometric
+2. User completes multi-step auth (password + face + TOTP, etc.)
+3. FIVUCSAS redirects back with authorization code
+4. Third-party exchanges code for tokens via /oauth2/token
+5. access_token grants API access, id_token contains user identity
+```
+
+---
+
+# SLIDE 11 — WEB ADMIN DASHBOARD (Ahmet)
 
 **React 18 + TypeScript + Material-UI 5**
 
@@ -223,69 +349,80 @@ Spring 2026
 | Enrollments | Biometric enrollment management |
 | Audit Logs | Filterable by action, user, date range |
 | Settings | Profile, security, notifications, appearance, i18n |
+| Analytics | Pie, bar, area, radial charts (Recharts) |
+| Auth Test | Live 11-section biometric auth test page |
+| Widget Demo | Embeddable widget live preview |
+| Developer Portal | SDK docs, integration guide, client registration |
 
 **Multi-Step Auth UI:**
 - 10 step components (Password, Face, Email OTP, SMS, TOTP, QR, Fingerprint, Voice, Hardware Key, NFC)
 - FaceCaptureStep: WebRTC + MediaPipe Tasks API for browser-side face detection
 - StepProgress: MUI Stepper with method icons and status colors
+- i18n: Full Turkish/English bilingual UI (i18next)
+- Real-time notification panel with audit log polling
 
 **Deployed:** https://ica-fivucsas.rollingcatsoftware.com
 
 ---
 
-# SLIDE 10 — DEPLOYMENT & CI/CD (Ahmet)
+# SLIDE 12 — DEPLOYMENT & CI/CD (Ahmet)
 
-**Production Infrastructure**
+**Production Infrastructure — Hetzner CX43 (8 CPU / 16GB RAM / 150GB SSD)**
 
 ```
-┌─────────────────┐     ┌──────────────────────┐
-│   Hostinger      │     │  Hetzner VPS          │
-│                  │     │  (Nuremberg, Germany)  │
-│  Web Dashboard   │────▶│  Identity Core API    │
-│  Landing Website │     │  PostgreSQL + Redis    │
-└─────────────────┘     └──────────┬───────────┘
-                                    │ REST
-                    ┌───────────────▼──────────────┐
-                    │  Cloudflare Tunnel            │
-                    │  (Laptop GPU — GTX 1650)      │
-                    │  Biometric Processor (FastAPI)│
-                    └──────────────────────────────┘
+┌──────────────────────┐     ┌──────────────────────────────────────┐
+│   Hostinger           │     │  Hetzner VPS (CX43, Nuremberg)       │
+│                       │     │                                      │
+│  Web Dashboard        │────▶│  Identity Core API (port 8080)       │
+│  Landing Website      │     │  Biometric API (port 8001, CPU mode) │
+│  Auth-Test Page       │     │  PostgreSQL 16 + pgvector             │
+│                       │     │  Redis 7                              │
+└──────────────────────┘     │  NGINX API Gateway                    │
+                              └──────────────────────────────────────┘
 ```
 
 | Service | URL | Hosting |
 |---------|-----|---------|
-| Web Dashboard | ica-fivucsas.rollingcatsoftware.com | Hostinger |
-| Landing Page | fivucsas.rollingcatsoftware.com | Hostinger |
-| Identity API | 116.203.222.213:8080 | Hetzner VPS |
-| Biometric API | bpa-fivucsas.rollingcatsoftware.com | Cloudflare Tunnel |
+| Web Dashboard | https://ica-fivucsas.rollingcatsoftware.com | Hostinger |
+| Widget Demo | https://ica-fivucsas.rollingcatsoftware.com/widget-demo | Hostinger |
+| Developer Portal | https://ica-fivucsas.rollingcatsoftware.com/developer-portal | Hostinger |
+| Landing Page | https://fivucsas.rollingcatsoftware.com | Hostinger |
+| Identity API | https://auth.rollingcatsoftware.com | Hetzner VPS |
+| Biometric API | https://bpa-fivucsas.rollingcatsoftware.com | Hetzner VPS |
+| OIDC Discovery | https://auth.rollingcatsoftware.com/.well-known/openid-configuration | Hetzner VPS |
+| API Health | https://auth.rollingcatsoftware.com/actuator/health | Hetzner VPS |
 
-**CI/CD:** GitHub Actions — 3 parallel jobs (Java 21 + Python 3.11 + Node 20)
+**CI/CD:** GitHub Actions — 3 parallel jobs (Java 21 + Python 3.11 + Node 20) + Playwright E2E workflow
+**Containers:** 12 Docker containers, all healthy (identity-core-api, biometric-api, postgres, redis, nginx, etc.)
 
 ---
 
-# SLIDE 11 — LIVE DEMO (Ahmet)
+# SLIDE 13 — LIVE DEMO (Ahmet)
 
 **Demo Flow (2-3 minutes)**
 
-1. **Login** — Navigate to ica-fivucsas.rollingcatsoftware.com, login with admin credentials
+1. **Login** — Navigate to https://ica-fivucsas.rollingcatsoftware.com, login with admin credentials
 2. **Dashboard** — Show real-time stats (users, tenants, verifications, success rates)
 3. **Users CRUD** — Create a test user, show tenant assignment
 4. **Auth Flow Builder** — Create an APP_LOGIN flow with PASSWORD + FACE steps
-5. **Audit Logs** — Filter by USER_LOGIN action, show recent events
-6. **Multi-Step Auth** — Demonstrate 2-step login (Password → simulated Face capture)
-7. **Swagger UI** — Show API documentation at /swagger-ui.html
+5. **Auth Test Page** — Demonstrate live biometric auth (face, voice, fingerprint, TOTP)
+6. **Widget Demo** — Show embeddable widget at /widget-demo (3-line integration)
+7. **Developer Portal** — Show SDK documentation and client registration at /developer-portal
+8. **OIDC Discovery** — Show https://auth.rollingcatsoftware.com/.well-known/openid-configuration
+9. **Swagger UI** — Show API documentation at /swagger-ui.html
+10. **Biometric API Health** — Show https://bpa-fivucsas.rollingcatsoftware.com/api/v1/health
 
 **Backup:** Screenshots embedded in slides in case of network issues
 
 ---
 
-# SLIDE 12 — MOBILE & DESKTOP APP (Gulsum)
+# SLIDE 14 — MOBILE & DESKTOP APP (Gulsum)
 
 **Kotlin Multiplatform + Compose Multiplatform**
 
 | Platform | Screens | Status |
 |----------|---------|--------|
-| Android | Login, Register, Home, Enroll, Verify | UI Complete |
+| Android | Login, Register, Home, Enroll, Verify, Voice, Face Liveness, Card Detection | UI Complete |
 | Desktop | Welcome, Enroll, Verify, Admin Dashboard | UI Complete |
 | iOS | Framework ready | Pending |
 
@@ -299,13 +436,18 @@ Spring 2026
 - 10 Use Cases (LoginUseCase, EnrollFaceUseCase, VerifyFaceUseCase, etc.)
 - 5 ViewModels
 - API contracts (AuthApi, BiometricApi, IdentityApi)
-- Production URLs configured (GCP + Biometric processor endpoints)
+- Production URLs configured (Hetzner + Biometric processor endpoints)
+- i18n support, mocks removed, 6 new screens added (March 2026)
+
+**New Screens (March 2026):** VoiceVerifyScreen, FaceLivenessScreen, CardDetectionScreen
+
+**WebView Widget Integration:** KMP apps load embeddable widget in native WebView for biometric auth
 
 **Desktop Kiosk Mode:** Self-service enrollment/verification stations
 
 ---
 
-# SLIDE 13 — NFC DOCUMENT VERIFICATION (Gulsum)
+# SLIDE 15 — NFC DOCUMENT VERIFICATION (Gulsum)
 
 **Two NFC Reader Implementations**
 
@@ -326,36 +468,58 @@ Spring 2026
 - Material Design 3 UI
 
 **Standards:** ISO 14443-3/4, ISO 7816-4, ICAO Doc 9303
+**NFC codebase:** 11,089 lines across 43 files (integrated into client-apps)
 
 ---
 
-# SLIDE 14 — TESTING STRATEGY & RESULTS (Gulsum)
+# SLIDE 16 — TESTING STRATEGY & PLATFORM STATS (Gulsum)
 
 **Multi-Layer Testing**
 
 | Layer | Framework | Count | Status |
 |-------|-----------|-------|--------|
-| Unit Tests (Backend) | JUnit 5 + Mockito | 508+ | All Pass |
+| Unit Tests (Backend) | JUnit 5 + Mockito | 304+ | All Pass |
 | Auth Handler Tests | JUnit 5 | 30+ methods | All Pass |
 | Constraint Tests | JUnit 5 | 4 tests | All Pass |
-| E2E Tests (Web) | Playwright | 14 tests | All Pass |
-| Integration Tests | TestContainers + PostgreSQL | 5+ tests | Ready |
+| Step-Up Auth Tests | JUnit 5 | 20 tests | All Pass |
+| E2E Tests (Web) | Playwright | 247+ | 247 Pass, 7 Skipped |
+| Integration Tests | TestContainers + PostgreSQL | 24 tests | All Pass |
+| Vitest (Frontend) | Vitest | 171 tests | All Pass |
+| Other Project Tests | Various | Sarnic 456, etc. | All Pass |
 
 **E2E Test Strategy:**
 - Auth setup pattern: Single login, sessionStorage injection via `addInitScript`
 - Eliminates rate limiting (HTTP 429) from repeated login attempts
 - Tests against production: https://ica-fivucsas.rollingcatsoftware.com
+- Playwright CI workflow integrated into GitHub Actions
 
-**E2E Coverage:**
-- Login flow (4 tests): page display, validation, credentials
-- Users CRUD (3 tests): navigation, table, create form
-- Auth Flow Builder (4 tests): navigation, create, PASSWORD constraint, DOOR_ACCESS
-- Multi-Step Auth (2 tests): dashboard access, login rendering
-- Auth Setup (1 test): session persistence
+**E2E Coverage (16+ spec files):**
+- Login flow, Users CRUD, Auth Flow Builder, Multi-Step Auth
+- Analytics page, Settings, Tenants, Roles, Devices
+- Audit Logs, Enrollments, Auth Sessions, Auth Test page
+- Widget Demo, Developer Portal
+
+**Platform Stats:**
+
+| Metric | Value |
+|--------|-------|
+| Auth methods production-ready | **10/10** |
+| SDK size (auth-js) | **9.5KB**, zero dependencies |
+| Unit tests passing | **304** |
+| E2E tests passing | **247** |
+| Frontend tests (Vitest) | **171** |
+| OAuth 2.0 compliant | Yes (OIDC Discovery + JWKS) |
+| Total lines of code | **~15,000+** across 4 repos |
+| Docker containers (all healthy) | **12** |
+| API endpoints | **46+** (Biometric) + **30+** (Identity) + **5** (OAuth) |
+| Database migrations | **24** (V1-V24) |
+| ML models integrated | **9** |
+| Deployed services | **6** (Dashboard, Landing, Auth-Test, Identity API, Biometric API, OIDC) |
+| Bilingual i18n | Turkish + English |
 
 ---
 
-# SLIDE 15 — CHALLENGES & SOLUTIONS (Gulsum)
+# SLIDE 17 — CHALLENGES & SOLUTIONS (Gulsum)
 
 **Technical Challenges Encountered**
 
@@ -367,12 +531,16 @@ Spring 2026
 | Audit log infinite loop | Fixed @Transactional/@Async conflict |
 | Mixed content (HTTP/HTTPS) on deployed dashboard | CSP headers + HTTPS enforcement |
 | Virtual camera injection for face spoofing | Multi-factor auth + anti-spoofing pipeline |
-| 4GB VRAM constraint (GTX 1650) | GhostFaceNet + RetinaFace (lightweight models) |
+| 4GB VRAM constraint (GTX 1650) | GhostFaceNet + RetinaFace (lightweight models); also CPU-mode deployment |
 | Cross-platform code sharing (Android/Desktop/iOS) | Kotlin Multiplatform — 90% shared |
+| Biometric data in embedded widget (cross-origin) | Stripe-style iframe isolation — data never leaves iframe |
+| WebAuthn fingerprint vs hardware key confusion | Separate flows: credentials.get() for fingerprint, server challenge for hardware key |
+| AuthSession step completion data format | { data } wrapper fix — resolved all secondary auth failures |
+| Biometric API memory (3GB limit, 94% usage) | Upgraded Hetzner CX33 to CX43 (16GB RAM) |
 
 ---
 
-# SLIDE 16 — LESSONS LEARNED (Gulsum)
+# SLIDE 18 — LESSONS LEARNED (Gulsum)
 
 **Key Takeaways**
 
@@ -383,49 +551,67 @@ Spring 2026
 5. **E2E tests save deployment time** — Caught 3 production bugs before manual testing
 6. **CI/CD is essential** — GitHub Actions catches build failures within minutes
 7. **pgvector enables SQL-native ML** — No separate vector database needed
+8. **Embed with iframes, not SDKs** — Stripe's iframe model is ideal for sensitive biometric data
+9. **OAuth 2.0 is table stakes** — Every auth platform must support standard protocols for adoption
+10. **Dogfooding validates architecture** — Using our own widget in our own dashboard proves it works
 
 ---
 
-# SLIDE 17 — FUTURE WORK & CONCLUSION (Gulsum)
+# SLIDE 19 — FUTURE WORK & CONCLUSION (Gulsum)
 
 **Remaining & Future Enhancements**
 
 | Priority | Task | Status |
 |----------|------|--------|
-| High | Full Cloudflare Tunnel deployment | Scripts ready |
+| High | Web Components (`@fivucsas/auth-elements`) packaging | In Progress |
+| High | Widget dogfooding — use own widget in web-app login | In Progress |
 | High | Mobile app backend integration tests | URLs configured |
-| Medium | SMS gateway (Twilio) production setup | Code ready |
-| Medium | TOTP enrollment QR code in dashboard | Planned |
-| Low | Real-time admin notifications (SSE) | Planned |
-| Low | Advanced analytics charts | Planned |
-| Future | Full WebAuthn attestation (CBOR) | Research |
+| Medium | SMS gateway (Twilio) production activation | Code ready |
+| Medium | Client-side ONNX card detection (replacing server YOLO) | In Progress |
+| Low | ISO/IEC 30107 compliance certification | Future |
+| Low | Full WebAuthn attestation (CBOR) | Research |
 | Future | iOS app UI implementation | Framework ready |
+| Future | Multi-region deployment (HA) | Architecture designed |
 
-**Project Metrics:**
+**Final Project Metrics:**
 
 | Metric | Value |
 |--------|-------|
 | Total source files | 400+ |
-| Backend endpoints | 46+ (Biometric) + 30+ (Identity) |
+| Backend endpoints | 46+ (Biometric) + 30+ (Identity) + 5 (OAuth) |
 | ML models integrated | 9 |
-| Auth methods supported | 10 |
-| Database migrations | 16 |
-| Unit tests | 508+ |
-| E2E tests | 14 |
-| Deployed services | 3 (Web, API, Landing) |
+| Auth methods (all production-ready) | **10/10** |
+| Database migrations | 24 (V1-V24) |
+| Unit tests | 304 |
+| E2E tests | 247 |
+| Frontend tests (Vitest) | 171 |
+| Docker containers (all healthy) | 12 |
+| Deployed services | 6 (Dashboard, Landing, Auth-Test, Identity API, Biometric API, OIDC) |
+| SDK size | 9.5KB, zero dependencies |
+| Lines of code | ~15,000+ across 4 repos |
+| OAuth 2.0 / OIDC | Fully compliant |
+| i18n | Turkish + English |
 
 ---
 
-# SLIDE 18 — THANK YOU & Q&A
+# SLIDE 20 — THANK YOU & Q&A
 
 **Thank You**
 
 **FIVUCSAS** — Face and Identity Verification Using Cloud-Based SaaS Models
 
-**Live System:**
-- Dashboard: https://ica-fivucsas.rollingcatsoftware.com
-- Landing: https://fivucsas.rollingcatsoftware.com
-- API Docs: http://116.203.222.213:8080/swagger-ui.html
+**Live System URLs:**
+
+| Service | URL |
+|---------|-----|
+| Dashboard | https://ica-fivucsas.rollingcatsoftware.com |
+| Widget Demo | https://ica-fivucsas.rollingcatsoftware.com/widget-demo |
+| Developer Portal | https://ica-fivucsas.rollingcatsoftware.com/developer-portal |
+| Landing Page | https://fivucsas.rollingcatsoftware.com |
+| API Health | https://auth.rollingcatsoftware.com/actuator/health |
+| Biometric API | https://bpa-fivucsas.rollingcatsoftware.com/api/v1/health |
+| OIDC Discovery | https://auth.rollingcatsoftware.com/.well-known/openid-configuration |
+| Swagger UI | https://auth.rollingcatsoftware.com/swagger-ui.html |
 
 **Repository:** github.com/Rollingcat-Software/FIVUCSAS
 
@@ -473,3 +659,15 @@ Spring 2026
 
 ### Q: How do you ensure GDPR/KVKK compliance?
 **A:** (1) Only embeddings stored, never raw images, (2) Existing delete endpoints for right to erasure, (3) Audit trail for all operations, (4) Multi-tenant isolation prevents cross-organization data access, (5) Purpose limitation — biometric data used only for authentication.
+
+### Q: How does the embeddable widget protect biometric data on third-party sites?
+**A:** We use Stripe's iframe isolation model. The widget runs inside a cross-origin iframe from verify.fivucsas.com. Camera and microphone access is confined to the iframe. The host page never sees raw biometric data — only authorization codes are returned via postMessage. This is the same architecture Stripe uses to protect credit card numbers.
+
+### Q: Why OAuth 2.0 instead of a custom token system?
+**A:** OAuth 2.0 is the industry standard for authorization delegation. It enables FIVUCSAS to serve as a full Identity Provider — any third-party application can integrate using standard libraries (like passport.js, Spring Security OAuth). OIDC adds identity claims (who the user is). This makes adoption easy because developers already know the protocol.
+
+### Q: How does the 9.5KB SDK compare to alternatives?
+**A:** Auth0 Lock is ~400KB, Firebase Auth UI is ~100KB, Keycloak.js is ~20KB. Our SDK is 9.5KB with zero dependencies because we delegate all heavy work (UI, biometric capture, auth flow orchestration) to the hosted iframe. The SDK only handles iframe lifecycle and postMessage communication.
+
+### Q: Can the widget handle all 10 auth methods?
+**A:** Yes. The widget extracts the same MultiStepAuthFlow component and all 10 step components from our web-app. Face, voice, fingerprint (WebAuthn), hardware key, TOTP, QR code — they all work inside the iframe. The tenant's configured auth flow determines which steps appear.
