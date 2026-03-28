@@ -13,18 +13,22 @@ on:
       - 'docs/**'
       - '**.md'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-structure:
     name: Validate Documentation Structure
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check required files
         run: |
-          echo "📋 Checking for required documentation files..."
+          echo "Checking for required documentation files..."
 
           REQUIRED_FILES=(
             "README.md"
@@ -42,10 +46,10 @@ jobs:
           MISSING=0
           for file in "${REQUIRED_FILES[@]}"; do
             if [ ! -f "$file" ]; then
-              echo "❌ Missing required file: $file"
+              echo "MISSING: $file"
               MISSING=$((MISSING + 1))
             else
-              echo "✅ Found: $file"
+              echo "OK: $file"
             fi
           done
 
@@ -54,11 +58,11 @@ jobs:
             exit 1
           fi
 
-          echo "✅ All required documentation files present"
+          echo "All required documentation files present"
 
       - name: Check folder structure
         run: |
-          echo "📁 Checking documentation folder structure..."
+          echo "Checking documentation folder structure..."
 
           REQUIRED_DIRS=(
             "01-getting-started"
@@ -75,10 +79,10 @@ jobs:
           MISSING=0
           for dir in "${REQUIRED_DIRS[@]}"; do
             if [ ! -d "$dir" ]; then
-              echo "❌ Missing required directory: $dir"
+              echo "MISSING: $dir"
               MISSING=$((MISSING + 1))
             else
-              echo "✅ Found: $dir"
+              echo "OK: $dir"
             fi
           done
 
@@ -87,15 +91,15 @@ jobs:
             exit 1
           fi
 
-          echo "✅ All required directories present"
+          echo "All required directories present"
 
   check-links:
     name: Check for Broken Links
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check markdown links
         uses: gaurav-nelson/github-action-markdown-link-check@v1
@@ -105,58 +109,57 @@ jobs:
 
   generate-report:
     name: Generate Documentation Report
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     needs: [validate-structure, check-links]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Generate documentation metrics
+        env:
+          GITHUB_REF_NAME_SAFE: ${{ github.ref_name }}
+          GITHUB_SHA_SAFE: ${{ github.sha }}
         run: |
           echo "# Documentation Quality Report" > docs-report.md
           echo "" >> docs-report.md
           echo "**Date:** $(date)" >> docs-report.md
-          echo "**Branch:** ${{ github.ref_name }}" >> docs-report.md
-          echo "**Commit:** ${{ github.sha }}" >> docs-report.md
+          echo "**Branch:** ${GITHUB_REF_NAME_SAFE}" >> docs-report.md
+          echo "**Commit:** ${GITHUB_SHA_SAFE}" >> docs-report.md
           echo "" >> docs-report.md
           echo "## Metrics" >> docs-report.md
           echo "" >> docs-report.md
 
-          # Count markdown files
           MD_COUNT=$(find . -name "*.md" -type f | wc -l)
           echo "- Total markdown files: $MD_COUNT" >> docs-report.md
 
-          # Count total lines
           TOTAL_LINES=$(find . -name "*.md" -type f -exec wc -l {} + | tail -1 | awk '{print $1}')
           echo "- Total documentation lines: $TOTAL_LINES" >> docs-report.md
 
-          # Count diagrams
           DIAGRAM_COUNT=$(find 02-architecture/diagrams -name "*.png" 2>/dev/null | wc -l)
           echo "- Total diagrams: $DIAGRAM_COUNT" >> docs-report.md
 
-          # Count folders
           FOLDER_COUNT=$(find . -type d -not -path '*/\.*' | wc -l)
           echo "- Total folders: $FOLDER_COUNT" >> docs-report.md
 
           echo "" >> docs-report.md
           echo "## Quality Checks" >> docs-report.md
           echo "" >> docs-report.md
-          echo "✅ Documentation structure validated" >> docs-report.md
-          echo "✅ No broken links found" >> docs-report.md
-          echo "✅ All required files present" >> docs-report.md
+          echo "Documentation structure validated" >> docs-report.md
+          echo "No broken links found" >> docs-report.md
+          echo "All required files present" >> docs-report.md
 
           echo "" >> docs-report.md
           echo "## Documentation Organization" >> docs-report.md
           echo "" >> docs-report.md
-          echo "```" >> docs-report.md
+          echo '```' >> docs-report.md
           tree -L 2 -d --charset ascii || ls -R | head -50
-          echo "```" >> docs-report.md
+          echo '```' >> docs-report.md
 
           cat docs-report.md
 
       - name: Upload report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-report
           path: docs-report.md
@@ -164,12 +167,12 @@ jobs:
 
   success-notification:
     name: Documentation Quality Passed
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     needs: [validate-structure, check-links, generate-report]
     if: success()
 
     steps:
       - name: Success message
         run: |
-          echo "✅ Documentation quality assurance passed!"
-          echo "📊 All checks completed successfully"
+          echo "Documentation quality assurance passed!"
+          echo "All checks completed successfully"
