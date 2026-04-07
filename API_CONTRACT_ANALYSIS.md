@@ -43,10 +43,10 @@ The Identity Core API provides **60+ endpoints** across 12 controllers with soli
 
 | Side | Value |
 |------|-------|
-| Frontend `.env.production` | `https://api-fivucsas.rollingcatsoftware.com/api/v1` |
+| Frontend `.env.production` | `https://api.fivucsas.com/api/v1` |
 | Backend actual location | `http://116.203.222.213:8080/api/v1` |
 
-The domain `api-fivucsas.rollingcatsoftware.com` **does not exist**. The deployed frontend at `ica-fivucsas.rollingcatsoftware.com` should use `http://116.203.222.213:8080/api/v1` directly.
+The domain `api.fivucsas.com` **does not exist**. The deployed frontend at `app.fivucsas.com` should use `http://116.203.222.213:8080/api/v1` directly.
 
 **Impact:** Frontend is completely non-functional in production.
 
@@ -59,7 +59,7 @@ Backend CORS allowed origins (from `SecurityConfig.java:42`):
 http://localhost:3000,http://localhost:4200,http://localhost:5173
 ```
 
-Production frontend origin: `https://ica-fivucsas.rollingcatsoftware.com`
+Production frontend origin: `https://app.fivucsas.com`
 
 **Impact:** Even if the URL issue is fixed, CORS will block all requests from the production frontend.
 
@@ -530,7 +530,7 @@ private String allowedOrigins;
 
 ### Production CORS Requirement:
 ```
-https://ica-fivucsas.rollingcatsoftware.com
+https://app.fivucsas.com
 ```
 
 The `cors.allowed-origins` property is configurable via environment variable, but it's **not set in the Hetzner VPS Docker deployment**. The default value only includes localhost origins.

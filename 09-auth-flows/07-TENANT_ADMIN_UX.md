@@ -7,7 +7,7 @@
 
 This document describes the web dashboard UX for tenant admins to configure authentication methods, build authentication flows, manage user enrollments, and monitor authentication activity.
 
-**Target Users**: Tenant administrators accessing the web dashboard at `ica-fivucsas.rollingcatsoftware.com`
+**Target Users**: Tenant administrators accessing the web dashboard at `app.fivucsas.com`
 
 ---
 

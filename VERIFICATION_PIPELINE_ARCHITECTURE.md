@@ -1457,7 +1457,7 @@ The verification pipeline is presented as a step-by-step guided flow, similar to
 
 #### Entry Points
 
-1. **Direct link**: `https://ica-fivucsas.rollingcatsoftware.com/verify?flow=BANKING_KYC`
+1. **Direct link**: `https://app.fivucsas.com/verify?flow=BANKING_KYC`
 2. **QR code scan**: Tenant displays QR code at branch/office
 3. **In-app**: Button in dashboard triggers verification
 4. **Widget**: Third-party site embeds `<fivucsas-verify flow="kyc" />`

@@ -1,6 +1,6 @@
 # Module 08: Website & Marketing
 
-> Landing website documentation for fivucsas.rollingcatsoftware.com
+> Landing website documentation for fivucsas.com
 
 ## Overview
 
@@ -8,7 +8,7 @@ This module contains all documentation related to the FIVUCSAS landing/marketing
 
 | Attribute | Value |
 |-----------|-------|
-| **Domain** | `fivucsas.rollingcatsoftware.com` |
+| **Domain** | `fivucsas.com` |
 | **Hosting** | Hostinger |
 | **Purpose** | Marketing, Branding, Lead Generation |
 | **Status** | Design Phase |

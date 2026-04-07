@@ -293,9 +293,9 @@
 
     <footer class="footer">
         This is a demo application. No real banking data is involved.<br>
-        <a href="https://ica-fivucsas.rollingcatsoftware.com/developer-portal" target="_blank">FIVUCSAS Developer Portal</a>
+        <a href="https://app.fivucsas.com/developer-portal" target="_blank">FIVUCSAS Developer Portal</a>
         &middot;
-        <a href="https://auth.rollingcatsoftware.com/swagger-ui.html" target="_blank">API Docs</a>
+        <a href="https://api.fivucsas.com/swagger-ui.html" target="_blank">API Docs</a>
     </footer>
 
     <!--
@@ -303,7 +303,7 @@
       This IIFE bundle registers the FivucsasAuth class globally
       and also registers the <fivucsas-verify> web component.
     -->
-    <script src="https://ica-fivucsas.rollingcatsoftware.com/verify/sdk/fivucsas-auth.iife.js"></script>
+    <script src="https://app.fivucsas.com/verify/sdk/fivucsas-auth.iife.js"></script>
 
     <script>
         // ── DOM references ──────────────────────────────────────
@@ -322,8 +322,8 @@
         //
         var auth = new FivucsasAuth({
             clientId:   'acme-bank',
-            baseUrl:    'https://ica-fivucsas.rollingcatsoftware.com/verify/',
-            apiBaseUrl: 'https://auth.rollingcatsoftware.com/api/v1',
+            baseUrl:    'https://app.fivucsas.com/verify/',
+            apiBaseUrl: 'https://api.fivucsas.com/api/v1',
             locale:     'en',
             theme: {
                 mode: 'light',

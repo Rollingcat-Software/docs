@@ -47,11 +47,11 @@ FIVUCSAS is running in production on a Hetzner CX43 (8 CPU, 16 GB RAM, 150 GB di
 |                                                                   |
 |  Traefik v3.6.12 (reverse proxy, SSL termination)                |
 |     |                                                             |
-|     +-- auth.rollingcatsoftware.com -> identity-core-api:8080    |
-|     +-- bpa-fivucsas.rollingcatsoftware.com -> biometric-api:8001|
-|     +-- mizan.rollingcatsoftware.com -> mizan:3000               |
-|     +-- sarnic.rollingcatsoftware.com -> sarnic:3001             |
-|     +-- muhabbet.rollingcatsoftware.com -> muhabbet:5000         |
+|     +-- api.fivucsas.com -> identity-core-api:8080    |
+|     +-- bio.fivucsas.com -> biometric-api:8001|
+|     +-- mizan.fivucsas.com -> mizan:3000               |
+|     +-- sarnic.fivucsas.com -> sarnic:3001             |
+|     +-- muhabbet.fivucsas.com -> muhabbet:5000         |
 |                                                                   |
 |  shared-postgres (PostgreSQL 17 + pgvector)                       |
 |  shared-redis (Redis 7.4)                                         |
@@ -313,12 +313,12 @@ SCENARIO: Complete Server Loss
    - Estimated time: 10 minutes
 
 9. Update DNS (if IP changed)
-   - Cloudflare: auth.rollingcatsoftware.com -> new IP
+   - Cloudflare: api.fivucsas.com -> new IP
    - Estimated time: 2 minutes (instant propagation via Cloudflare)
 
 10. Verify all services
     $ ./infra/deploy.sh status
-    $ curl https://auth.rollingcatsoftware.com/ping
+    $ curl https://api.fivucsas.com/ping
     - Estimated time: 5 minutes
 
 TOTAL ESTIMATED RECOVERY TIME: ~62 minutes
@@ -825,13 +825,13 @@ Prevention:
 Symptom: Browser shows "NET::ERR_CERT_DATE_INVALID"
 Diagnosis:
   $ docker exec traefik cat /acme.json | jq '.[] | .Certificates[].domain'
-  $ echo | openssl s_client -connect auth.rollingcatsoftware.com:443 2>/dev/null | openssl x509 -noout -dates
+  $ echo | openssl s_client -connect api.fivucsas.com:443 2>/dev/null | openssl x509 -noout -dates
 Fix:
   1. Force Traefik certificate renewal:
      $ docker exec traefik rm /acme.json
      $ docker restart traefik
   2. Wait 2 minutes for Let's Encrypt issuance
-  3. Verify: curl -vI https://auth.rollingcatsoftware.com
+  3. Verify: curl -vI https://api.fivucsas.com
 Prevention:
   - Alertmanager: cert expiry < 14 days
   - Traefik auto-renewal (should handle this)

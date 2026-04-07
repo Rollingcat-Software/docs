@@ -1,7 +1,7 @@
 # Step-Up Authentication Integration Guide
 
 **Audience**: Mobile developers integrating fingerprint step-up auth (Aysenur)
-**Base URL**: `https://auth.rollingcatsoftware.com`
+**Base URL**: `https://api.fivucsas.com`
 **Last updated**: 2026-03-28
 
 ## Overview
@@ -356,12 +356,12 @@ Mobile App                          Server (/api/v1/step-up)           Redis
 
 ```bash
 # Login first
-TOKEN=$(curl -s -X POST https://auth.rollingcatsoftware.com/api/v1/auth/login \
+TOKEN=$(curl -s -X POST https://api.fivucsas.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@fivucsas.local","password":"Test@123"}' | jq -r '.accessToken')
 
 # Register device (use a test public key)
-curl -X POST https://auth.rollingcatsoftware.com/api/v1/step-up/register-device \
+curl -X POST https://api.fivucsas.com/api/v1/step-up/register-device \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -374,13 +374,13 @@ curl -X POST https://auth.rollingcatsoftware.com/api/v1/step-up/register-device 
   }'
 
 # Request challenge
-curl -X POST https://auth.rollingcatsoftware.com/api/v1/step-up/challenge \
+curl -X POST https://api.fivucsas.com/api/v1/step-up/challenge \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"deviceFingerprint": "test-device-001"}'
 
 # Verify (sign the challenge with your EC private key externally)
-curl -X POST https://auth.rollingcatsoftware.com/api/v1/step-up/verify-challenge \
+curl -X POST https://api.fivucsas.com/api/v1/step-up/verify-challenge \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

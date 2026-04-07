@@ -77,8 +77,8 @@ The client-apps repository is a Kotlin Multiplatform project targeting Android a
 
 **Issues:**
 - All three environments have identical URLs (no isolation):
-  - Identity: `https://auth.rollingcatsoftware.com/api/v1`
-  - Biometric: `https://bpa-fivucsas.rollingcatsoftware.com/api/v1`
+  - Identity: `https://api.fivucsas.com/api/v1`
+  - Biometric: `https://bio.fivucsas.com/api/v1`
 - Default environment is PRODUCTION (should be DEV)
 - No build-time configuration to auto-switch environments
 - Mock data fallback mentioned in docs but not implemented

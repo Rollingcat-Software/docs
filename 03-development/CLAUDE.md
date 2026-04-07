@@ -40,7 +40,7 @@ docs/
 
 - **Server**: Hetzner CX43 (8 vCPU, 16GB RAM, 150GB disk)
 - **CI/CD**: GitHub Actions on self-hosted runner `hetzner-cx43`
-- **Identity Core API**: https://auth.rollingcatsoftware.com
-- **Web Dashboard**: https://ica-fivucsas.rollingcatsoftware.com (Hostinger)
+- **Identity Core API**: https://api.fivucsas.com
+- **Web Dashboard**: https://app.fivucsas.com (Hostinger)
 - **Biometric API**: Internal on Hetzner (port 8001)
 - **Shared infra**: PostgreSQL 17 + pgvector, Redis 7.4

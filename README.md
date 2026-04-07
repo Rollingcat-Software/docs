@@ -85,9 +85,9 @@
 - [MOBILE_APP_STATUS.md](07-status/MOBILE_APP_STATUS.md) - Mobile app status
 
 ### 8️⃣ [Website & Marketing](08-website/)
-**Landing website documentation for fivucsas.rollingcatsoftware.com**
+**Landing website documentation for fivucsas.com**
 - [ADD_LANDING_WEBSITE.md](08-website/ADD_LANDING_WEBSITE.md) - ⭐ **Landing website Analysis & Design Document**
-- Domain: `fivucsas.rollingcatsoftware.com` (Hostinger)
+- Domain: `fivucsas.com` (Hostinger)
 - Purpose: Marketing, branding, lead generation
 
 ### 9️⃣ [Multi-Modal Authentication](09-auth-flows/)

@@ -386,7 +386,7 @@ After enabling Twilio, run this manual test sequence:
 
 ```bash
 # 1. Login as admin to get JWT
-TOKEN=$(curl -s -X POST https://auth.rollingcatsoftware.com/api/v1/auth/login \
+TOKEN=$(curl -s -X POST https://api.fivucsas.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@fivucsas.com","password":"<ADMIN_PASSWORD>"}' \
   | jq -r '.token')
@@ -395,21 +395,21 @@ TOKEN=$(curl -s -X POST https://auth.rollingcatsoftware.com/api/v1/auth/login \
 # (set via user management or directly in DB)
 
 # 3. Send SMS OTP
-curl -X POST https://auth.rollingcatsoftware.com/api/v1/otp/sms/send/{userId} \
+curl -X POST https://api.fivucsas.com/api/v1/otp/sms/send/{userId} \
   -H "Authorization: Bearer $TOKEN"
 # Expected: {"success":true,"message":"OTP sent via SMS","expiresInSeconds":300}
 
 # 4. Check your phone for the 6-digit code
 
 # 5. Verify the OTP
-curl -X POST https://auth.rollingcatsoftware.com/api/v1/otp/sms/verify/{userId} \
+curl -X POST https://api.fivucsas.com/api/v1/otp/sms/verify/{userId} \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"code":"XXXXXX"}'
 # Expected: {"success":true,"message":"OTP verified successfully"}
 
 # 6. Verify OTP is consumed (replay should fail)
-curl -X POST https://auth.rollingcatsoftware.com/api/v1/otp/sms/verify/{userId} \
+curl -X POST https://api.fivucsas.com/api/v1/otp/sms/verify/{userId} \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"code":"XXXXXX"}'

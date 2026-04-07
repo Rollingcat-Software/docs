@@ -37,14 +37,14 @@ Add FIVUCSAS authentication to any website in under 5 minutes.
   <div id="result"></div>
 
   <!-- Load the SDK (IIFE bundle, 9.5KB) -->
-  <script src="https://ica-fivucsas.rollingcatsoftware.com/verify/sdk/fivucsas-auth.iife.js"></script>
+  <script src="https://app.fivucsas.com/verify/sdk/fivucsas-auth.iife.js"></script>
 
   <script>
     // 1. Initialize with your client ID
     const auth = new FivucsasAuth({
       clientId: 'your-client-id',
-      baseUrl: 'https://ica-fivucsas.rollingcatsoftware.com/verify/',
-      apiBaseUrl: 'https://auth.rollingcatsoftware.com/api/v1',
+      baseUrl: 'https://app.fivucsas.com/verify/',
+      apiBaseUrl: 'https://api.fivucsas.com/api/v1',
       locale: 'en',
     });
 
@@ -81,12 +81,12 @@ Add FIVUCSAS authentication to any website in under 5 minutes.
 
 **CDN (IIFE bundle):**
 ```html
-<script src="https://ica-fivucsas.rollingcatsoftware.com/verify/sdk/fivucsas-auth.iife.js"></script>
+<script src="https://app.fivucsas.com/verify/sdk/fivucsas-auth.iife.js"></script>
 ```
 
 **ESM import (12KB):**
 ```js
-import { FivucsasAuth } from 'https://ica-fivucsas.rollingcatsoftware.com/verify/sdk/fivucsas-auth.esm.js';
+import { FivucsasAuth } from 'https://app.fivucsas.com/verify/sdk/fivucsas-auth.esm.js';
 ```
 
 ### `FivucsasAuth` Constructor
@@ -101,7 +101,7 @@ const auth = new FivucsasAuth(config: FivucsasConfig);
 |-------------|-------------------------------|----------|---------|-------------|
 | `clientId`  | `string`                      | Yes      | -       | Your application's client ID (registered in FIVUCSAS) |
 | `baseUrl`   | `string`                      | No       | `https://verify.fivucsas.com` | URL of the verify-app widget |
-| `apiBaseUrl`| `string`                      | No       | `https://auth.rollingcatsoftware.com/api/v1` | Identity Core API base URL |
+| `apiBaseUrl`| `string`                      | No       | `https://api.fivucsas.com/api/v1` | Identity Core API base URL |
 | `locale`    | `'en' \| 'tr'`                | No       | `'en'`  | UI language (English or Turkish) |
 | `theme`     | `FivucsasTheme`               | No       | `{}`    | Visual customization |
 
@@ -198,8 +198,8 @@ function App() {
   return (
     <FivucsasProvider
       clientId="your-client-id"
-      baseUrl="https://ica-fivucsas.rollingcatsoftware.com/verify/"
-      apiBaseUrl="https://auth.rollingcatsoftware.com/api/v1"
+      baseUrl="https://app.fivucsas.com/verify/"
+      apiBaseUrl="https://api.fivucsas.com/api/v1"
       locale="en"
       theme={{ mode: 'light' }}
     >
@@ -320,15 +320,15 @@ The `<fivucsas-verify>` custom element wraps the SDK into a declarative HTML ele
 
 ```html
 <!-- Load the SDK (registers the custom element automatically) -->
-<script src="https://ica-fivucsas.rollingcatsoftware.com/verify/sdk/fivucsas-auth.iife.js"></script>
+<script src="https://app.fivucsas.com/verify/sdk/fivucsas-auth.iife.js"></script>
 
 <!-- Render a "Verify with FIVUCSAS" button -->
 <fivucsas-verify
   client-id="your-client-id"
   flow="login"
   locale="en"
-  base-url="https://ica-fivucsas.rollingcatsoftware.com/verify/"
-  api-base-url="https://auth.rollingcatsoftware.com/api/v1"
+  base-url="https://app.fivucsas.com/verify/"
+  api-base-url="https://api.fivucsas.com/api/v1"
   theme='{"mode":"light"}'
 ></fivucsas-verify>
 ```
@@ -393,17 +393,17 @@ FIVUCSAS implements the **Authorization Code Flow** per OAuth 2.0 (RFC 6749) wit
 ### Discovery
 
 ```
-GET https://auth.rollingcatsoftware.com/.well-known/openid-configuration
+GET https://api.fivucsas.com/.well-known/openid-configuration
 ```
 
 Returns:
 ```json
 {
-  "issuer": "https://auth.rollingcatsoftware.com",
-  "authorization_endpoint": "https://auth.rollingcatsoftware.com/api/v1/oauth2/authorize",
-  "token_endpoint": "https://auth.rollingcatsoftware.com/api/v1/oauth2/token",
-  "userinfo_endpoint": "https://auth.rollingcatsoftware.com/api/v1/oauth2/userinfo",
-  "jwks_uri": "https://auth.rollingcatsoftware.com/.well-known/jwks.json",
+  "issuer": "https://api.fivucsas.com",
+  "authorization_endpoint": "https://api.fivucsas.com/api/v1/oauth2/authorize",
+  "token_endpoint": "https://api.fivucsas.com/api/v1/oauth2/token",
+  "userinfo_endpoint": "https://api.fivucsas.com/api/v1/oauth2/userinfo",
+  "jwks_uri": "https://api.fivucsas.com/.well-known/jwks.json",
   "response_types_supported": ["code"],
   "grant_types_supported": ["authorization_code"],
   "scopes_supported": ["openid", "profile", "email", "phone"],
@@ -419,7 +419,7 @@ Returns:
 Redirect the user or call from your backend:
 
 ```
-GET https://auth.rollingcatsoftware.com/api/v1/oauth2/authorize
+GET https://api.fivucsas.com/api/v1/oauth2/authorize
   ?client_id=your-client-id
   &redirect_uri=https://yourapp.com/callback
   &response_type=code
@@ -453,7 +453,7 @@ At this point, embed the FIVUCSAS auth widget to authenticate the user, then ret
 #### Step 2: Exchange Code for Tokens
 
 ```
-POST https://auth.rollingcatsoftware.com/api/v1/oauth2/token
+POST https://api.fivucsas.com/api/v1/oauth2/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code
@@ -477,7 +477,7 @@ Response:
 #### Step 3: Get User Info
 
 ```
-GET https://auth.rollingcatsoftware.com/api/v1/oauth2/userinfo
+GET https://api.fivucsas.com/api/v1/oauth2/userinfo
 Authorization: Bearer <access_token>
 ```
 
@@ -496,7 +496,7 @@ Response:
 ### JWKS
 
 ```
-GET https://auth.rollingcatsoftware.com/.well-known/jwks.json
+GET https://api.fivucsas.com/.well-known/jwks.json
 ```
 
 Note: FIVUCSAS uses HMAC-SHA256 for token signing. The JWKS endpoint exposes key metadata but not the secret value. For token validation, use the userinfo endpoint or validate tokens server-side with your client secret.
@@ -512,7 +512,7 @@ For backends that need to interact with FIVUCSAS directly without the widget.
 #### Login
 
 ```bash
-POST https://auth.rollingcatsoftware.com/api/v1/auth/login
+POST https://api.fivucsas.com/api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -542,7 +542,7 @@ Use the `accessToken` as a Bearer token for subsequent requests.
 #### Refresh Token
 
 ```bash
-POST https://auth.rollingcatsoftware.com/api/v1/auth/refresh
+POST https://api.fivucsas.com/api/v1/auth/refresh
 Content-Type: application/json
 
 {
@@ -567,7 +567,7 @@ For flows requiring multiple authentication methods (e.g., password + face + fin
 #### Create Auth Session
 
 ```bash
-POST https://auth.rollingcatsoftware.com/api/v1/auth/sessions
+POST https://api.fivucsas.com/api/v1/auth/sessions
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 
@@ -596,7 +596,7 @@ Response:
 #### Execute Step
 
 ```bash
-POST https://auth.rollingcatsoftware.com/api/v1/auth/sessions/{sessionId}/steps/{stepNumber}
+POST https://api.fivucsas.com/api/v1/auth/sessions/{sessionId}/steps/{stepNumber}
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 
@@ -695,10 +695,10 @@ iframe.contentWindow.postMessage({
   payload: {
     theme: 'light',
     locale: 'en',
-    apiBaseUrl: 'https://auth.rollingcatsoftware.com/api/v1',
+    apiBaseUrl: 'https://api.fivucsas.com/api/v1',
     allowedOrigin: window.location.origin,
   }
-}, 'https://ica-fivucsas.rollingcatsoftware.com');
+}, 'https://app.fivucsas.com');
 ```
 
 #### `fivucsas:step-change`
@@ -771,7 +771,7 @@ Always validate `event.origin` before processing messages:
 
 ```js
 window.addEventListener('message', (event) => {
-  if (event.origin !== 'https://ica-fivucsas.rollingcatsoftware.com') return;
+  if (event.origin !== 'https://app.fivucsas.com') return;
   if (!event.data?.type?.startsWith('fivucsas:')) return;
 
   // Process event...
@@ -787,7 +787,7 @@ window.addEventListener('message', (event) => {
 If you host the widget on a different domain, ensure your server allows the widget origin:
 
 ```
-Access-Control-Allow-Origin: https://ica-fivucsas.rollingcatsoftware.com
+Access-Control-Allow-Origin: https://app.fivucsas.com
 ```
 
 ### Content Security Policy (CSP)
@@ -796,13 +796,13 @@ Add the widget domain to your CSP headers:
 
 ```
 Content-Security-Policy:
-  frame-src https://ica-fivucsas.rollingcatsoftware.com;
-  connect-src https://auth.rollingcatsoftware.com;
+  frame-src https://app.fivucsas.com;
+  connect-src https://api.fivucsas.com;
 ```
 
 If using the SDK via CDN:
 ```
-script-src https://ica-fivucsas.rollingcatsoftware.com;
+script-src https://app.fivucsas.com;
 ```
 
 ### Token Storage
@@ -847,16 +847,16 @@ The FIVUCSAS API enforces rate limits on all endpoints. If you receive a `429 To
 
 | Resource | URL |
 |----------|-----|
-| Identity Core API | `https://auth.rollingcatsoftware.com` |
-| Auth Widget | `https://ica-fivucsas.rollingcatsoftware.com/verify/` |
-| OIDC Discovery | `https://auth.rollingcatsoftware.com/.well-known/openid-configuration` |
-| JWKS | `https://auth.rollingcatsoftware.com/.well-known/jwks.json` |
-| Swagger UI | `https://auth.rollingcatsoftware.com/swagger-ui.html` |
+| Identity Core API | `https://api.fivucsas.com` |
+| Auth Widget | `https://app.fivucsas.com/verify/` |
+| OIDC Discovery | `https://api.fivucsas.com/.well-known/openid-configuration` |
+| JWKS | `https://api.fivucsas.com/.well-known/jwks.json` |
+| Swagger UI | `https://api.fivucsas.com/swagger-ui.html` |
 
 ---
 
 ## Support
 
-- **Swagger UI**: https://auth.rollingcatsoftware.com/swagger-ui.html
-- **Developer Portal**: https://ica-fivucsas.rollingcatsoftware.com/developer-portal
-- **Widget Demo**: https://ica-fivucsas.rollingcatsoftware.com/widget-demo
+- **Swagger UI**: https://api.fivucsas.com/swagger-ui.html
+- **Developer Portal**: https://app.fivucsas.com/developer-portal
+- **Widget Demo**: https://app.fivucsas.com/widget-demo

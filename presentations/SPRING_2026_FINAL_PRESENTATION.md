@@ -189,7 +189,7 @@ Spring 2026
 - Step-up auth: user_devices with ECDSA P-256 (V17)
 - Sample data: 3 tenants, 8 users, audit log entries
 
-**Deployed:** https://auth.rollingcatsoftware.com (Hetzner CX43, 8CPU/16GB)
+**Deployed:** https://api.fivucsas.com (Hetzner CX43, 8CPU/16GB)
 
 ---
 
@@ -305,11 +305,11 @@ function App() {
 **OIDC Discovery Document:**
 ```json
 {
-  "issuer": "https://auth.rollingcatsoftware.com",
-  "authorization_endpoint": "https://auth.rollingcatsoftware.com/oauth2/authorize",
-  "token_endpoint": "https://auth.rollingcatsoftware.com/oauth2/token",
-  "userinfo_endpoint": "https://auth.rollingcatsoftware.com/oauth2/userinfo",
-  "jwks_uri": "https://auth.rollingcatsoftware.com/.well-known/jwks.json",
+  "issuer": "https://api.fivucsas.com",
+  "authorization_endpoint": "https://api.fivucsas.com/oauth2/authorize",
+  "token_endpoint": "https://api.fivucsas.com/oauth2/token",
+  "userinfo_endpoint": "https://api.fivucsas.com/oauth2/userinfo",
+  "jwks_uri": "https://api.fivucsas.com/.well-known/jwks.json",
   "response_types_supported": ["code"],
   "subject_types_supported": ["public"],
   "id_token_signing_alg_values_supported": ["RS256"],
@@ -361,7 +361,7 @@ function App() {
 - i18n: Full Turkish/English bilingual UI (i18next)
 - Real-time notification panel with audit log polling
 
-**Deployed:** https://ica-fivucsas.rollingcatsoftware.com
+**Deployed:** https://app.fivucsas.com
 
 ---
 
@@ -383,14 +383,14 @@ function App() {
 
 | Service | URL | Hosting |
 |---------|-----|---------|
-| Web Dashboard | https://ica-fivucsas.rollingcatsoftware.com | Hostinger |
-| Widget Demo | https://ica-fivucsas.rollingcatsoftware.com/widget-demo | Hostinger |
-| Developer Portal | https://ica-fivucsas.rollingcatsoftware.com/developer-portal | Hostinger |
-| Landing Page | https://fivucsas.rollingcatsoftware.com | Hostinger |
-| Identity API | https://auth.rollingcatsoftware.com | Hetzner VPS |
-| Biometric API | https://bpa-fivucsas.rollingcatsoftware.com | Hetzner VPS |
-| OIDC Discovery | https://auth.rollingcatsoftware.com/.well-known/openid-configuration | Hetzner VPS |
-| API Health | https://auth.rollingcatsoftware.com/actuator/health | Hetzner VPS |
+| Web Dashboard | https://app.fivucsas.com | Hostinger |
+| Widget Demo | https://app.fivucsas.com/widget-demo | Hostinger |
+| Developer Portal | https://app.fivucsas.com/developer-portal | Hostinger |
+| Landing Page | https://fivucsas.com | Hostinger |
+| Identity API | https://api.fivucsas.com | Hetzner VPS |
+| Biometric API | https://bio.fivucsas.com | Hetzner VPS |
+| OIDC Discovery | https://api.fivucsas.com/.well-known/openid-configuration | Hetzner VPS |
+| API Health | https://api.fivucsas.com/actuator/health | Hetzner VPS |
 
 **CI/CD:** GitHub Actions — 3 parallel jobs (Java 21 + Python 3.11 + Node 20) + Playwright E2E workflow
 **Containers:** 12 Docker containers, all healthy (identity-core-api, biometric-api, postgres, redis, nginx, etc.)
@@ -401,16 +401,16 @@ function App() {
 
 **Demo Flow (2-3 minutes)**
 
-1. **Login** — Navigate to https://ica-fivucsas.rollingcatsoftware.com, login with admin credentials
+1. **Login** — Navigate to https://app.fivucsas.com, login with admin credentials
 2. **Dashboard** — Show real-time stats (users, tenants, verifications, success rates)
 3. **Users CRUD** — Create a test user, show tenant assignment
 4. **Auth Flow Builder** — Create an APP_LOGIN flow with PASSWORD + FACE steps
 5. **Auth Test Page** — Demonstrate live biometric auth (face, voice, fingerprint, TOTP)
 6. **Widget Demo** — Show embeddable widget at /widget-demo (3-line integration)
 7. **Developer Portal** — Show SDK documentation and client registration at /developer-portal
-8. **OIDC Discovery** — Show https://auth.rollingcatsoftware.com/.well-known/openid-configuration
+8. **OIDC Discovery** — Show https://api.fivucsas.com/.well-known/openid-configuration
 9. **Swagger UI** — Show API documentation at /swagger-ui.html
-10. **Biometric API Health** — Show https://bpa-fivucsas.rollingcatsoftware.com/api/v1/health
+10. **Biometric API Health** — Show https://bio.fivucsas.com/api/v1/health
 
 **Backup:** Screenshots embedded in slides in case of network issues
 
@@ -490,7 +490,7 @@ function App() {
 **E2E Test Strategy:**
 - Auth setup pattern: Single login, sessionStorage injection via `addInitScript`
 - Eliminates rate limiting (HTTP 429) from repeated login attempts
-- Tests against production: https://ica-fivucsas.rollingcatsoftware.com
+- Tests against production: https://app.fivucsas.com
 - Playwright CI workflow integrated into GitHub Actions
 
 **E2E Coverage (16+ spec files):**
@@ -604,14 +604,14 @@ function App() {
 
 | Service | URL |
 |---------|-----|
-| Dashboard | https://ica-fivucsas.rollingcatsoftware.com |
-| Widget Demo | https://ica-fivucsas.rollingcatsoftware.com/widget-demo |
-| Developer Portal | https://ica-fivucsas.rollingcatsoftware.com/developer-portal |
-| Landing Page | https://fivucsas.rollingcatsoftware.com |
-| API Health | https://auth.rollingcatsoftware.com/actuator/health |
-| Biometric API | https://bpa-fivucsas.rollingcatsoftware.com/api/v1/health |
-| OIDC Discovery | https://auth.rollingcatsoftware.com/.well-known/openid-configuration |
-| Swagger UI | https://auth.rollingcatsoftware.com/swagger-ui.html |
+| Dashboard | https://app.fivucsas.com |
+| Widget Demo | https://app.fivucsas.com/widget-demo |
+| Developer Portal | https://app.fivucsas.com/developer-portal |
+| Landing Page | https://fivucsas.com |
+| API Health | https://api.fivucsas.com/actuator/health |
+| Biometric API | https://bio.fivucsas.com/api/v1/health |
+| OIDC Discovery | https://api.fivucsas.com/.well-known/openid-configuration |
+| Swagger UI | https://api.fivucsas.com/swagger-ui.html |
 
 **Repository:** github.com/Rollingcat-Software/FIVUCSAS
 

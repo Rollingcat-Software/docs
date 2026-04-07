@@ -155,7 +155,7 @@ biometric-processor/
 ## 3.5 Web Admin Dashboard
 
 **Location:** `web-app/`
-**Status:** 100% Complete - Deployed to https://ica-fivucsas.rollingcatsoftware.com
+**Status:** 100% Complete - Deployed to https://app.fivucsas.com
 **Technology:** React 18, TypeScript, Material-UI 5
 
 ### Features
@@ -378,7 +378,7 @@ UniversalNfcReader/
 11. Turkish eID NFC Reader (functional)
 12. Identity Core API (10 auth handlers, 508 tests, deployed on Hetzner VPS)
 13. Web Admin Dashboard (React 18, deployed to Hostinger)
-14. Landing Website (deployed to fivucsas.rollingcatsoftware.com)
+14. Landing Website (deployed to fivucsas.com)
 15. E2E Testing (14/14 Playwright tests pass against production)
 16. CI/CD Pipeline (GitHub Actions for all 3 services)
 17. Browser-side face detection (MediaPipe Tasks API)

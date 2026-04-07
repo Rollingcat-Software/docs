@@ -4,7 +4,7 @@
 **Document Version:** 1.0
 **Last Updated:** February 2026
 **Status:** Design Phase
-**Domain:** `fivucsas.rollingcatsoftware.com`
+**Domain:** `fivucsas.com`
 **Hosting Provider:** Hostinger
 
 ---
@@ -292,7 +292,7 @@ Minimum clear space = Height of the "F" in FIVUCSAS
 ### 5.1 Site Map
 
 ```
-fivucsas.rollingcatsoftware.com
+fivucsas.com
 │
 ├── / (Home/Landing)
 │   ├── Hero Section
@@ -1055,17 +1055,17 @@ Mobile: 1 column (stacked)
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://fivucsas.rollingcatsoftware.com/">
+<meta property="og:url" content="https://fivucsas.com/">
 <meta property="og:title" content="FIVUCSAS - Biometric Authentication Made Simple">
 <meta property="og:description" content="Secure your applications with advanced face recognition and identity verification.">
-<meta property="og:image" content="https://fivucsas.rollingcatsoftware.com/og-image.png">
+<meta property="og:image" content="https://fivucsas.com/og-image.png">
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="https://fivucsas.rollingcatsoftware.com/">
+<meta property="twitter:url" content="https://fivucsas.com/">
 <meta property="twitter:title" content="FIVUCSAS - Biometric Authentication Made Simple">
 <meta property="twitter:description" content="Secure your applications with advanced face recognition and identity verification.">
-<meta property="twitter:image" content="https://fivucsas.rollingcatsoftware.com/twitter-image.png">
+<meta property="twitter:image" content="https://fivucsas.com/twitter-image.png">
 ```
 
 #### Structured Data
@@ -1179,14 +1179,14 @@ Permissions-Policy: camera=(), microphone=(), geolocation=()
 ### 13.2 Domain Configuration
 
 ```
-Domain: fivucsas.rollingcatsoftware.com
+Domain: fivucsas.com
 
 DNS Records:
 ┌──────────┬──────────┬────────────────────────────┐
 │ Type     │ Name     │ Value                      │
 ├──────────┼──────────┼────────────────────────────┤
 │ A        │ @        │ [Hostinger IP]             │
-│ CNAME    │ www      │ fivucsas.rollingcatsoftware.com │
+│ CNAME    │ www      │ fivucsas.com │
 │ TXT      │ @        │ [SPF Record]               │
 │ TXT      │ _dmarc   │ [DMARC Policy]             │
 └──────────┴──────────┴────────────────────────────┘

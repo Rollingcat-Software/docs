@@ -876,7 +876,7 @@ methodType: TOTP | QR_CODE | FACE | FINGERPRINT | VOICE | NFC_DOCUMENT | HARDWAR
   "status": "PENDING",
   "enrollmentChallenge": {
     "challenge": "base64url-random-bytes",
-    "rpId": "fivucsas.rollingcatsoftware.com",
+    "rpId": "fivucsas.com",
     "rpName": "FIVUCSAS",
     "userId": "base64url-user-id",
     "userName": "user@example.com",

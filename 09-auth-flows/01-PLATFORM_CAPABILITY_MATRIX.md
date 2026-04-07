@@ -15,7 +15,7 @@ FIVUCSAS supports **5 client platforms** and **10 authentication methods** acros
 
 | Platform | Runtime | Distribution | Primary Users |
 |----------|---------|-------------|---------------|
-| **Web** | Browser (Chrome, Firefox, Safari, Edge) | URL (ica-fivucsas.rollingcatsoftware.com) | Tenant Admins, Members |
+| **Web** | Browser (Chrome, Firefox, Safari, Edge) | URL (app.fivucsas.com) | Tenant Admins, Members |
 | **Android** | Android 8.0+ (API 26+) | APK / Play Store | Members, Field Users |
 | **iOS** | iOS 15.0+ | TestFlight / App Store | Members, Field Users |
 | **Desktop** | Windows 10+, macOS 12+, Linux | Installable binary (Compose Desktop) | Admins, Kiosk Operators |

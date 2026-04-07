@@ -359,7 +359,7 @@ Step 2: WebAuthn Registration Ceremony
      POST /api/v1/users/{userId}/enrollments/FINGERPRINT/challenge
      Response: {
        challenge: "random-bytes-base64",
-       rpId: "fivucsas.rollingcatsoftware.com",
+       rpId: "fivucsas.com",
        rpName: "FIVUCSAS",
        userId: base64(userId),
        userName: email,
@@ -584,7 +584,7 @@ Step 2: WebAuthn Registration Ceremony
      POST /api/v1/users/{userId}/enrollments/HARDWARE_KEY/challenge
      Response: {
        challenge: "random-bytes",
-       rpId: "fivucsas.rollingcatsoftware.com",
+       rpId: "fivucsas.com",
        rpName: "FIVUCSAS",
        userId: base64(userId),
        userName: email,

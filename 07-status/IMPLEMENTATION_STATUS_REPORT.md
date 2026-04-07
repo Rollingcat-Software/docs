@@ -32,9 +32,9 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 |---------|-----|--------|
 | Identity Core API | http://116.203.222.213:8080 | Running |
 | Swagger UI | http://116.203.222.213:8080/swagger-ui.html | Available |
-| Web Dashboard | https://ica-fivucsas.rollingcatsoftware.com | Live |
-| Landing Website | https://fivucsas.rollingcatsoftware.com | Live |
-| Biometric API | https://bpa-fivucsas.rollingcatsoftware.com | Pending (tunnel) |
+| Web Dashboard | https://app.fivucsas.com | Live |
+| Landing Website | https://fivucsas.com | Live |
+| Biometric API | https://bio.fivucsas.com | Pending (tunnel) |
 
 ---
 
@@ -142,7 +142,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 - Audit log viewer: filtering by action, pagination
 - Enrollment status tracking per user
 - Playwright E2E tests: 224 tests (217 pass, 7 skipped — covers all 16 pages)
-- Deployed live to https://ica-fivucsas.rollingcatsoftware.com (Hostinger)
+- Deployed live to https://app.fivucsas.com (Hostinger)
 
 ---
 
@@ -150,7 +150,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 
 - React 18 + Tailwind CSS
 - Product overview, feature highlights, technology stack
-- Deployed live to https://fivucsas.rollingcatsoftware.com (Hostinger)
+- Deployed live to https://fivucsas.com (Hostinger)
 
 ---
 
@@ -256,7 +256,7 @@ Biometric GPU Deploy:    ░░░░░░░░░░░░░░░░░░�
 - Cloudflare Tunnel scripts ready in `scripts/deploy/setup-laptop-gpu-wsl.ps1`
 - WSL2 setup script ready in `biometric-processor/deploy/laptop-gpu/setup-wsl.sh`
 - Blocked: manual tunnel setup on local machine required
-- Target subdomain: https://bpa-fivucsas.rollingcatsoftware.com
+- Target subdomain: https://bio.fivucsas.com
 
 ---
 

@@ -39,7 +39,7 @@ The analysis covers all system components that process biometric data:
 
 - **Identity Core API** — Spring Boot 3.2 / Java 21, deployed on Hetzner VPS (116.203.222.213:8080)
 - **Biometric Processor** — FastAPI / Python, using DeepFace for face recognition
-- **Web Admin Dashboard** — React 18 / TypeScript, deployed at ica-fivucsas.rollingcatsoftware.com
+- **Web Admin Dashboard** — React 18 / TypeScript, deployed at app.fivucsas.com
 - **Client Applications** — Kotlin Multiplatform (Android, Desktop)
 - **PostgreSQL 16 + pgvector** — Embedding storage layer
 
@@ -433,7 +433,7 @@ Article 14 requires that high-risk AI systems be designed and developed in such 
 
 ### 8.2 Administrative Dashboard
 
-The web admin dashboard (`https://ica-fivucsas.rollingcatsoftware.com`) provides full human oversight capabilities to authorized administrators:
+The web admin dashboard (`https://app.fivucsas.com`) provides full human oversight capabilities to authorized administrators:
 
 | Capability | Dashboard Feature |
 |-----------|------------------|
@@ -564,7 +564,7 @@ Complete API documentation is maintained and publicly accessible:
 | Documentation | Location | Format |
 |--------------|----------|--------|
 | Identity Core API | http://116.203.222.213:8080/swagger-ui.html | OpenAPI 3.0 / Swagger UI |
-| Biometric Processor API | https://bpa-fivucsas.rollingcatsoftware.com/docs | FastAPI auto-generated OpenAPI |
+| Biometric Processor API | https://bio.fivucsas.com/docs | FastAPI auto-generated OpenAPI |
 | Architecture Documentation | `docs/02-architecture/` | Markdown, C4 model diagrams |
 | API Services Overview | `docs/04-api/SERVICES_OVERVIEW.md` | Markdown |
 

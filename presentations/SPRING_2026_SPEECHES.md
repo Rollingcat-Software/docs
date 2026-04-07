@@ -248,7 +248,7 @@ builds and tests.
 ```
 Let me show you the live system.
 
-[Navigate to ica-fivucsas.rollingcatsoftware.com]
+[Navigate to app.fivucsas.com]
 
 This is the login page. I will sign in with the admin account.
 

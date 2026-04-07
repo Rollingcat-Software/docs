@@ -30,14 +30,14 @@ These two fixes unblock the entire frontend immediately.
 
 Change:
 ```
-VITE_API_BASE_URL=https://api-fivucsas.rollingcatsoftware.com/api/v1
+VITE_API_BASE_URL=https://api.fivucsas.com/api/v1
 ```
 To:
 ```
 VITE_API_BASE_URL=http://116.203.222.213:8080/api/v1
 ```
 
-> **Note:** Later, when we set up a proper domain with HTTPS and reverse proxy, we'll change this to `https://api-fivucsas.rollingcatsoftware.com/api/v1`. For now, use the direct IP.
+> **Note:** Later, when we set up a proper domain with HTTPS and reverse proxy, we'll change this to `https://api.fivucsas.com/api/v1`. For now, use the direct IP.
 
 ### Fix 0.2: CORS for Production
 
@@ -46,7 +46,7 @@ VITE_API_BASE_URL=http://116.203.222.213:8080/api/v1
 
 Add to the `CORS_ALLOWED_ORIGINS` (or `cors.allowed-origins`) environment variable:
 ```
-http://localhost:3000,http://localhost:4200,http://localhost:5173,https://ica-fivucsas.rollingcatsoftware.com
+http://localhost:3000,http://localhost:4200,http://localhost:5173,https://app.fivucsas.com
 ```
 
 **Deployment:** Requires redeploying identity-core-api container on Hetzner VPS with updated env var.
