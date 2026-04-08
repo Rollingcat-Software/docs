@@ -1,6 +1,6 @@
-# Auth Method Security Levels — Design Document
+# Auth Method Security Levels — Design Document v2
 
-**Status**: DRAFT
+**Status**: DRAFT v2
 **Author**: Ahmet Abdullah Gultekin + Claude
 **Date**: 2026-04-08
 **Related**: NIST SP 800-63B, ISO/IEC 29115, eIDAS
@@ -9,282 +9,532 @@
 
 ## 1. Problem Statement
 
-All 10 authentication methods are currently treated equally in the UI and backend.
-A password and a hardware security key appear identical to users and tenant admins.
-This causes:
+All 10 authentication methods are currently treated equally. But security varies
+**within** each method type — not just between them:
 
-- **Users** don't understand why they should enable biometrics over SMS
-- **Tenant admins** can't make informed decisions when building auth flows
-- **Pricing** can't differentiate (biometric processing costs more than password check)
-- **Compliance** can't be validated (e.g., "PSD2 SCA requires AAL2+")
-- **Risk assessment** is impossible without method-level metadata
+- A TC Kimlik (NFC) and an İstanbulkart (NFC) are both "NFC" but worlds apart
+- A 6-char password and a 20-char passphrase are both "PASSWORD" but not equal
+- A face photo check and a face + active liveness + depth are both "FACE" but different
+- A YubiKey 5 and a cheap U2F dongle are both "HARDWARE_KEY" but different assurance
 
-## 2. Goals
+The system must model **variants within each method** and compute security
+dynamically based on configuration, not just method type.
 
-1. Categorize each method by security strength (backed by standards)
-2. Communicate security levels to users in plain language (no jargon)
-3. Help tenant admins build appropriate auth flows for their use case
-4. Enable tiered pricing based on method security/cost
-5. Support compliance reporting (NIST AAL, eIDAS LoA)
+## 2. Architecture: Method → Variant → Configuration
 
-## 3. Security Classification
+```
+AUTH_METHOD (10 types)
+  └── VARIANT (specific implementation/subtype)
+       └── CONFIGURATION (tenant-configurable parameters that affect security)
+            └── COMPUTED SCORE (dynamic, based on variant + config)
+```
 
-### 3.1 Standards Mapping
+### Example:
+```
+NFC_DOCUMENT (method)
+  ├── NFC_PASSPORT (variant)     → BAC + Active Auth → shields: 5
+  ├── NFC_TCKN (variant)         → BAC + PACE → shields: 5
+  ├── NFC_DESFIRE (variant)      → AES crypto → shields: 3
+  ├── NFC_STUDENT_CARD (variant) → MIFARE Classic (broken crypto) → shields: 1
+  └── NFC_ISTANBULKART (variant) → Serial number only → shields: 1
+```
 
-Each method is classified against three frameworks:
+## 3. Complete Variant Classification
 
-| Framework | Levels | Description |
+### 3.1 PASSWORD
+
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| WEAK_PASSWORD | No policy enforcement, any length | 1 | ⬣ | Brute force in seconds |
+| BASIC_PASSWORD | 8+ chars, complexity rules | 2 | ⬣ | Dictionary attacks |
+| STRONG_PASSWORD | 12+ chars, breach detection (HaveIBeenPwned), bcrypt cost 12+ | 3 | ⬣⬣ | Targeted attacks only |
+| PASSPHRASE | 20+ chars, entropy-based validation | 4 | ⬣⬣ | Very resistant |
+
+**Configuration parameters that affect score:**
+
+| Parameter | Values | Score Impact |
 |-----------|--------|-------------|
-| **NIST SP 800-63B** | AAL1 / AAL2 / AAL3 | US Digital Identity Guidelines |
-| **eIDAS** | Low / Substantial / High | EU Electronic Identification |
-| **Internal Score** | 1-5 (shields) | User-facing simplification |
+| `minLength` | 6/8/12/16/20 | +0/+0/+1/+1/+2 |
+| `requireComplexity` | true/false | +1/+0 |
+| `breachDetection` | true/false | +1/+0 |
+| `bcryptCost` | 10/12/14 | +0/+0/+1 |
+| `maxAttempts` (lockout) | none/10/5/3 | +0/+0/+1/+1 |
+| `historyCheck` (prevent reuse) | 0/3/5/10 | +0/+0/+1/+1 |
 
-### 3.2 Method Classification
+**Computed score formula:** `base(2) + config_bonuses (0-4)` → capped at 4 shields max
 
-| Method | Factor | Attack Vectors | Shields | NIST AAL | eIDAS | Cost to Operate |
-|--------|--------|---------------|---------|----------|-------|-----------------|
-| PASSWORD | Knowledge | Phishing, brute force, credential stuffing, keyloggers | ⬣ (1) | AAL1 | Low | Free |
-| EMAIL_OTP | Possession (weak) | Email compromise, phishing, delay | ⬣⬣ (2) | AAL1 | Low | Free (SMTP) |
-| SMS_OTP | Possession (weak) | SIM swap, SS7 interception, social engineering | ⬣⬣ (2) | AAL1* | Low | ~$0.01/SMS |
-| QR_CODE | Possession | Screen capture, shoulder surfing, session fixation | ⬣⬣ (2) | AAL1 | Low | Free |
-| TOTP | Possession (crypto) | Device theft, seed extraction, phishing | ⬣⬣⬣ (3) | AAL2 | Substantial | Free |
-| VOICE | Inherence | Deepfake, recording replay, environmental noise | ⬣⬣⬣ (3) | AAL2 | Substantial | ~$0.005/verify |
-| FACE | Inherence | Deepfake, photo attack (mitigated by liveness) | ⬣⬣⬣⬣ (4) | AAL2 | Substantial | ~$0.01/verify |
-| FINGERPRINT | Inherence+Possession | Device theft + biometric spoof (very hard) | ⬣⬣⬣⬣ (4) | AAL2-3 | High | Free (WebAuthn) |
-| HARDWARE_KEY | Possession (crypto) | Physical theft only (phishing-proof) | ⬣⬣⬣⬣⬣ (5) | AAL3 | High | Free (WebAuthn) |
-| NFC_DOCUMENT | Possession (gov't) | Physical theft + BAC crack (near impossible) | ⬣⬣⬣⬣⬣ (5) | AAL3 | High | Free (NFC) |
+### 3.2 EMAIL_OTP
 
-*NIST SP 800-63B Section 5.1.3.3 explicitly restricts SMS OTP use
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| EMAIL_OTP_BASIC | 6-digit, 5 min expiry | 2 | ⬣⬣ | Email compromise |
+| EMAIL_OTP_SECURE | 8-digit, 2 min expiry, single-use, IP binding | 3 | ⬣⬣ | Targeted email attack |
 
-### 3.3 Shield System (User-Facing)
+**Configuration parameters:**
 
-Instead of technical scores, users see **shield icons** (1-5):
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `codeLength` | 4/6/8 | -1/+0/+1 |
+| `expirySeconds` | 600/300/120 | +0/+0/+1 |
+| `maxAttempts` | none/5/3 | +0/+0/+1 |
+| `ipBinding` | true/false | +1/+0 |
 
-| Shields | Label (EN) | Label (TR) | Description (EN) | Description (TR) |
-|---------|-----------|-----------|-------------------|-------------------|
-| ⬣ (1) | Basic | Temel | Protects against casual access | Yetkisiz girişe karşı temel koruma |
-| ⬣⬣ (2) | Standard | Standart | Adds a second verification step | İkinci bir doğrulama adımı ekler |
-| ⬣⬣⬣ (3) | Strong | Güçlü | Resistant to common attacks | Yaygın saldırılara karşı dayanıklı |
-| ⬣⬣⬣⬣ (4) | Advanced | İleri | Biometric or cryptographic verification | Biyometrik veya kriptografik doğrulama |
-| ⬣⬣⬣⬣⬣ (5) | Maximum | Maksimum | Government-grade, phishing-proof | Devlet düzeyinde, oltalamaya karşı korumalı |
+### 3.3 SMS_OTP
 
-### 3.4 Combined Flow Score
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| SMS_OTP_STANDARD | 6-digit via Twilio | 2 | ⬣⬣ | SIM swap, SS7 |
+| SMS_OTP_VERIFIED | + number verification API, carrier lookup | 3 | ⬣⬣ | Sophisticated SIM swap |
 
-When a tenant builds an auth flow (e.g., Password + Face), the combined score is:
-- **Sum of unique factor types** (knowledge + inherence = 2 factors)
-- **Highest individual shield** determines the flow's assurance level
-- **Minimum flow score** can be enforced per tenant (e.g., "Banking tenants require 3+ shields")
+**NIST warning**: SMS OTP is a "restricted authenticator" per SP 800-63B §5.1.3.3.
+System should display warning to tenant admins choosing this method.
 
-Example flows and their assurance:
+**Configuration parameters:**
 
-| Flow | Shields | Combined | Use Case |
-|------|---------|----------|----------|
-| Password only | ⬣ | Basic (AAL1) | Internal tools, low-risk |
-| Password + Email OTP | ⬣⬣ | Standard (AAL1) | Consumer apps |
-| Password + TOTP | ⬣⬣⬣ | Strong (AAL2) | Business apps |
-| Password + Face | ⬣⬣⬣⬣ | Advanced (AAL2) | Financial, healthcare |
-| Password + Face + Hardware Key | ⬣⬣⬣⬣⬣ | Maximum (AAL3) | Government, military |
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `codeLength` | 4/6/8 | -1/+0/+1 |
+| `expirySeconds` | 600/300/120 | +0/+0/+1 |
+| `carrierVerification` | true/false | +1/+0 |
 
-## 4. Data Model Changes
+### 3.4 QR_CODE
 
-### 4.1 Database (Flyway migration V32)
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| QR_DISPLAY | Show QR, scan from mobile (cross-device) | 2 | ⬣⬣ | Screen capture, MITM |
+| QR_SCAN | Scan QR from physical token/badge | 3 | ⬣⬣ | Physical proximity required |
+| QR_MUTUAL | Bidirectional verification (both devices confirm) | 4 | ⬣⬣⬣ | Very resistant |
+
+**Configuration parameters:**
+
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `expirySeconds` | 300/120/60/30 | +0/+0/+1/+1 |
+| `singleUse` | true/false | +1/+0 |
+| `proximityCheck` | true/false | +1/+0 |
+
+### 3.5 TOTP
+
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| TOTP_STANDARD | 6-digit, 30s window (RFC 6238) | 3 | ⬣⬣⬣ | Device theft, seed phishing |
+| TOTP_EXTENDED | 8-digit, 60s window | 4 | ⬣⬣⬣ | Same but harder brute force |
+| TOTP_DEVICE_BOUND | + device attestation, seed never leaves hardware | 5 | ⬣⬣⬣⬣ | Physical device theft only |
+
+**Configuration parameters:**
+
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `digits` | 6/8 | +0/+1 |
+| `period` | 30/60 | +0/+0 |
+| `algorithm` | SHA1/SHA256/SHA512 | +0/+0/+1 |
+| `deviceAttestation` | true/false | +2/+0 |
+
+### 3.6 VOICE
+
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| VOICE_TEXT_INDEPENDENT | Any speech, speaker embedding match | 3 | ⬣⬣⬣ | Recording replay, deepfake |
+| VOICE_TEXT_DEPENDENT | Specific passphrase required | 4 | ⬣⬣⬣ | Targeted deepfake |
+| VOICE_CHALLENGE_RESPONSE | Random phrase + anti-spoofing | 5 | ⬣⬣⬣⬣ | Real-time deepfake only |
+
+**Configuration parameters:**
+
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `antiSpoofing` | none/basic/advanced | +0/+1/+2 |
+| `minDuration` | 1s/3s/5s | +0/+0/+1 |
+| `matchThreshold` | 0.3/0.5/0.7 | +0/+0/+1 |
+| `challengeResponse` | true/false | +2/+0 |
+
+### 3.7 FACE
+
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| FACE_PHOTO | Static photo comparison, no liveness | 2 | ⬣⬣ | Printed photo, screen replay |
+| FACE_PASSIVE_LIVENESS | + passive liveness (texture analysis) | 4 | ⬣⬣⬣ | High-quality deepfake |
+| FACE_ACTIVE_LIVENESS | + active liveness (head turn, blink, smile) | 5 | ⬣⬣⬣⬣ | Real-time deepfake |
+| FACE_3D_DEPTH | + depth camera (IR/structured light) | 6 | ⬣⬣⬣⬣⬣ | Very sophisticated attack only |
+
+**Configuration parameters:**
+
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `livenessMode` | none/passive/active | +0/+2/+3 |
+| `depthCheck` | true/false | +2/+0 |
+| `matchThreshold` | 0.4/0.6/0.8 | +0/+0/+1 |
+| `multiAngle` | true/false | +1/+0 |
+| `antiSpoofModel` | none/blazeface/mediapipe | +0/+1/+2 |
+
+### 3.8 FINGERPRINT (WebAuthn)
+
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| PLATFORM_BASIC | Phone fingerprint, no attestation | 4 | ⬣⬣⬣⬣ | Device theft + biometric spoof |
+| PLATFORM_ATTESTED | + attestation certificate verified | 5 | ⬣⬣⬣⬣ | Same, with known authenticator |
+| CROSS_PLATFORM | External reader (USB fingerprint) | 4 | ⬣⬣⬣⬣ | Physical access to reader |
+
+**Configuration parameters:**
+
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `attestation` | none/indirect/direct | +0/+1/+2 |
+| `userVerification` | discouraged/preferred/required | -1/+0/+1 |
+| `authenticatorAttachment` | any/platform/cross-platform | +0/+0/+0 |
+
+### 3.9 HARDWARE_KEY (WebAuthn Roaming)
+
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| U2F_BASIC | Basic U2F dongle, no fingerprint | 4 | ⬣⬣⬣⬣ | Physical theft |
+| FIDO2_STANDARD | FIDO2 key (e.g., YubiKey 5) | 5 | ⬣⬣⬣⬣⬣ | Physical theft + PIN |
+| FIDO2_BIOMETRIC | FIDO2 + fingerprint on key (e.g., YubiKey Bio) | 6 | ⬣⬣⬣⬣⬣ | Physical theft + biometric |
+
+**Configuration parameters:**
+
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `attestation` | none/indirect/direct | +0/+1/+2 |
+| `residentKey` | discouraged/preferred/required | +0/+0/+1 |
+| `userVerification` | discouraged/preferred/required | -1/+0/+1 |
+
+### 3.10 NFC_DOCUMENT
+
+| Variant | Description | Base Score | Shields | Attack Surface |
+|---------|-------------|-----------|---------|----------------|
+| NFC_GENERIC_NDEF | Generic NDEF tag, serial only | 1 | ⬣ | Trivially cloneable |
+| NFC_ISTANBULKART | Transit card, DESFire serial | 1 | ⬣ | No crypto auth, serial only |
+| NFC_STUDENT_CARD | MIFARE Classic student ID | 1 | ⬣ | Crypto broken (Darkside attack) |
+| NFC_MIFARE_ULTRALIGHT | Simple NFC tag | 1 | ⬣ | No security |
+| NFC_DESFIRE_EV2 | DESFire EV2 with AES-128 mutual auth | 3 | ⬣⬣⬣ | Key extraction (difficult) |
+| NFC_PASSPORT | ICAO 9303, BAC + Active Authentication | 5 | ⬣⬣⬣⬣⬣ | Government-grade crypto |
+| NFC_TCKN | Turkish eID, BAC + PACE + chip auth | 5 | ⬣⬣⬣⬣⬣ | Government-grade crypto |
+| NFC_EIDAS_CARD | EU eID card with EAC/PACE | 5 | ⬣⬣⬣⬣⬣ | Government-grade crypto |
+
+**Configuration parameters:**
+
+| Parameter | Values | Score Impact |
+|-----------|--------|-------------|
+| `requireBAC` | true/false | +2/+0 |
+| `requirePACE` | true/false | +1/+0 |
+| `verifySOD` | true/false | +1/+0 |
+| `checkExpiry` | true/false | +1/+0 |
+| `extractPhoto` | true/false | +0/+0 (convenience, not security) |
+
+## 4. Security Score Computation
+
+### 4.1 Algorithm
+
+```
+effectiveScore = min(variant.baseScore + sum(config_bonuses), MAX_SHIELDS)
+MAX_SHIELDS = 5
+```
+
+The score is **capped at 5** (Maximum). Even a perfect password can't exceed 4
+because it's still a knowledge factor (phishable).
+
+### 4.2 Factor-Type Ceiling
+
+Each factor type has a **maximum possible score** regardless of configuration:
+
+| Factor Type | Max Shields | Reasoning |
+|-------------|------------|-----------|
+| Knowledge (password) | 4 | Always phishable, always replayable |
+| Possession-weak (email, SMS) | 3 | Channel can be compromised |
+| Possession-crypto (TOTP, hardware) | 5 | Cryptographic proof |
+| Possession-government (NFC passport) | 5 | State-issued, tamper-resistant |
+| Inherence (biometric) | 5 | Cannot be shared (with proper liveness) |
+
+### 4.3 Combined Flow Score
+
+For a multi-step auth flow, the combined assurance level considers:
+
+1. **Number of distinct factor types** used (multi-factor bonus)
+2. **Highest individual shield** in the flow
+3. **Weakest link penalty** — if any step is shields ≤ 1, warn
+
+```
+flowScore = max(step_scores) + factorDiversityBonus
+factorDiversityBonus:
+  1 factor type  → +0
+  2 factor types → +0 (already counted in max)
+  3 factor types → +1 (knowledge + possession + inherence)
+
+flowAssurance:
+  1-2 shields → BASIC (AAL1)
+  3   shields → STANDARD (AAL2)
+  4   shields → ADVANCED (AAL2+)
+  5   shields → MAXIMUM (AAL3)
+```
+
+## 5. User-Facing Shield System
+
+### 5.1 Shield Labels
+
+| Shields | EN Label | TR Label | Color | Description (EN) | Description (TR) |
+|---------|----------|----------|-------|-------------------|-------------------|
+| ⬣ (1) | Basic | Temel | Gray #9CA3AF | Minimal protection. Easy to bypass. | Asgari koruma. Kolay atlatılabilir. |
+| ⬣⬣ (2) | Standard | Standart | Blue #3B82F6 | Protects against casual unauthorized access. | Sıradan yetkisiz erişime karşı korur. |
+| ⬣⬣⬣ (3) | Strong | Güçlü | Green #10B981 | Resistant to most common attacks. | Yaygın saldırıların çoğuna dayanıklı. |
+| ⬣⬣⬣⬣ (4) | Very Strong | Çok Güçlü | Purple #8B5CF6 | Cryptographic or biometric verification. | Kriptografik veya biyometrik doğrulama. |
+| ⬣⬣⬣⬣⬣ (5) | Maximum | Maksimum | Gold #F59E0B | Highest assurance. Phishing-proof. | En yüksek güvence. Oltalamaya karşı korumalı. |
+
+### 5.2 Method Cards (User Sees)
+
+Each method in enrollment/picker shows:
+
+```
+┌─────────────────────────────────────────────┐
+│  🛡️🛡️🛡️🛡️ Very Strong                      │
+│                                             │
+│  👆 Fingerprint                              │
+│  Unlock with your device's fingerprint      │
+│  sensor. Cryptographically secure.          │
+│                                             │
+│  Factor: Something you are + have           │
+│  Phishing-proof: Yes ✓                      │
+└─────────────────────────────────────────────┘
+```
+
+### 5.3 Flow Builder (Admin Sees)
+
+```
+┌─ Auth Flow: Banking KYC ─────────────────────┐
+│                                               │
+│  Step 1: Password          ⬣⬣ Standard       │
+│  Step 2: Face (active)     ⬣⬣⬣⬣ Very Strong  │
+│  Step 3: NFC TC Kimlik     ⬣⬣⬣⬣⬣ Maximum     │
+│                                               │
+│  ─────────────────────────────────────────    │
+│  Flow Assurance: ⬣⬣⬣⬣⬣ Maximum (AAL3)       │
+│  Factor Types: Knowledge + Inherence + Poss.  │
+│  Compliance: PSD2 ✓  KVKK ✓  eIDAS High ✓   │
+│                                               │
+│  ⚠️ Step 1 (Password) is the weakest link.    │
+│     Consider upgrading to Passphrase or TOTP. │
+└───────────────────────────────────────────────┘
+```
+
+## 6. Data Model
+
+### 6.1 New Table: `auth_method_variants`
 
 ```sql
-ALTER TABLE auth_methods ADD COLUMN security_score SMALLINT NOT NULL DEFAULT 1;
-ALTER TABLE auth_methods ADD COLUMN security_tier VARCHAR(20) NOT NULL DEFAULT 'BASIC';
-ALTER TABLE auth_methods ADD COLUMN nist_aal VARCHAR(10) NOT NULL DEFAULT 'AAL1';
-ALTER TABLE auth_methods ADD COLUMN eidas_loa VARCHAR(20) NOT NULL DEFAULT 'LOW';
-ALTER TABLE auth_methods ADD COLUMN factor_type VARCHAR(20) NOT NULL DEFAULT 'KNOWLEDGE';
-ALTER TABLE auth_methods ADD COLUMN phishing_resistant BOOLEAN NOT NULL DEFAULT FALSE;
-ALTER TABLE auth_methods ADD COLUMN cost_per_use DECIMAL(10,4) NOT NULL DEFAULT 0.0000;
-ALTER TABLE auth_methods ADD COLUMN requires_hardware BOOLEAN NOT NULL DEFAULT FALSE;
+-- V32: Auth method security variants
+CREATE TABLE auth_method_variants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    method_type VARCHAR(30) NOT NULL REFERENCES auth_methods(method_type),
+    variant_code VARCHAR(50) NOT NULL UNIQUE,
+    variant_name VARCHAR(100) NOT NULL,
+    base_security_score SMALLINT NOT NULL CHECK (base_security_score BETWEEN 1 AND 6),
+    max_security_score SMALLINT NOT NULL CHECK (max_security_score BETWEEN 1 AND 5),
+    factor_type VARCHAR(20) NOT NULL CHECK (factor_type IN ('KNOWLEDGE','POSSESSION_WEAK','POSSESSION_CRYPTO','POSSESSION_GOVERNMENT','INHERENCE')),
+    nist_aal VARCHAR(10) NOT NULL DEFAULT 'AAL1',
+    eidas_loa VARCHAR(20) NOT NULL DEFAULT 'LOW',
+    phishing_resistant BOOLEAN NOT NULL DEFAULT FALSE,
+    replay_resistant BOOLEAN NOT NULL DEFAULT FALSE,
+    requires_hardware BOOLEAN NOT NULL DEFAULT FALSE,
+    cost_per_use DECIMAL(10,4) NOT NULL DEFAULT 0.0000,
+    description_en TEXT,
+    description_tr TEXT,
+    attack_vectors TEXT[],
+    is_default BOOLEAN NOT NULL DEFAULT FALSE,
+    display_order SMALLINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
 
--- Seed values
-UPDATE auth_methods SET security_score=1, security_tier='BASIC',    nist_aal='AAL1', eidas_loa='LOW',         factor_type='KNOWLEDGE',  phishing_resistant=FALSE WHERE method_type='PASSWORD';
-UPDATE auth_methods SET security_score=2, security_tier='STANDARD', nist_aal='AAL1', eidas_loa='LOW',         factor_type='POSSESSION', phishing_resistant=FALSE WHERE method_type='EMAIL_OTP';
-UPDATE auth_methods SET security_score=2, security_tier='STANDARD', nist_aal='AAL1', eidas_loa='LOW',         factor_type='POSSESSION', phishing_resistant=FALSE WHERE method_type='SMS_OTP';
-UPDATE auth_methods SET security_score=2, security_tier='STANDARD', nist_aal='AAL1', eidas_loa='LOW',         factor_type='POSSESSION', phishing_resistant=FALSE WHERE method_type='QR_CODE';
-UPDATE auth_methods SET security_score=3, security_tier='STRONG',   nist_aal='AAL2', eidas_loa='SUBSTANTIAL', factor_type='POSSESSION', phishing_resistant=FALSE WHERE method_type='TOTP';
-UPDATE auth_methods SET security_score=3, security_tier='STRONG',   nist_aal='AAL2', eidas_loa='SUBSTANTIAL', factor_type='INHERENCE',  phishing_resistant=TRUE  WHERE method_type='VOICE';
-UPDATE auth_methods SET security_score=4, security_tier='ADVANCED', nist_aal='AAL2', eidas_loa='SUBSTANTIAL', factor_type='INHERENCE',  phishing_resistant=TRUE  WHERE method_type='FACE';
-UPDATE auth_methods SET security_score=4, security_tier='ADVANCED', nist_aal='AAL2', eidas_loa='HIGH',        factor_type='INHERENCE',  phishing_resistant=TRUE  WHERE method_type='FINGERPRINT';
-UPDATE auth_methods SET security_score=5, security_tier='MAXIMUM',  nist_aal='AAL3', eidas_loa='HIGH',        factor_type='POSSESSION', phishing_resistant=TRUE, requires_hardware=TRUE WHERE method_type='HARDWARE_KEY';
-UPDATE auth_methods SET security_score=5, security_tier='MAXIMUM',  nist_aal='AAL3', eidas_loa='HIGH',        factor_type='POSSESSION', phishing_resistant=TRUE, requires_hardware=TRUE WHERE method_type='NFC_DOCUMENT';
-
--- Cost per use (approximate, for pricing engine)
-UPDATE auth_methods SET cost_per_use=0.0000 WHERE method_type IN ('PASSWORD','EMAIL_OTP','QR_CODE','TOTP','FINGERPRINT','HARDWARE_KEY','NFC_DOCUMENT');
-UPDATE auth_methods SET cost_per_use=0.0100 WHERE method_type='SMS_OTP';
-UPDATE auth_methods SET cost_per_use=0.0050 WHERE method_type='VOICE';
-UPDATE auth_methods SET cost_per_use=0.0100 WHERE method_type='FACE';
+CREATE INDEX idx_variants_method ON auth_method_variants(method_type);
 ```
 
-### 4.2 Java Entity Update
+### 6.2 New Table: `auth_method_config_params`
 
-```java
-// In AuthMethod.java
-@Column(name = "security_score")
-private Integer securityScore;
-
-@Column(name = "security_tier")
-@Enumerated(EnumType.STRING)
-private SecurityTier securityTier;
-
-@Column(name = "nist_aal")
-private String nistAal;
-
-@Column(name = "factor_type")
-@Enumerated(EnumType.STRING)
-private FactorType factorType;
-
-@Column(name = "phishing_resistant")
-private Boolean phishingResistant;
-
-@Column(name = "cost_per_use")
-private BigDecimal costPerUse;
-
-public enum SecurityTier {
-    BASIC, STANDARD, STRONG, ADVANCED, MAXIMUM
-}
-
-public enum FactorType {
-    KNOWLEDGE, POSSESSION, INHERENCE
-}
+```sql
+-- Configuration parameters that affect security score
+CREATE TABLE auth_method_config_params (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    variant_code VARCHAR(50) NOT NULL REFERENCES auth_method_variants(variant_code),
+    param_name VARCHAR(50) NOT NULL,
+    param_type VARCHAR(20) NOT NULL CHECK (param_type IN ('INTEGER','BOOLEAN','ENUM')),
+    default_value VARCHAR(100) NOT NULL,
+    score_impact JSONB NOT NULL DEFAULT '{}',
+    -- score_impact example: {"8": 0, "12": 1, "16": 2} for minLength
+    -- or {"true": 1, "false": 0} for boolean params
+    description_en TEXT,
+    description_tr TEXT,
+    UNIQUE(variant_code, param_name)
+);
 ```
 
-### 4.3 API Response Enhancement
+### 6.3 Extend `auth_flow_steps`
 
-```json
-// GET /api/v1/auth-methods
-{
-  "methods": [
-    {
-      "methodType": "FACE",
-      "name": "Face Verification",
-      "security": {
-        "score": 4,
-        "tier": "ADVANCED",
-        "shields": 4,
-        "label": "Advanced Protection",
-        "description": "Biometric face verification with liveness detection",
-        "nistAal": "AAL2",
-        "eidasLoa": "SUBSTANTIAL",
-        "factorType": "INHERENCE",
-        "phishingResistant": true
-      }
-    }
-  ]
-}
+```sql
+-- Add variant and config to each step in a flow
+ALTER TABLE auth_flow_steps ADD COLUMN variant_code VARCHAR(50)
+    REFERENCES auth_method_variants(variant_code);
+ALTER TABLE auth_flow_steps ADD COLUMN security_config JSONB DEFAULT '{}';
+ALTER TABLE auth_flow_steps ADD COLUMN computed_score SMALLINT;
 ```
 
-## 5. UI Changes
+### 6.4 Seed Data (abbreviated, full in migration)
 
-### 5.1 Enrollment Page
-- Each method card shows shield rating (1-5 filled shields)
-- Tooltip explains: "4 shields — Advanced protection using biometric verification"
-- Methods sorted by security score (highest first) or grouped by tier
+```sql
+-- PASSWORD variants
+INSERT INTO auth_method_variants (method_type, variant_code, variant_name, base_security_score, max_security_score, factor_type, nist_aal, eidas_loa, phishing_resistant, description_en, description_tr, is_default) VALUES
+('PASSWORD', 'WEAK_PASSWORD',    'Weak Password',    1, 2, 'KNOWLEDGE', 'AAL1', 'LOW', FALSE, 'No enforcement, any password accepted', 'Kural yok, her şifre kabul edilir', FALSE),
+('PASSWORD', 'BASIC_PASSWORD',   'Basic Password',   2, 3, 'KNOWLEDGE', 'AAL1', 'LOW', FALSE, '8+ characters with complexity rules', '8+ karakter, karmaşıklık kuralları', TRUE),
+('PASSWORD', 'STRONG_PASSWORD',  'Strong Password',  3, 4, 'KNOWLEDGE', 'AAL1', 'LOW', FALSE, '12+ chars, breach detection, high bcrypt cost', '12+ karakter, sızıntı kontrolü, yüksek bcrypt', FALSE),
 
-### 5.2 Auth Flow Builder (Tenant Admin)
-- Drag-and-drop methods show shield badges
-- Flow summary shows combined assurance level
-- Warning if flow is below recommended level for tenant industry:
-  - Banking/Finance: minimum 3 shields (AAL2)
-  - Healthcare: minimum 3 shields
-  - Government: minimum 4 shields (AAL3)
-  - Education: minimum 2 shields
-  - General: minimum 1 shield
-- Color coding: green (meets recommendation), yellow (below), red (critically low)
+-- NFC variants
+('NFC_DOCUMENT', 'NFC_GENERIC_NDEF',   'Generic NFC Tag',      1, 1, 'POSSESSION_WEAK',       'AAL1', 'LOW',         FALSE, 'Serial number only, no crypto', 'Sadece seri numarası, kriptografi yok', FALSE),
+('NFC_DOCUMENT', 'NFC_ISTANBULKART',   'İstanbulkart',         1, 1, 'POSSESSION_WEAK',       'AAL1', 'LOW',         FALSE, 'Transit card serial, no authentication', 'Ulaşım kartı serisi, kimlik doğrulama yok', FALSE),
+('NFC_DOCUMENT', 'NFC_STUDENT_CARD',   'Student Card',         1, 1, 'POSSESSION_WEAK',       'AAL1', 'LOW',         FALSE, 'MIFARE Classic, broken crypto', 'MIFARE Classic, kırılmış kriptografi', FALSE),
+('NFC_DOCUMENT', 'NFC_DESFIRE_EV2',    'DESFire EV2 Card',     3, 4, 'POSSESSION_CRYPTO',     'AAL2', 'SUBSTANTIAL', FALSE, 'AES-128 mutual authentication', 'AES-128 karşılıklı kimlik doğrulama', FALSE),
+('NFC_DOCUMENT', 'NFC_PASSPORT',       'Passport (ICAO)',      5, 5, 'POSSESSION_GOVERNMENT', 'AAL3', 'HIGH',        TRUE,  'ICAO 9303, BAC + Active Authentication', 'ICAO 9303, BAC + Aktif Doğrulama', FALSE),
+('NFC_DOCUMENT', 'NFC_TCKN',           'TC Kimlik Kartı',      5, 5, 'POSSESSION_GOVERNMENT', 'AAL3', 'HIGH',        TRUE,  'Turkish eID with BAC + PACE + chip authentication', 'BAC + PACE + çip doğrulamalı TC Kimlik', TRUE),
 
-### 5.3 Login Page (End User)
-- Method picker shows shield icons next to each option
-- Brief description: "⬣⬣⬣⬣ Face — Advanced biometric protection"
-- User can see why their admin chose these methods
+-- FACE variants
+('FACE', 'FACE_PHOTO',           'Photo Match',          2, 2, 'INHERENCE', 'AAL1', 'LOW',         FALSE, 'Static photo comparison only', 'Sadece fotoğraf karşılaştırma', FALSE),
+('FACE', 'FACE_PASSIVE_LIVENESS','Passive Liveness',     4, 4, 'INHERENCE', 'AAL2', 'SUBSTANTIAL', TRUE,  'Photo match + texture-based liveness', 'Fotoğraf eşleme + doku bazlı canlılık', TRUE),
+('FACE', 'FACE_ACTIVE_LIVENESS', 'Active Liveness',      5, 5, 'INHERENCE', 'AAL2', 'SUBSTANTIAL', TRUE,  'Head turn, blink, smile verification', 'Baş çevirme, göz kırpma, gülümseme', FALSE),
+('FACE', 'FACE_3D_DEPTH',        '3D Depth Verification',6, 5, 'INHERENCE', 'AAL3', 'HIGH',        TRUE,  'IR/depth camera + active liveness', 'IR/derinlik kamera + aktif canlılık', FALSE),
 
-### 5.4 Dashboard/Analytics (Tenant Admin)
-- "Auth Security Overview" widget showing distribution of methods used
-- Average assurance level across all users
-- Users with only basic protection (action item)
+-- FINGERPRINT variants
+('FINGERPRINT', 'PLATFORM_BASIC',    'Device Fingerprint',    4, 4, 'INHERENCE', 'AAL2', 'SUBSTANTIAL', TRUE, 'Phone/laptop biometric sensor', 'Telefon/laptop biyometrik sensör', TRUE),
+('FINGERPRINT', 'PLATFORM_ATTESTED', 'Attested Fingerprint',  5, 5, 'INHERENCE', 'AAL3', 'HIGH',        TRUE, 'With attestation certificate verification', 'Onay sertifikası doğrulamalı', FALSE),
 
-## 6. Pricing Integration
+-- HARDWARE_KEY variants
+('HARDWARE_KEY', 'U2F_BASIC',       'U2F Security Key',     4, 4, 'POSSESSION_CRYPTO', 'AAL2', 'SUBSTANTIAL', TRUE, 'Basic U2F dongle', 'Temel U2F anahtarı', FALSE),
+('HARDWARE_KEY', 'FIDO2_STANDARD',  'FIDO2 Security Key',   5, 5, 'POSSESSION_CRYPTO', 'AAL3', 'HIGH',        TRUE, 'FIDO2 key with PIN (e.g., YubiKey 5)', 'PIN korumalı FIDO2 anahtarı (ör. YubiKey 5)', TRUE),
+('HARDWARE_KEY', 'FIDO2_BIOMETRIC', 'Biometric FIDO2 Key',  5, 5, 'POSSESSION_CRYPTO', 'AAL3', 'HIGH',        TRUE, 'FIDO2 + on-key fingerprint (e.g., YubiKey Bio)', 'Anahtar üzerinde parmak izi (ör. YubiKey Bio)', FALSE);
 
-### 6.1 Cost Model
+-- (EMAIL_OTP, SMS_OTP, QR_CODE, TOTP, VOICE variants follow same pattern)
+```
 
-| Component | Cost Driver | Approximate Cost |
-|-----------|------------|-----------------|
-| Password hash | CPU | ~$0.0001/auth |
-| Email OTP send | SMTP | ~$0.0001/auth |
-| SMS OTP send | Twilio | ~$0.01/auth |
-| TOTP verify | CPU | ~$0.0001/auth |
-| QR session | Redis | ~$0.0001/auth |
-| Face verify | GPU/CPU + ML | ~$0.01/auth |
-| Voice verify | CPU + ML | ~$0.005/auth |
-| Fingerprint (WebAuthn) | CPU | ~$0.0001/auth |
-| Hardware Key (WebAuthn) | CPU | ~$0.0001/auth |
-| NFC Document | CPU | ~$0.0001/auth |
+## 7. Implementation Scope — What Gets Affected
 
-### 6.2 Pricing Tiers (Future)
+### 7.1 Backend (identity-core-api)
 
-| Tier | Methods | Shields | Target | Price |
-|------|---------|---------|--------|-------|
-| **Free** | Password, Email OTP | ⬣-⬣⬣ | Developers, testing | $0 |
-| **Starter** | + SMS, TOTP, QR | ⬣⬣-⬣⬣⬣ | Small business | $0.01/user/mo |
-| **Professional** | + Face, Voice | ⬣⬣⬣-⬣⬣⬣⬣ | Enterprise | $0.05/user/mo |
-| **Enterprise** | + Fingerprint, Hardware Key, NFC | ⬣⬣⬣⬣-⬣⬣⬣⬣⬣ | Government, finance | Custom |
+| File/Area | Change | Phase |
+|-----------|--------|-------|
+| `V32__auth_method_security.sql` | New migration: tables + seed data | 1 |
+| `AuthMethodVariant.java` | New JPA entity | 1 |
+| `AuthMethodConfigParam.java` | New JPA entity | 1 |
+| `SecurityScoreCalculator.java` | Score computation service | 1 |
+| `AuthMethodVariantRepository.java` | Spring Data repo | 1 |
+| `AuthFlowStep.java` | Add `variantCode`, `securityConfig`, `computedScore` | 1 |
+| `AuthMethodController.java` | Return variants + security metadata | 1 |
+| `ManageAuthFlowService.java` | Validate flow security, compute combined score | 2 |
+| `AuthFlowStepDto.java` | Include security info in DTOs | 1 |
+| `ComplianceValidator.java` | New: check flow meets industry minimums | 2 |
 
-## 7. Implementation Phases
+### 7.2 Frontend (web-app)
 
-### Phase 1: Data Model + API (Backend, ~1 session)
-1. Flyway V32 migration with security metadata
-2. Update AuthMethod entity with new fields
-3. Update API DTOs to include security info
-4. Seed data for all 10 methods
+| File/Area | Change | Phase |
+|-----------|--------|-------|
+| `ShieldRating.tsx` | New reusable component (1-5 shields with color) | 2 |
+| `MethodCard.tsx` | Add shield rating, factor type badge, description | 2 |
+| `MethodPickerStep.tsx` | Show shields next to each method in MFA picker | 2 |
+| `EnrollmentPage.tsx` | Sort by score, show variant details | 2 |
+| `AuthFlowBuilder.tsx` | Security badges per step, combined score, warnings | 3 |
+| `FlowSecuritySummary.tsx` | New: combined score, compliance check, weak link alert | 3 |
+| `SecurityOverviewWidget.tsx` | New: dashboard widget for tenant admin | 4 |
+| `en.json` / `tr.json` | i18n strings for all labels, descriptions, warnings | 2 |
 
-### Phase 2: UI — Enrollment + Method Picker (~1 session)
-1. Shield component (reusable, 1-5 shields with color)
-2. Enrollment page: show shields per method
-3. Login method picker: show shields + descriptions
-4. i18n labels (EN + TR) for all tiers and descriptions
+### 7.3 Mobile (client-apps)
 
-### Phase 3: Auth Flow Builder (~1 session)
-1. Show security badges in flow builder drag-and-drop
-2. Combined assurance level calculator
-3. Industry-specific minimum recommendations
-4. Compliance warnings (below AAL2 for banking, etc.)
+| File/Area | Change | Phase |
+|-----------|--------|-------|
+| `AuthMethodDto.kt` | Add security fields from API | 2 |
+| `MfaFlowScreen.kt` | Show shields in method picker | 2 |
+| `EnrollmentsScreen.kt` | Show shield rating per enrollment | 2 |
+| `StringResources.kt` | i18n for security labels | 2 |
+
+### 7.4 Widget (verify-app)
+
+| File/Area | Change | Phase |
+|-----------|--------|-------|
+| `MethodPickerStep.tsx` | Show shields in embedded widget picker | 2 |
+| `LoginMfaFlow.tsx` | Pass security metadata to method picker | 2 |
+
+### 7.5 Biometric Processor
+
+| File/Area | Change | Phase |
+|-----------|--------|-------|
+| No changes needed | Security classification is in identity-core-api | — |
+| Future: liveness mode parameter | Accept `livenessMode` param to adjust processing | 3 |
+
+### 7.6 Documentation
+
+| File/Area | Change | Phase |
+|-----------|--------|-------|
+| `docs.fivucsas.com` | API docs showing security metadata | 2 |
+| Widget SDK docs | Document security fields in verify result | 2 |
+| `ARCHITECTURE.md` | Update with security level architecture | 1 |
+
+### 7.7 Database
+
+| Table | Change | Phase |
+|-------|--------|-------|
+| `auth_method_variants` | NEW table | 1 |
+| `auth_method_config_params` | NEW table | 1 |
+| `auth_flow_steps` | ADD columns: variant_code, security_config, computed_score | 1 |
+| `auth_methods` | No change (variants are separate table) | — |
+
+## 8. Implementation Phases
+
+### Phase 1: Data Model + API (~1 session)
+- Flyway V32 migration
+- JPA entities for variants and config params
+- SecurityScoreCalculator service
+- API endpoints return security metadata
+- Unit tests for score computation
+
+### Phase 2: UI Shields (~1 session)
+- ShieldRating component (React + KMP)
+- Enrollment page shows shields per method
+- MFA method picker shows shields
+- Widget method picker shows shields
+- i18n (EN + TR)
+
+### Phase 3: Flow Builder Intelligence (~1 session)
+- Combined flow score calculator
+- Compliance validator (industry minimums)
+- Weak link warnings in flow builder
+- Variant selection per flow step
 
 ### Phase 4: Analytics + Pricing (~1 session)
-1. Dashboard security overview widget
-2. Tenant admin security report
-3. Cost calculation engine
-4. Pricing tier enforcement (future)
+- Security overview dashboard widget
+- Tenant security report
+- Cost calculation engine
+- Usage-based pricing foundation
 
-## 8. i18n Strings (EN + TR)
+## 9. Pricing Model
 
-```json
-{
-  "security": {
-    "shields": {
-      "1": { "label": "Basic", "labelTr": "Temel", "desc": "Protects against unauthorized access", "descTr": "Yetkisiz erişime karşı koruma" },
-      "2": { "label": "Standard", "labelTr": "Standart", "desc": "Adds a second verification step", "descTr": "İkinci bir doğrulama adımı ekler" },
-      "3": { "label": "Strong", "labelTr": "Güçlü", "desc": "Resistant to common attacks", "descTr": "Yaygın saldırılara karşı dayanıklı" },
-      "4": { "label": "Advanced", "labelTr": "İleri", "desc": "Biometric or cryptographic verification", "descTr": "Biyometrik veya kriptografik doğrulama" },
-      "5": { "label": "Maximum", "labelTr": "Maksimum", "desc": "Government-grade, phishing-proof security", "descTr": "Devlet düzeyinde, oltalamaya karşı korumalı" }
-    },
-    "factors": {
-      "KNOWLEDGE": { "label": "Something you know", "labelTr": "Bildiğiniz bir şey" },
-      "POSSESSION": { "label": "Something you have", "labelTr": "Sahip olduğunuz bir şey" },
-      "INHERENCE": { "label": "Something you are", "labelTr": "Sizin bir parçanız" }
-    },
-    "flowWarning": {
-      "belowRecommended": "This flow's security level is below the recommended minimum for {{industry}}",
-      "belowRecommendedTr": "Bu akışın güvenlik seviyesi {{industry}} için önerilen minimumun altındadır"
-    }
-  }
-}
-```
+### 9.1 Per-Authentication Cost
 
-## 9. References
+| Shield Level | Cost/Auth | Examples |
+|-------------|-----------|---------|
+| ⬣ (1) | Free | Weak password, generic NFC |
+| ⬣⬣ (2) | Free | Basic password, email OTP |
+| ⬣⬣⬣ (3) | $0.001 | TOTP, DESFire, voice basic |
+| ⬣⬣⬣⬣ (4) | $0.005 | Face active liveness, attested fingerprint |
+| ⬣⬣⬣⬣⬣ (5) | $0.01 | NFC passport/TCKN, FIDO2, face 3D |
 
-- [NIST SP 800-63B](https://pages.nist.gov/800-63-3/sp800-63b.html) — Digital Identity Guidelines: Authentication and Lifecycle Management
-- [eIDAS Regulation](https://digital-strategy.ec.europa.eu/en/policies/eidas-regulation) — EU Electronic Identification
-- [ISO/IEC 29115](https://www.iso.org/standard/45138.html) — Entity Authentication Assurance Framework
-- [FIDO Alliance](https://fidoalliance.org/) — WebAuthn/FIDO2 specifications
-- [PSD2 SCA](https://www.eba.europa.eu/regulation-and-policy/payment-services-and-electronic-money/regulatory-technical-standards-on-strong-customer-authentication-and-common-and-secure-communication) — Strong Customer Authentication requirements
+### 9.2 Tenant Pricing Tiers
+
+| Tier | Max Shield Level | Methods | Monthly |
+|------|-----------------|---------|---------|
+| Free | ⬣⬣ (2) | Password + Email OTP | $0 |
+| Starter | ⬣⬣⬣ (3) | + SMS, TOTP, QR, basic voice | $X/user |
+| Professional | ⬣⬣⬣⬣ (4) | + Face (active), fingerprint | $Y/user |
+| Enterprise | ⬣⬣⬣⬣⬣ (5) | + NFC TCKN/passport, FIDO2, 3D face | Custom |
+
+## 10. References
+
+- [NIST SP 800-63B](https://pages.nist.gov/800-63-3/sp800-63b.html) — Digital Identity Guidelines
+- [eIDAS Regulation](https://digital-strategy.ec.europa.eu/en/policies/eidas-regulation) — EU eID
+- [ISO/IEC 29115](https://www.iso.org/standard/45138.html) — Entity Authentication Assurance
+- [FIDO Alliance](https://fidoalliance.org/) — WebAuthn/FIDO2
+- [ICAO Doc 9303](https://www.icao.int/publications/pages/publication.aspx?docnum=9303) — Machine Readable Travel Documents
+- [PSD2 SCA](https://www.eba.europa.eu/regulation-and-policy/payment-services-and-electronic-money/) — Strong Customer Authentication
+- [MIFARE Classic Vulnerabilities](https://www.cs.bham.ac.uk/~garciafj/publications/Attack.MIFARE.pdf) — Darkside attack
