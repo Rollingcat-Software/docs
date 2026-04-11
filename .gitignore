@@ -1,0 +1,13 @@
+# Academic documents & presentations
+*.docx
+*.doc
+*.pptx
+*.pdf
+
+# Archive folders
+archive/
+99-archive/
+audit/
+
+# Generation scripts
+generate_*.py
