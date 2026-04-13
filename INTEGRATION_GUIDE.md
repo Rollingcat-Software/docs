@@ -1,29 +1,27 @@
-# FIVUCSAS Integration Guide
+# FIVUCSAS Developer Integration Guide
 
-> Comprehensive developer guide for integrating FIVUCSAS biometric authentication into your application.
+> Integrate biometric authentication into your application in 30 minutes.
 >
-> **Last updated**: 2026-03-28
+> **Last updated**: 2026-04-13 | **API version**: v1 | **Widget**: verify.fivucsas.com
 
 ---
 
 ## Table of Contents
 
-1. [Quick Start](#1-quick-start)
-2. [JavaScript SDK](#2-javascript-sdk)
-3. [React Integration](#3-react-integration)
-4. [Web Component](#4-web-component)
-5. [OAuth 2.0 / OIDC](#5-oauth-20--oidc)
-6. [Direct REST API](#6-direct-rest-api)
-7. [Webhook Events (postMessage)](#7-webhook-events-postmessage)
-8. [Security Best Practices](#8-security-best-practices)
+1. [Quick Start (5 minutes)](#1-quick-start-5-minutes)
+2. [Register a Client Application](#2-register-a-client-application)
+3. [OAuth 2.0 / OIDC Flow](#3-oauth-20--oidc-flow)
+4. [Auth Widget Embed](#4-auth-widget-embed)
+5. [postMessage Events Reference](#5-postmessage-events-reference)
+6. [Tenant Configuration & Auth Flows](#6-tenant-configuration--auth-flows)
+7. [Error Codes Reference](#7-error-codes-reference)
+8. [Production Checklist](#8-production-checklist)
 
 ---
 
-## 1. Quick Start
+## 1. Quick Start (5 minutes)
 
-Add FIVUCSAS authentication to any website in under 5 minutes.
-
-### Minimal HTML + JS Example
+Add FIVUCSAS biometric auth to any page with a single script tag.
 
 ```html
 <!DOCTYPE html>
@@ -34,36 +32,32 @@ Add FIVUCSAS authentication to any website in under 5 minutes.
 </head>
 <body>
   <button id="login-btn">Log In with FIVUCSAS</button>
-  <div id="result"></div>
 
-  <!-- Load the SDK (IIFE bundle, 9.5KB) -->
-  <script src="https://app.fivucsas.com/verify/sdk/fivucsas-auth.iife.js"></script>
+  <!-- 1. Load the SDK -->
+  <script src="https://verify.fivucsas.com/sdk/fivucsas-auth.iife.js"></script>
 
   <script>
-    // 1. Initialize with your client ID
+    // 2. Initialize with your client ID
     const auth = new FivucsasAuth({
-      clientId: 'your-client-id',
-      baseUrl: 'https://app.fivucsas.com/verify/',
-      apiBaseUrl: 'https://api.fivucsas.com/api/v1',
+      clientId: 'fiv_YOUR_CLIENT_ID',
       locale: 'en',
     });
 
-    // 2. Trigger verification on button click
+    // 3. Trigger verification on click
     document.getElementById('login-btn').addEventListener('click', async () => {
       try {
         const result = await auth.verify({
-          flow: 'login',
-          onStepChange: (step) => {
-            console.log(`Step: ${step.method} (${step.progress}/${step.total})`);
+          onStepChange: ({ method, progress, total }) => {
+            console.log(`Step ${progress}/${total}: ${method}`);
           },
         });
 
-        // 3. Use the result
+        // result.sessionId, result.userId, result.completedMethods
         console.log('Authenticated!', result);
-        document.getElementById('result').textContent =
-          `Session: ${result.sessionId}, Methods: ${result.completedMethods.join(', ')}`;
       } catch (err) {
-        console.error('Auth failed:', err.message);
+        if (!err.message.includes('cancelled')) {
+          console.error('Auth error:', err.message);
+        }
       }
     });
   </script>
@@ -71,324 +65,60 @@ Add FIVUCSAS authentication to any website in under 5 minutes.
 </html>
 ```
 
-**What happens:** Clicking the button opens a modal overlay containing the FIVUCSAS authentication widget (loaded in an iframe). The user completes the configured auth steps (password, face, fingerprint, etc.), and the SDK returns a `VerifyResult` with the session ID, user ID, and completed methods.
+**What happens:** Clicking the button opens a modal overlay with the FIVUCSAS verification widget (in a sandboxed iframe). The user completes the configured auth steps (password, face, fingerprint, etc.). The SDK returns a `VerifyResult` via `postMessage` when all steps pass.
 
 ---
 
-## 2. JavaScript SDK
+## 2. Register a Client Application
 
-### Installation
+All integrations require a **client ID** and **client secret**, obtained from the Developer Portal.
 
-**CDN (IIFE bundle):**
-```html
-<script src="https://app.fivucsas.com/verify/sdk/fivucsas-auth.iife.js"></script>
-```
+### Via the Developer Portal (recommended)
 
-**ESM import (12KB):**
-```js
-import { FivucsasAuth } from 'https://app.fivucsas.com/verify/sdk/fivucsas-auth.esm.js';
-```
+1. Go to **https://app.fivucsas.com/developer-portal**
+2. Sign in with your FIVUCSAS tenant account
+3. Click **Register New App**
+4. Fill in:
+   - **Application Name** — human-readable name shown on the consent screen
+   - **Redirect URIs** — comma-separated list of allowed callback URLs (exact match required)
+   - **Scopes** — `openid`, `profile`, `email`, `auth` (select what your app needs)
+5. Copy the `client_id` and `client_secret` shown **once** at creation time
 
-### `FivucsasAuth` Constructor
+> **Security:** The client secret is hashed server-side immediately after creation. Store it in an environment variable — never commit it to version control.
 
-```ts
-const auth = new FivucsasAuth(config: FivucsasConfig);
-```
+### Via REST API
 
-#### `FivucsasConfig`
+```bash
+POST https://api.fivucsas.com/api/v1/oauth2/clients
+Authorization: Bearer <your-access-token>
+Content-Type: application/json
 
-| Property     | Type                          | Required | Default | Description |
-|-------------|-------------------------------|----------|---------|-------------|
-| `clientId`  | `string`                      | Yes      | -       | Your application's client ID (registered in FIVUCSAS) |
-| `baseUrl`   | `string`                      | No       | `https://verify.fivucsas.com` | URL of the verify-app widget |
-| `apiBaseUrl`| `string`                      | No       | `https://api.fivucsas.com/api/v1` | Identity Core API base URL |
-| `locale`    | `'en' \| 'tr'`                | No       | `'en'`  | UI language (English or Turkish) |
-| `theme`     | `FivucsasTheme`               | No       | `{}`    | Visual customization |
-
-#### `FivucsasTheme`
-
-| Property       | Type                  | Description |
-|---------------|-----------------------|-------------|
-| `primaryColor` | `string`             | Primary brand color (CSS value) |
-| `borderRadius` | `string`             | Border radius for UI elements |
-| `fontFamily`   | `string`             | Font family |
-| `mode`         | `'light' \| 'dark'`  | Light or dark mode |
-
-### `auth.verify(options?)` — Start Authentication
-
-Returns a `Promise<VerifyResult>` that resolves when authentication completes.
-
-```ts
-const result = await auth.verify(options?: VerifyOptions);
-```
-
-#### `VerifyOptions`
-
-| Property       | Type                                | Description |
-|---------------|-------------------------------------|-------------|
-| `flow`        | `string`                            | Auth flow name (e.g., `'login'`, `'high-security'`) |
-| `userId`      | `string`                            | Pre-fill user ID |
-| `sessionId`   | `string`                            | Resume an existing auth session |
-| `methods`     | `string[]`                          | Restrict to specific methods (e.g., `['PASSWORD', 'FACE']`) |
-| `container`   | `string \| HTMLElement`             | CSS selector or element for inline mode (no modal) |
-| `onStepChange`| `(step: StepInfo) => void`          | Called when the user advances to a new auth step |
-| `onError`     | `(error: ErrorInfo) => void`        | Called on error |
-| `onCancel`    | `() => void`                        | Called when the user cancels |
-
-**Modal vs. Inline mode:**
-- If `container` is omitted, the widget opens as a centered modal overlay with a close button.
-- If `container` is provided, the widget is embedded inline within the specified element.
-
-#### `StepInfo`
-
-```ts
-{ method: string; progress: number; total: number }
-```
-
-#### `ErrorInfo`
-
-```ts
-{ code: string; message: string }
-```
-
-#### `VerifyResult`
-
-| Property           | Type       | Description |
-|-------------------|------------|-------------|
-| `success`         | `boolean`  | Always `true` on resolution |
-| `sessionId`       | `string`   | The completed auth session ID |
-| `userId`          | `string?`  | Authenticated user's ID (if available) |
-| `completedMethods`| `string[]` | List of completed auth methods (e.g., `['PASSWORD', 'FACE']`) |
-| `authCode`        | `string?`  | OAuth 2.0 authorization code (if OAuth flow) |
-
-### `auth.destroy()` — Cleanup
-
-Removes the iframe, overlay, and message listeners. Rejects any pending `verify()` promise.
-
-```ts
-auth.destroy();
-```
-
-### Error Handling
-
-The `verify()` promise rejects with an `Error` in these cases:
-
-| Error Message | Cause |
-|--------------|-------|
-| `FivucsasAuth: verification cancelled by user` | User clicked close or backdrop |
-| `FivucsasAuth: verification cancelled` | Widget sent cancel event |
-| `FivucsasAuth: verification already in progress` | Called `verify()` while another is active |
-| `FivucsasAuth [CODE]: message` | Server-side error |
-| `FivucsasAuth: destroyed` | `destroy()` called during verification |
-
----
-
-## 3. React Integration
-
-### Components
-
-#### `<FivucsasProvider>`
-
-Wraps your app (or part of it) to provide the SDK instance via React context.
-
-```tsx
-import { FivucsasProvider } from '@fivucsas/auth-react';
-
-function App() {
-  return (
-    <FivucsasProvider
-      clientId="your-client-id"
-      baseUrl="https://app.fivucsas.com/verify/"
-      apiBaseUrl="https://api.fivucsas.com/api/v1"
-      locale="en"
-      theme={{ mode: 'light' }}
-    >
-      <YourApp />
-    </FivucsasProvider>
-  );
+{
+  "appName": "My Integration",
+  "redirectUris": "https://myapp.com/callback,https://localhost:3000/callback",
+  "scopes": ["openid", "profile", "email"]
 }
 ```
 
-**Props:** Same as `FivucsasConfig` plus `children: ReactNode`.
-
-The provider creates a single `FivucsasAuth` instance and recreates it if config props change. It cleans up on unmount.
-
-#### `<VerifyButton>`
-
-A pre-built MUI button that triggers verification.
-
-```tsx
-import { VerifyButton } from '@fivucsas/auth-react';
-
-function LoginPage() {
-  return (
-    <VerifyButton
-      flow="login"
-      label="Log In"
-      variant="contained"
-      size="large"
-      onComplete={(result) => {
-        console.log('Authenticated:', result.sessionId);
-        // Redirect or update state
-      }}
-      onError={(error) => console.error(error)}
-      onCancel={() => console.log('Cancelled')}
-    />
-  );
+Response (secret shown **once**):
+```json
+{
+  "id": "uuid",
+  "appName": "My Integration",
+  "clientId": "fiv_7a3b9c...",
+  "clientSecret": "8f2e4a...",
+  "redirectUris": ["https://myapp.com/callback", "https://localhost:3000/callback"],
+  "scopes": ["openid", "profile", "email"],
+  "status": "ACTIVE",
+  "createdAt": "2026-04-13T10:00:00Z"
 }
-```
-
-**Props:**
-
-| Prop        | Type                              | Default            | Description |
-|------------|-----------------------------------|--------------------|-------------|
-| `flow`     | `string?`                         | -                  | Auth flow name |
-| `userId`   | `string?`                         | -                  | Pre-fill user ID |
-| `methods`  | `string[]?`                       | -                  | Restrict methods |
-| `container`| `string \| HTMLElement?`          | -                  | Inline mount target |
-| `variant`  | `'contained' \| 'outlined' \| 'text'` | `'contained'` | MUI button variant |
-| `size`     | `'small' \| 'medium' \| 'large'` | `'medium'`         | Button size |
-| `label`    | `string`                          | `'Verify Identity'`| Button text |
-| `onComplete`| `(result: VerifyResult) => void` | -                  | Success callback |
-| `onError`  | `(error: Error) => void`          | -                  | Error callback |
-| `onCancel` | `() => void`                      | -                  | Cancel callback |
-| `disabled` | `boolean`                         | `false`            | Disable button |
-
-The button shows a spinner and "Verifying..." text while authentication is in progress.
-
-### Hooks
-
-#### `useVerification()`
-
-Low-level hook for custom UI. Must be used within `<FivucsasProvider>`.
-
-```tsx
-import { useVerification } from '@fivucsas/auth-react';
-
-function CustomAuthUI() {
-  const { verify, isVerifying, result, error, reset } = useVerification();
-
-  const handleLogin = async () => {
-    try {
-      const res = await verify({ flow: 'login' });
-      console.log('Done:', res);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  return (
-    <div>
-      <button onClick={handleLogin} disabled={isVerifying}>
-        {isVerifying ? 'Verifying...' : 'Log In'}
-      </button>
-      {result && <p>Session: {result.sessionId}</p>}
-      {error && <p>Error: {error.message}</p>}
-      <button onClick={reset}>Reset</button>
-    </div>
-  );
-}
-```
-
-**Return value:**
-
-| Property      | Type                                          | Description |
-|--------------|-----------------------------------------------|-------------|
-| `verify`     | `(options?: Partial<VerifyOptions>) => Promise<VerifyResult>` | Start verification |
-| `isVerifying`| `boolean`                                     | `true` while auth is in progress |
-| `result`     | `VerifyResult \| null`                        | Last successful result |
-| `error`      | `Error \| null`                               | Last error |
-| `reset`      | `() => void`                                  | Clear result and error state |
-
-#### `useFivucsasAuth()`
-
-Access the raw `FivucsasAuth` instance from context.
-
-```tsx
-import { useFivucsasAuth } from '@fivucsas/auth-react';
-
-const auth = useFivucsasAuth(); // FivucsasAuth instance
 ```
 
 ---
 
-## 4. Web Component
+## 3. OAuth 2.0 / OIDC Flow
 
-The `<fivucsas-verify>` custom element wraps the SDK into a declarative HTML element. No framework required.
-
-### Usage
-
-```html
-<!-- Load the SDK (registers the custom element automatically) -->
-<script src="https://app.fivucsas.com/verify/sdk/fivucsas-auth.iife.js"></script>
-
-<!-- Render a "Verify with FIVUCSAS" button -->
-<fivucsas-verify
-  client-id="your-client-id"
-  flow="login"
-  locale="en"
-  base-url="https://app.fivucsas.com/verify/"
-  api-base-url="https://api.fivucsas.com/api/v1"
-  theme='{"mode":"light"}'
-></fivucsas-verify>
-```
-
-### Attributes
-
-| Attribute      | Type    | Required | Description |
-|---------------|---------|----------|-------------|
-| `client-id`   | string  | Yes      | Your client ID |
-| `flow`        | string  | No       | Auth flow name |
-| `user-id`     | string  | No       | Pre-fill user ID |
-| `locale`      | string  | No       | `'en'` or `'tr'` |
-| `base-url`    | string  | No       | Widget URL |
-| `api-base-url`| string  | No       | API base URL |
-| `theme`       | JSON    | No       | Theme object as JSON string |
-| `auto-verify` | boolean | No       | Start verification immediately on mount |
-
-### Events
-
-Listen for custom events on the element:
-
-```js
-const el = document.querySelector('fivucsas-verify');
-
-el.addEventListener('fivucsas-complete', (e) => {
-  console.log('Success:', e.detail);
-  // e.detail = { success, sessionId, userId, completedMethods, authCode }
-});
-
-el.addEventListener('fivucsas-error', (e) => {
-  console.error('Error:', e.detail);
-  // e.detail = { code, message }
-});
-
-el.addEventListener('fivucsas-cancel', () => {
-  console.log('Cancelled');
-});
-
-el.addEventListener('fivucsas-step-change', (e) => {
-  console.log('Step:', e.detail);
-  // e.detail = { method, progress, total }
-});
-```
-
-All events bubble and are composed (cross shadow DOM).
-
-### Programmatic Control
-
-```js
-const el = document.querySelector('fivucsas-verify');
-
-// Start verification programmatically
-const result = await el.startVerification();
-```
-
----
-
-## 5. OAuth 2.0 / OIDC
-
-FIVUCSAS implements the **Authorization Code Flow** per OAuth 2.0 (RFC 6749) with OpenID Connect discovery.
+FIVUCSAS implements **Authorization Code Flow** (RFC 6749) with optional PKCE (RFC 7636) and OpenID Connect Core 1.0.
 
 ### Discovery
 
@@ -396,71 +126,80 @@ FIVUCSAS implements the **Authorization Code Flow** per OAuth 2.0 (RFC 6749) wit
 GET https://api.fivucsas.com/.well-known/openid-configuration
 ```
 
-Returns:
-```json
-{
-  "issuer": "https://api.fivucsas.com",
-  "authorization_endpoint": "https://api.fivucsas.com/api/v1/oauth2/authorize",
-  "token_endpoint": "https://api.fivucsas.com/api/v1/oauth2/token",
-  "userinfo_endpoint": "https://api.fivucsas.com/api/v1/oauth2/userinfo",
-  "jwks_uri": "https://api.fivucsas.com/.well-known/jwks.json",
-  "response_types_supported": ["code"],
-  "grant_types_supported": ["authorization_code"],
-  "scopes_supported": ["openid", "profile", "email", "phone"],
-  "id_token_signing_alg_values_supported": ["HS256"],
-  "claims_supported": ["sub", "iss", "aud", "exp", "iat", "email", "email_verified", "name", "given_name", "family_name", "phone_number", "phone_number_verified", "updated_at"]
-}
-```
+Key endpoints returned:
 
-### Authorization Code Flow
+| Endpoint | URL |
+|----------|-----|
+| Authorization | `https://api.fivucsas.com/api/v1/oauth2/authorize` |
+| Token | `https://api.fivucsas.com/api/v1/oauth2/token` |
+| UserInfo | `https://api.fivucsas.com/api/v1/oauth2/userinfo` |
+| JWKS | `https://api.fivucsas.com/.well-known/jwks.json` |
 
-#### Step 1: Authorize
+### Step 1 — Authorization Request
 
-Redirect the user or call from your backend:
+Call the authorize endpoint (from your server or a redirect). Generates a session for the user to authenticate through, or returns an `authorization_code` immediately if the user already has a valid session.
 
 ```
 GET https://api.fivucsas.com/api/v1/oauth2/authorize
-  ?client_id=your-client-id
-  &redirect_uri=https://yourapp.com/callback
+  ?client_id=fiv_YOUR_CLIENT_ID
+  &redirect_uri=https://myapp.com/callback
   &response_type=code
   &scope=openid profile email
-  &state=random-csrf-token
+  &state=CSRF_RANDOM_TOKEN
+  &code_challenge=BASE64URL_SHA256_OF_VERIFIER
+  &code_challenge_method=S256
 ```
 
-**If the user is authenticated**, returns:
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `client_id` | Yes | Your registered client ID |
+| `redirect_uri` | Yes | Must exactly match one of your registered URIs |
+| `response_type` | Yes | Must be `code` |
+| `scope` | No | Space-separated. Default: `openid profile email` |
+| `state` | Recommended | Random value for CSRF protection — returned unchanged |
+| `nonce` | No | OIDC nonce for ID token replay protection |
+| `code_challenge` | No | PKCE: BASE64URL(SHA-256(code_verifier)) |
+| `code_challenge_method` | No | `S256` (recommended) or `plain`. Default: `S256` |
+
+**If user is already authenticated**, response:
 ```json
 {
-  "code": "abc123...",
-  "state": "random-csrf-token",
-  "redirect_uri": "https://yourapp.com/callback"
+  "code": "eyJhbGciOiJIUzI1NiJ9...",
+  "state": "CSRF_RANDOM_TOKEN",
+  "redirect_uri": "https://myapp.com/callback"
 }
 ```
 
-**If the user is not authenticated**, returns:
+**If user is not authenticated**, response (embed the widget to authenticate, then retry):
 ```json
 {
   "action": "authenticate",
-  "client_id": "your-client-id",
-  "client_name": "Your App",
+  "client_id": "fiv_YOUR_CLIENT_ID",
+  "client_name": "My Integration",
   "scope": "openid profile email",
-  "state": "random-csrf-token",
-  "redirect_uri": "https://yourapp.com/callback"
+  "state": "CSRF_RANDOM_TOKEN",
+  "redirect_uri": "https://myapp.com/callback"
 }
 ```
 
-At this point, embed the FIVUCSAS auth widget to authenticate the user, then retry the authorize call.
+When the user completes the widget flow, the widget sends `fivucsas:complete` via postMessage with an `authCode` field — use that as the `code` for Step 2.
 
-#### Step 2: Exchange Code for Tokens
+### Step 2 — Token Exchange
 
-```
+Exchange the authorization code for tokens. **This must be done server-side** — never expose your `client_secret` to the browser.
+
+```bash
 POST https://api.fivucsas.com/api/v1/oauth2/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code
-&code=abc123...
-&redirect_uri=https://yourapp.com/callback
-&client_id=your-client-id
-&client_secret=your-client-secret
+&code=eyJhbGciOiJIUzI1NiJ9...
+&redirect_uri=https://myapp.com/callback
+&client_id=fiv_YOUR_CLIENT_ID
+&client_secret=YOUR_CLIENT_SECRET
+&code_verifier=PKCE_VERIFIER_IF_USED
 ```
 
 Response:
@@ -474,389 +213,608 @@ Response:
 }
 ```
 
-#### Step 3: Get User Info
+> **Note:** The response includes `Cache-Control: no-store` and `Pragma: no-cache` headers per RFC 6749 §5.1.
 
-```
+### Step 3 — Get User Info
+
+```bash
 GET https://api.fivucsas.com/api/v1/oauth2/userinfo
-Authorization: Bearer <access_token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 ```
 
 Response:
 ```json
 {
-  "sub": "user-uuid",
+  "sub": "550e8400-e29b-41d4-a716-446655440000",
   "email": "user@example.com",
   "email_verified": true,
-  "name": "John Doe",
-  "given_name": "John",
+  "name": "Jane Doe",
+  "given_name": "Jane",
   "family_name": "Doe"
 }
 ```
 
-### JWKS
+### PKCE Code Generation (JavaScript)
 
-```
-GET https://api.fivucsas.com/.well-known/jwks.json
-```
+```js
+// Generate verifier + challenge (for SPAs / mobile apps without a backend)
+async function generatePkce() {
+  const verifier = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  const data = new TextEncoder().encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return { verifier, challenge };
+}
 
-Note: FIVUCSAS uses HMAC-SHA256 for token signing. The JWKS endpoint exposes key metadata but not the secret value. For token validation, use the userinfo endpoint or validate tokens server-side with your client secret.
+const { verifier, challenge } = await generatePkce();
+sessionStorage.setItem('pkce_verifier', verifier);
+// Use challenge in /authorize, verifier in /token
+```
 
 ---
 
-## 6. Direct REST API
+## 4. Auth Widget Embed
 
-For backends that need to interact with FIVUCSAS directly without the widget.
+The auth widget (`verify.fivucsas.com`) runs in a sandboxed iframe and handles camera, microphone, and WebAuthn. Biometric data never leaves the iframe — only session tokens are returned to the host page.
 
-### Authentication
+### Option A — `@fivucsas/auth-js` (Vanilla JS)
 
-#### Login
+**CDN (IIFE, zero dependencies):**
+```html
+<script src="https://verify.fivucsas.com/sdk/fivucsas-auth.iife.js"></script>
+```
+
+**ESM import:**
+```js
+import { FivucsasAuth } from 'https://verify.fivucsas.com/sdk/fivucsas-auth.esm.js';
+```
+
+**npm (if bundling):**
+```bash
+npm install @fivucsas/auth-js
+```
+
+**Usage:**
+
+```js
+const auth = new FivucsasAuth({
+  clientId: 'fiv_YOUR_CLIENT_ID',
+  // Optional:
+  baseUrl: 'https://verify.fivucsas.com',       // widget URL
+  apiBaseUrl: 'https://api.fivucsas.com/api/v1', // API URL
+  locale: 'en',                                   // 'en' | 'tr'
+  theme: { mode: 'light' },                       // 'light' | 'dark'
+});
+
+// Modal mode (default) — opens a centered overlay
+const result = await auth.verify({
+  flow: 'login',              // optional: auth flow name
+  userId: 'user@example.com', // optional: pre-fill identity
+  methods: ['PASSWORD', 'FACE'], // optional: restrict to specific methods
+  onStepChange: ({ method, progress, total }) => {
+    console.log(`${method}: step ${progress} of ${total}`);
+  },
+  onError: ({ code, message }) => {
+    console.error(`[${code}] ${message}`);
+  },
+  onCancel: () => console.log('User cancelled'),
+});
+
+// result: { success, sessionId, userId, email, completedMethods, authCode, accessToken }
+
+// Inline mode — embed within a container element
+const result = await auth.verify({
+  container: '#auth-container', // CSS selector or HTMLElement
+});
+
+// Cleanup when no longer needed
+auth.destroy();
+```
+
+**`FivucsasConfig` properties:**
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `clientId` | `string` | Yes | — | Your registered client ID |
+| `baseUrl` | `string` | No | `https://verify.fivucsas.com` | Widget origin |
+| `apiBaseUrl` | `string` | No | `https://api.fivucsas.com/api/v1` | API origin |
+| `locale` | `'en' \| 'tr'` | No | `'en'` | UI language |
+| `theme` | `FivucsasTheme` | No | `{}` | Visual customization |
+
+**`VerifyResult` fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `success` | `boolean` | Always `true` on resolution |
+| `sessionId` | `string` | Completed auth session ID |
+| `userId` | `string?` | Authenticated user's UUID |
+| `email` | `string?` | Authenticated user's email |
+| `displayName` | `string?` | User's display name |
+| `completedMethods` | `string[]` | e.g., `['PASSWORD', 'FACE']` |
+| `authCode` | `string?` | OAuth 2.0 authorization code |
+| `accessToken` | `string?` | JWT access token |
+| `refreshToken` | `string?` | JWT refresh token |
+
+### Option B — `@fivucsas/auth-react`
 
 ```bash
-POST https://api.fivucsas.com/api/v1/auth/login
-Content-Type: application/json
+npm install @fivucsas/auth-react
+```
 
-{
-  "email": "user@example.com",
-  "password": "UserPassword123"
+**Wrap your app with `<FivucsasProvider>`:**
+
+```tsx
+import { FivucsasProvider } from '@fivucsas/auth-react';
+
+function App() {
+  return (
+    <FivucsasProvider
+      clientId="fiv_YOUR_CLIENT_ID"
+      locale="en"
+      theme={{ mode: 'light' }}
+    >
+      <Router>
+        <Routes />
+      </Router>
+    </FivucsasProvider>
+  );
 }
 ```
 
-Response:
-```json
-{
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiJ9...",
-    "user": {
-      "id": "uuid",
-      "email": "user@example.com",
-      "firstName": "John",
-      "lastName": "Doe"
+**Use `<VerifyButton>` for a drop-in login button:**
+
+```tsx
+import { VerifyButton } from '@fivucsas/auth-react';
+
+function LoginPage() {
+  return (
+    <VerifyButton
+      flow="login"
+      label="Log In"
+      variant="contained"
+      size="large"
+      onComplete={(result) => {
+        // Store result.accessToken, redirect, etc.
+        console.log('Authenticated:', result.sessionId);
+        navigate('/dashboard');
+      }}
+      onError={(error) => console.error(error)}
+      onCancel={() => console.log('Cancelled')}
+    />
+  );
+}
+```
+
+**Use `useVerification()` for custom UI:**
+
+```tsx
+import { useVerification } from '@fivucsas/auth-react';
+
+function CustomLogin() {
+  const { verify, isVerifying, result, error, reset } = useVerification();
+
+  const handleLogin = async () => {
+    try {
+      const res = await verify({ flow: 'login' });
+      navigate('/dashboard', { state: { userId: res.userId } });
+    } catch (err) {
+      if (!err.message.includes('cancelled')) {
+        console.error(err);
+      }
     }
-  }
+  };
+
+  return (
+    <>
+      <button onClick={handleLogin} disabled={isVerifying}>
+        {isVerifying ? 'Verifying…' : 'Log In'}
+      </button>
+      {error && <p className="error">{error.message}</p>}
+    </>
+  );
 }
 ```
 
-Use the `accessToken` as a Bearer token for subsequent requests.
+**`useVerification()` return values:**
 
-#### Refresh Token
+| Property | Type | Description |
+|----------|------|-------------|
+| `verify` | `(options?) => Promise<VerifyResult>` | Start verification |
+| `isVerifying` | `boolean` | `true` while auth is in progress |
+| `result` | `VerifyResult \| null` | Last successful result |
+| `error` | `Error \| null` | Last error |
+| `reset` | `() => void` | Clear result and error state |
 
-```bash
-POST https://api.fivucsas.com/api/v1/auth/refresh
-Content-Type: application/json
+### Option C — `@fivucsas/auth-elements` (Web Components — coming soon)
 
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
-}
+Declarative HTML, framework-agnostic:
+
+```html
+<script src="https://verify.fivucsas.com/sdk/fivucsas-auth-elements.js"></script>
+
+<fivucsas-verify
+  client-id="fiv_YOUR_CLIENT_ID"
+  flow="login"
+  locale="en"
+  theme='{"mode":"light"}'
+></fivucsas-verify>
+
+<script>
+  document.querySelector('fivucsas-verify')
+    .addEventListener('fivucsas-complete', (e) => {
+      console.log('Done:', e.detail.sessionId);
+    });
+</script>
 ```
 
-Response:
-```json
-{
-  "data": {
-    "accessToken": "new-access-token",
-    "refreshToken": "new-refresh-token"
-  }
-}
+### Option D — Raw iframe (no SDK)
+
+Use this if you cannot load external scripts. Handle postMessage manually.
+
+```html
+<iframe
+  id="fivucsas-frame"
+  src="https://verify.fivucsas.com?client_id=fiv_YOUR_CLIENT_ID&mode=login&locale=en"
+  allow="camera 'src'; microphone 'src'; publickey-credentials-get 'src'"
+  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"
+  style="width:100%;height:500px;border:none;"
+></iframe>
+
+<script>
+  const iframe = document.getElementById('fivucsas-frame');
+
+  window.addEventListener('message', (event) => {
+    // ALWAYS validate origin
+    if (event.origin !== 'https://verify.fivucsas.com') return;
+    if (!event.data?.type?.startsWith('fivucsas:')) return;
+
+    const { type, payload } = event.data;
+
+    if (type === 'fivucsas:ready') {
+      // Send config to the widget
+      iframe.contentWindow.postMessage({
+        type: 'fivucsas:config',
+        payload: {
+          theme: 'light',
+          locale: 'en',
+          apiBaseUrl: 'https://api.fivucsas.com/api/v1',
+          allowedOrigin: window.location.origin,
+        }
+      }, 'https://verify.fivucsas.com');
+    }
+
+    if (type === 'fivucsas:complete') {
+      console.log('Session:', payload.sessionId);
+      console.log('Methods:', payload.completedMethods);
+      // payload.authCode is the OAuth 2.0 code if the flow was OAuth-linked
+    }
+
+    if (type === 'fivucsas:error') {
+      console.error(`[${payload.code}] ${payload.error}`);
+    }
+
+    if (type === 'fivucsas:resize') {
+      iframe.style.height = payload.height + 'px';
+    }
+  });
+</script>
 ```
-
-### Multi-Step Auth Sessions
-
-For flows requiring multiple authentication methods (e.g., password + face + fingerprint).
-
-#### Create Auth Session
-
-```bash
-POST https://api.fivucsas.com/api/v1/auth/sessions
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-
-{
-  "operationType": "APP_LOGIN",
-  "tenantId": "tenant-uuid"
-}
-```
-
-Response:
-```json
-{
-  "data": {
-    "id": "session-uuid",
-    "status": "PENDING",
-    "steps": [
-      { "stepNumber": 1, "methodType": "PASSWORD", "status": "PENDING" },
-      { "stepNumber": 2, "methodType": "FACE", "status": "PENDING" }
-    ],
-    "currentStep": 1,
-    "totalSteps": 2
-  }
-}
-```
-
-#### Execute Step
-
-```bash
-POST https://api.fivucsas.com/api/v1/auth/sessions/{sessionId}/steps/{stepNumber}
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-
-{
-  "data": {
-    "password": "UserPassword123"
-  }
-}
-```
-
-The `data` payload depends on the method type:
-
-| Method      | Data Fields |
-|------------|-------------|
-| `PASSWORD` | `{ "password": "..." }` |
-| `EMAIL_OTP`| `{ "code": "123456" }` |
-| `SMS_OTP`  | `{ "code": "123456" }` |
-| `TOTP`     | `{ "code": "123456" }` |
-| `FACE`     | `{ "image": "base64..." }` |
-| `VOICE`    | `{ "audio": "base64..." }` |
-| `FINGERPRINT` | `{ "credentialId": "...", "authenticatorData": "...", "clientDataJSON": "...", "signature": "..." }` |
-| `HARDWARE_KEY` | `{ "credentialId": "...", "authenticatorData": "...", "clientDataJSON": "...", "signature": "..." }` |
-| `QR_CODE`  | `{ "token": "..." }` |
-| `NFC_DOCUMENT` | `{ "cardId": "..." }` |
-
-Response on step completion:
-```json
-{
-  "data": {
-    "id": "session-uuid",
-    "status": "IN_PROGRESS",
-    "currentStep": 2,
-    "steps": [
-      { "stepNumber": 1, "methodType": "PASSWORD", "status": "COMPLETED" },
-      { "stepNumber": 2, "methodType": "FACE", "status": "PENDING" }
-    ]
-  }
-}
-```
-
-When all steps are completed, `status` becomes `"COMPLETED"`.
-
-### Common Headers
-
-All authenticated requests require:
-```
-Authorization: Bearer <accessToken>
-Content-Type: application/json
-```
-
-### Error Responses
-
-```json
-{
-  "error": "ERROR_CODE",
-  "message": "Human-readable description"
-}
-```
-
-Common error codes:
-- `401` — Invalid or expired token
-- `403` — Insufficient permissions
-- `404` — Resource not found
-- `429` — Rate limited
 
 ---
 
-## 7. Webhook Events (postMessage)
+## 5. postMessage Events Reference
 
-The verify-app iframe communicates with the parent page via `window.postMessage`. All messages follow the format:
+All messages use the format `{ type: 'fivucsas:<event>', payload: { ... } }`.
 
-```ts
-{
-  type: 'fivucsas:<event-name>',
-  payload: { ... }
-}
-```
-
-The SDK handles these automatically. If you are building a custom integration without the SDK, listen for these events:
-
-### Event Types
+### Widget → Host (outbound)
 
 #### `fivucsas:ready`
 
-Sent when the iframe has loaded and is ready to receive configuration.
+Widget iframe has loaded and is ready to receive configuration.
 
-```ts
-{ type: 'fivucsas:ready', payload: {} }
+```js
+{ type: 'fivucsas:ready', payload: { version: '1.0.0', timestamp: 1744550000000 } }
 ```
 
-**Your response:** Send a `fivucsas:config` message back to the iframe:
-
-```ts
-iframe.contentWindow.postMessage({
-  type: 'fivucsas:config',
-  payload: {
-    theme: 'light',
-    locale: 'en',
-    apiBaseUrl: 'https://api.fivucsas.com/api/v1',
-    allowedOrigin: window.location.origin,
-  }
-}, 'https://app.fivucsas.com');
-```
+**Action required:** Respond with `fivucsas:config` (see below).
 
 #### `fivucsas:step-change`
 
-Sent when the user advances to a new authentication step.
+User advanced to a new authentication step.
 
-```ts
+```js
 {
   type: 'fivucsas:step-change',
   payload: {
-    methodType: 'FACE',
-    stepIndex: 1,
-    totalSteps: 3
+    stepIndex: 1,          // 0-based index of current step
+    methodType: 'FACE',    // auth method type
+    totalSteps: 3          // total number of steps in the flow
   }
 }
 ```
 
 #### `fivucsas:complete`
 
-Sent when all authentication steps are completed.
+All authentication steps passed successfully.
 
-```ts
+```js
 {
   type: 'fivucsas:complete',
   payload: {
-    sessionId: 'uuid',
-    userId: 'uuid',
+    sessionId: '550e8400-...',
+    userId: 'a3f19c00-...',
+    email: 'user@example.com',
+    displayName: 'Jane Doe',
     completedMethods: ['PASSWORD', 'FACE'],
-    authCode: 'oauth-code-if-applicable'
+    authCode: 'eyJhbGciOi...',   // present if OAuth flow
+    accessToken: 'eyJhbGciOi...',
+    refreshToken: 'eyJhbGciOi...',
+    timestamp: 1744550000000
   }
 }
 ```
 
 #### `fivucsas:error`
 
-Sent when authentication fails.
+Authentication failed at a step.
 
-```ts
+```js
 {
   type: 'fivucsas:error',
   payload: {
-    code: 'AUTH_FAILED',
-    error: 'Face verification did not match'
+    code: 'FACE_MATCH_FAILED',
+    error: 'Face verification did not match enrolled biometric',
+    timestamp: 1744550000000
   }
 }
 ```
 
 #### `fivucsas:cancel`
 
-Sent when the user cancels authentication from within the widget.
+User cancelled from within the widget.
 
-```ts
-{ type: 'fivucsas:cancel', payload: {} }
+```js
+{ type: 'fivucsas:cancel', payload: { sessionId: '...', timestamp: 1744550000000 } }
 ```
 
 #### `fivucsas:resize`
 
-Sent when the widget content height changes (for inline mode).
+Widget content height changed (useful in inline / embedded mode).
 
-```ts
+```js
+{ type: 'fivucsas:resize', payload: { height: 520 } }
+```
+
+### Host → Widget (inbound)
+
+#### `fivucsas:config`
+
+Sent in response to `fivucsas:ready`. Configures the widget's appearance and API target.
+
+```js
+iframe.contentWindow.postMessage({
+  type: 'fivucsas:config',
+  payload: {
+    theme: 'light',           // 'light' | 'dark'
+    locale: 'en',             // 'en' | 'tr'
+    apiBaseUrl: 'https://api.fivucsas.com/api/v1',
+    allowedOrigin: 'https://myapp.com',  // your page's origin
+  }
+}, 'https://verify.fivucsas.com');
+```
+
+> **Security:** Once `allowedOrigin` is received, the widget restricts all subsequent postMessage responses to that origin only.
+
+---
+
+## 6. Tenant Configuration & Auth Flows
+
+### Auth Methods Available
+
+FIVUCSAS supports 10 authentication methods. Tenants enable the methods they want and configure multi-step flows.
+
+| Method | Enum | Description |
+|--------|------|-------------|
+| Password | `PASSWORD` | Standard username + password |
+| Email OTP | `EMAIL_OTP` | 6-digit code sent to email |
+| SMS OTP | `SMS_OTP` | 6-digit code sent to mobile (Twilio) |
+| TOTP | `TOTP` | Time-based OTP (Google Authenticator, Authy) |
+| Face | `FACE` | Face biometric (BlazeFace on-device detection + server match) |
+| Voice | `VOICE` | Voice biometric (phrase + speaker verification) |
+| Fingerprint | `FINGERPRINT` | WebAuthn platform authenticator (Touch ID, Windows Hello) |
+| Hardware Key | `HARDWARE_KEY` | WebAuthn roaming authenticator (YubiKey, etc.) |
+| QR Code | `QR_CODE` | Cross-device login via QR scan |
+| NFC Document | `NFC_DOCUMENT` | NFC smart card / ID document |
+
+### Configuring Flows
+
+Flows define which methods are required and in what order. Configure them in the **Auth Flow Builder** at `https://app.fivucsas.com/auth-flow-builder`.
+
+Example flows:
+- **Login (standard):** `PASSWORD` → `EMAIL_OTP`
+- **High security:** `PASSWORD` → `FACE` → `TOTP`
+- **Biometric-only:** `FINGERPRINT` → `FACE`
+- **Choice step:** `PASSWORD` → (user chooses `TOTP` or `EMAIL_OTP`)
+
+To use a named flow in the widget:
+```js
+auth.verify({ flow: 'high-security' });
+```
+
+If `flow` is omitted, the tenant's default flow is used.
+
+### Tenant-Level Settings
+
+Tenant administrators manage these from the **Settings** page (`/settings`):
+
+- Which auth methods are enrolled/active for users
+- Default and named auth flows
+- Session duration and token TTL
+- Allowed redirect URIs per client application
+- Whether to require biometric enrollment before first login
+
+---
+
+## 7. Error Codes Reference
+
+### OAuth 2.0 Errors (RFC 6749 §5.2)
+
+These are returned from `/oauth2/authorize` and `/oauth2/token`:
+
+| `error` | HTTP | Cause |
+|---------|------|-------|
+| `unsupported_response_type` | 400 | `response_type` is not `code` |
+| `unsupported_grant_type` | 400 | `grant_type` is not `authorization_code` |
+| `invalid_request` | 400 | Missing or malformed parameter |
+| `unauthorized_client` | 400 | `client_id` not found or not active |
+| `invalid_grant` | 400 | Authorization code invalid, expired, or already used; PKCE verifier mismatch |
+| `invalid_client` | 400 | `client_secret` incorrect |
+| `invalid_scope` | 400 | Requested scope not allowed for this client |
+
+Example:
+```json
 {
-  type: 'fivucsas:resize',
-  payload: { height: 520 }
+  "error": "invalid_grant",
+  "error_description": "Authorization code has expired or already been used",
+  "state": "your-state-value"
 }
 ```
 
-### Origin Validation
+### UserInfo Errors (RFC 6750)
 
-Always validate `event.origin` before processing messages:
+| Scenario | HTTP | Response |
+|----------|------|----------|
+| No `Authorization` header | 401 | `invalid_token` + `WWW-Authenticate` header |
+| Expired or invalid token | 401 | `invalid_token` + `WWW-Authenticate` header |
 
-```js
-window.addEventListener('message', (event) => {
-  if (event.origin !== 'https://app.fivucsas.com') return;
-  if (!event.data?.type?.startsWith('fivucsas:')) return;
+### Widget postMessage Error Codes
 
-  // Process event...
-});
-```
+These appear in `fivucsas:error` payload `.code` field:
+
+| Code | Description |
+|------|-------------|
+| `AUTH_FAILED` | Generic authentication failure |
+| `FACE_MATCH_FAILED` | Face biometric did not match enrolled face |
+| `FACE_DETECTION_FAILED` | No face detected in the captured image |
+| `VOICE_MATCH_FAILED` | Voice biometric did not match |
+| `OTP_INVALID` | OTP code was incorrect |
+| `OTP_EXPIRED` | OTP code has expired |
+| `WEBAUTHN_FAILED` | WebAuthn assertion failed (fingerprint / hardware key) |
+| `QR_EXPIRED` | QR code session timed out |
+| `SESSION_EXPIRED` | Auth session timed out |
+| `MAX_ATTEMPTS_EXCEEDED` | Too many failed attempts for this step |
+| `ENROLLMENT_REQUIRED` | User has not enrolled the required biometric |
+| `CLIENT_NOT_FOUND` | `client_id` not recognized |
+| `FLOW_NOT_FOUND` | Named flow does not exist for this tenant |
+| `UNKNOWN` | Unexpected server error |
+
+### HTTP Status Codes (REST API)
+
+| Status | Meaning |
+|--------|---------|
+| `200` | OK |
+| `201` | Created (new OAuth2 client registered) |
+| `204` | No Content (delete successful) |
+| `400` | Bad request / validation error |
+| `401` | Missing or invalid Bearer token |
+| `403` | Insufficient permissions (wrong tenant, not admin) |
+| `404` | Resource not found |
+| `409` | Conflict (e.g., duplicate redirect URI) |
+| `429` | Rate limit exceeded — back off and retry |
+| `500` | Internal server error |
 
 ---
 
-## 8. Security Best Practices
+## 8. Production Checklist
 
-### CORS Configuration
+Before going live, verify each of the following:
 
-If you host the widget on a different domain, ensure your server allows the widget origin:
+### Client Registration
 
-```
-Access-Control-Allow-Origin: https://app.fivucsas.com
-```
+- [ ] Client is registered with **production** redirect URIs only (no `localhost`)
+- [ ] Client secret is stored as an environment variable — not in source code
+- [ ] Only the minimum required scopes are requested
+- [ ] Unused client applications are deleted or deactivated
+
+### Security
+
+- [ ] `state` parameter is used in every OAuth authorize request (random, cryptographically secure)
+- [ ] `state` value is verified on callback before processing
+- [ ] PKCE (`code_challenge` / `code_verifier`) is used for SPAs and mobile apps
+- [ ] Token exchange (`/oauth2/token`) is done **server-side only** — client secret never exposed to browser
+- [ ] Access tokens are stored in memory or `httpOnly` cookies — not `localStorage`
+- [ ] Token expiration (`exp` claim) is checked before use
+- [ ] Token refresh is implemented before expiration
+
+### CORS
+
+The FIVUCSAS API (`api.fivucsas.com`) is pre-configured to allow these origins:
+- `https://app.fivucsas.com`
+- `https://verify.fivucsas.com`
+- `https://demo.fivucsas.com`
+
+To allow **your** application's origin, contact your tenant administrator or submit a CORS origin allowlist request through the Developer Portal.
 
 ### Content Security Policy (CSP)
 
-Add the widget domain to your CSP headers:
+Add to your server's `Content-Security-Policy` header:
 
 ```
 Content-Security-Policy:
-  frame-src https://app.fivucsas.com;
+  frame-src https://verify.fivucsas.com;
   connect-src https://api.fivucsas.com;
+  script-src 'self' https://verify.fivucsas.com;
 ```
 
-If using the SDK via CDN:
-```
-script-src https://app.fivucsas.com;
-```
+### Redirect URI Allowlist
 
-### Token Storage
+- [ ] All redirect URIs registered are HTTPS (no HTTP in production)
+- [ ] Redirect URIs are exact-match (no wildcards, no path prefix matching)
+- [ ] Redirect URI is validated on your callback handler before redirecting
 
-| Approach | Recommended? | Notes |
-|----------|-------------|-------|
-| `httpOnly` cookie | Best | Not accessible to JS, prevents XSS |
-| In-memory variable | Good | Lost on page refresh, safe from XSS |
-| `sessionStorage` | Acceptable | Cleared when tab closes |
-| `localStorage` | Avoid | Accessible to any JS on the page (XSS risk) |
+### Iframe / Widget
 
-### Token Validation
+- [ ] Widget origin is validated in all `window.addEventListener('message', ...)` handlers
+- [ ] Your page CSP allows `frame-src https://verify.fivucsas.com`
+- [ ] Camera / microphone permissions are granted for the iframe (`allow` attribute)
+- [ ] Inline widget containers have a defined height to avoid layout shift
 
-- Always validate tokens server-side before granting access
-- Use the `/api/v1/oauth2/userinfo` endpoint to verify token validity
-- Check `exp` (expiration) and `iss` (issuer) claims
-- Implement token refresh before expiration
+### Error Handling
 
-### Iframe Security
+- [ ] `fivucsas:error` and `fivucsas:cancel` events are handled gracefully in UI
+- [ ] `verify()` promise rejections are caught and user-friendly messages are shown
+- [ ] `429` (rate limit) responses trigger exponential backoff
+- [ ] Server-side token validation errors redirect to re-authentication, not a crash page
 
-The SDK sets these iframe attributes automatically:
-- `sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"` — restricts iframe capabilities
-- `allow="camera 'src'; microphone 'src'; publickey-credentials-get 'src'"` — grants access to biometric sensors
+### Testing
 
-### State Parameter (OAuth)
-
-Always use a cryptographically random `state` parameter in OAuth flows to prevent CSRF attacks:
-
-```js
-const state = crypto.randomUUID();
-sessionStorage.setItem('oauth_state', state);
-// Include state in authorize request, verify it in callback
-```
-
-### Rate Limiting
-
-The FIVUCSAS API enforces rate limits on all endpoints. If you receive a `429 Too Many Requests` response, implement exponential backoff before retrying.
+- [ ] Tested with all auth methods your flow requires
+- [ ] Tested on mobile (camera permission prompt, touch fingerprint)
+- [ ] Tested Escape / backdrop click cancellation (should not cause errors)
+- [ ] Tested token expiration and refresh
+- [ ] Verified Swagger docs at https://api.fivucsas.com/swagger-ui.html for latest endpoint signatures
 
 ---
 
-## Production URLs
+## Quick Reference
 
 | Resource | URL |
 |----------|-----|
-| Identity Core API | `https://api.fivucsas.com` |
-| Auth Widget | `https://app.fivucsas.com/verify/` |
-| OIDC Discovery | `https://api.fivucsas.com/.well-known/openid-configuration` |
-| JWKS | `https://api.fivucsas.com/.well-known/jwks.json` |
-| Swagger UI | `https://api.fivucsas.com/swagger-ui.html` |
+| Identity API | https://api.fivucsas.com |
+| Auth Widget | https://verify.fivucsas.com |
+| Developer Portal | https://app.fivucsas.com/developer-portal |
+| Widget Demo | https://app.fivucsas.com/widget-demo |
+| Swagger UI | https://api.fivucsas.com/swagger-ui.html |
+| OIDC Discovery | https://api.fivucsas.com/.well-known/openid-configuration |
+| JWKS | https://api.fivucsas.com/.well-known/jwks.json |
+| Auth Flow Builder | https://app.fivucsas.com/auth-flow-builder |
+| Status Page | https://status.fivucsas.com |
 
 ---
 
 ## Support
 
-- **Swagger UI**: https://api.fivucsas.com/swagger-ui.html
-- **Developer Portal**: https://app.fivucsas.com/developer-portal
-- **Widget Demo**: https://app.fivucsas.com/widget-demo
+- **Swagger UI**: Full endpoint documentation at https://api.fivucsas.com/swagger-ui.html
+- **Widget Demo**: Live integration demo at https://app.fivucsas.com/widget-demo
+- **Developer Portal**: Manage your apps at https://app.fivucsas.com/developer-portal
