@@ -1,513 +1,188 @@
-# Client-Side ML Migration Plan (Phase 4.2)
+# Client-Side ML Strategy (Pre-Filter Only)
 
-**Version:** 1.0
-**Date:** 2026-04-05
-**Status:** Design Document (Pre-Implementation)
-**Author:** Ahmet Abdullah Gultekin
-**Project:** FIVUCSAS - Face and Identity Verification Using Cloud-Based SaaS
-**Organization:** Marmara University - Computer Engineering Department
-
----
-
-## Table of Contents
-
-1. [Executive Summary](#1-executive-summary)
-2. [Current State Analysis](#2-current-state-analysis)
-3. [Architecture Overview](#3-architecture-overview)
-4. [Model Catalog](#4-model-catalog)
-5. [KMP Inference Strategy](#5-kmp-inference-strategy)
-6. [Migration Phases](#6-migration-phases)
-7. [Model Training Pipeline (Phase 4.3)](#7-model-training-pipeline-phase-43)
-8. [Performance Benchmarks](#8-performance-benchmarks)
-9. [Risk Assessment](#9-risk-assessment)
-10. [Dependencies and Prerequisites](#10-dependencies-and-prerequisites)
+**Version:** 2.0
+**Last Updated:** 2026-04-14
+**Status:** Active (rewritten from 1.0 aspirational design)
+**Project:** FIVUCSAS — Face and Identity Verification Using Cloud-Based SaaS
+**Server:** Hetzner CX43 — 8 vCPU / 16 GB RAM — **NO GPU**
 
 ---
 
-## 1. Executive Summary
+## 1. Strategic Position
 
-FIVUCSAS currently performs all biometric inference server-side via the biometric-processor (FastAPI + DeepFace + Resemblyzer). While this provides accurate results, it introduces network latency (490ms-7s per operation), requires constant connectivity, and creates a server bottleneck under load. This document defines the architecture for migrating compute-intensive ML inference to the client side using TFLite (Android), CoreML (iOS), ONNX Runtime (Desktop), and WASM (Browser), while maintaining server-side verification as a trust anchor. The migration targets sub-500ms latency for all biometric operations while preserving backward compatibility with existing API contracts.
+The server has no GPU. All heavy ML **inference for auth decisions** stays server-side (CPU-lean, pgvector-backed). The client role is **pre-filtering**: detection, quality, liveness pre-screen, crop, and voice activity detection. The goal is to reduce server load and upload bandwidth — not to move verdicts to the client.
 
----
-
-## 2. Current State Analysis
-
-### Server-Side Inference (Current)
-
-| Operation | Backend | Latency | Model |
-|-----------|---------|---------|-------|
-| Face detection | biometric-processor | 200-400ms | RetinaFace (DeepFace) |
-| Face embedding | biometric-processor | 300-600ms | ArcFace 512-dim |
-| Face verify | biometric-processor | 900-1500ms | DeepFace cosine similarity |
-| Voice embedding | biometric-processor | 490-585ms | Resemblyzer 256-dim |
-| Card detection | biometric-processor | ~7000ms | YOLOv8n ONNX (WASM) |
-| Liveness check | biometric-processor | 200-400ms | MediaPipe + heuristics |
-
-### Existing Client-Side Work
-
-- **MediaPipe FaceMesh**: Already running in browser (auth-test page) for landmark detection
-- **YOLO ONNX in WASM**: Card detection at 97.1% accuracy, but ~7s/frame (too slow)
-- **MobileFaceNet ONNX**: Pipeline exists in auth-test (`computeNeuralEmbedding()`), needs model file
-- **Feature branch**: `feature/client-side-ml` merged to master with CLIENT_SIDE_ML_REPORT.md
-
-### Problems with Server-Only Approach
-
-1. **Latency**: 490ms-7000ms per operation, unacceptable for real-time UX
-2. **Offline**: No biometric capability without network
-3. **Bandwidth**: Sending raw images/audio over the wire
-4. **Scalability**: Each concurrent user loads the GPU/CPU server
-5. **Privacy**: Raw biometric data traverses the network
+**What changed vs v1.0:** the 2026-04-05 design document claimed client-primary face verification, a 128↔512 projection matrix, and CDN-hosted model delivery. Audit on 2026-04-14 confirmed none of that was built. This version retires those ambitions explicitly.
 
 ---
 
-## 3. Architecture Overview
+## 2. Locked Decisions (2026-04-14)
 
-### Hybrid Client-Server Architecture
-
-```
-+------------------------------------------------------------------+
-|                        CLIENT DEVICE                              |
-|                                                                   |
-|  +------------------+  +------------------+  +------------------+ |
-|  |  Camera/Mic      |  |  ML Runtime      |  |  Embedding       | |
-|  |  Capture Layer   |->|  (TFLite/CoreML/ |->|  Cache           | |
-|  |                  |  |   ONNX/WASM)     |  |  (Encrypted)     | |
-|  +------------------+  +------------------+  +------------------+ |
-|           |                    |                      |           |
-|           v                    v                      v           |
-|  +------------------+  +------------------+  +------------------+ |
-|  |  Quality Gate    |  |  Local Verify    |  |  Sync Manager    | |
-|  |  (blur, light,   |  |  (fast path,     |  |  (delta sync,    | |
-|  |   pose check)    |  |   threshold)     |  |   conflict res)  | |
-|  +------------------+  +------------------+  +------------------+ |
-|                                |                      |           |
-+--------------------------------|----------------------|-----------+
-                                 |                      |
-                    +------------|----------------------|-----------+
-                    |            v                      v           |
-                    |   +------------------+  +------------------+  |
-                    |   |  Server Verify   |  |  Enrollment      |  |
-                    |   |  (trust anchor,  |  |  Store           |  |
-                    |   |   ArcFace 512d)  |  |  (pgvector)      |  |
-                    |   +------------------+  +------------------+  |
-                    |                  SERVER                        |
-                    +-----------------------------------------------+
-```
-
-### Inference Distribution Strategy
-
-| Task | Client | Server | Rationale |
-|------|--------|--------|-----------|
-| Face detection | Primary | Fallback | Real-time UX requires <50ms |
-| Face quality | Primary | None | No network needed for blur/light check |
-| Face embedding | Primary | Verification | Client for speed, server as trust anchor |
-| Face verify | Primary | Secondary | Local fast-path, server confirms critical ops |
-| Voice embedding | Primary | Verification | Speaker ID should work offline |
-| Card detection | Primary | Fallback | YOLO nano for real-time, server for accuracy |
-| Liveness | Client + Server | Final verdict | Client pre-screen, server authoritative |
-| 1:N search | None | Primary | Requires full database scan with pgvector |
-
-### Key Design Decisions
-
-| Decision | Rationale |
-|----------|-----------|
-| Client-first, server-verify | Best UX with maintained security |
-| Embeddings sent, not images | Privacy-preserving, bandwidth-efficient |
-| Model versioning via manifest | Atomic model updates without app store release |
-| Encrypted local cache | Biometric data at rest must be protected |
-| Graceful degradation | If client ML fails, fall back to server |
+| ID | Decision | Rationale |
+|---|---|---|
+| D1 | **Pre-filter only** | Client pre-screens; server is sole source of truth for embeddings and verdicts. Delivers latency/bandwidth wins without rebuilding auth. |
+| D2 | **`client_embedding` log-only** | Server accepts and persists the field for offline MobileFaceNet-vs-ArcFace divergence analysis. Never trusted for auth decisions. |
+| D3 | **Build-time model fetch (Hostinger static + SHA256 manifest)** | Deterministic deploys, no git-lfs, matches the no-dockerize-static rule. |
+| D4 | **Voice V1 now, V2 later** | V1: Silero VAD client-side, skip upload on silence. V2 (ECAPA-TDNN client embedding, remove librosa pin): deferred until V33 stable. |
 
 ---
 
-## 4. Model Catalog
+## 3. Inference Distribution — Actual State (2026-04-14)
 
-### 4.1 Face Detection — MediaPipe BlazeFace
+| Task | Client | Server | Status |
+|---|---|---|---|
+| Face detection | **Primary** (MediaPipe FaceMesh / BlazeFace fallback) | — | Live |
+| Face quality gate | **Primary** | — | Live (`QualityAssessor.ts`) |
+| Face crop 224×224 before upload | **Primary** | — | Live (`faceCropper.ts`) |
+| Face tracking (IoU) | **Primary** | — | Live (`FaceTracker.ts`) |
+| Passive liveness pre-screen | **Primary** (advisory today, gating in Phase 5) | Authoritative | Live (`PassiveLivenessDetector.ts`) |
+| Active liveness puzzle | **Primary** | **Authoritative** | Live (`BiometricPuzzle.ts`) |
+| Face embedding | — | **Only** (ArcFace 512-dim, DeepFace) | Server only |
+| Face 1:1 verify | — | **Only** (cosine in pgvector) | Server only |
+| Face 1:N search | — | **Only** | Server only |
+| Voice VAD | **Primary** (Phase 4, this plan) | — | In progress |
+| Voice embedding | — | **Only** (Resemblyzer 256-dim) | Server only, V2 may revisit |
+| Voice 1:1 verify | — | **Only** | Server only |
+| Card detection | **Primary** (YOLOv8n ONNX / WASM) | Fallback | Wired, awaiting model file (Phase 3) |
+| Card OCR + MRZ | — | **Only** | Server only |
+| Proctoring gaze / deepfake / object | — | **Only** | Server only |
 
+**No client-side verdict path exists.** The client never compares embeddings, never applies thresholds, never decides accept/reject. UI state reflects server responses.
+
+---
+
+## 4. Model Inventory
+
+### 4.1 Face Detection — MediaPipe FaceMesh / BlazeFace
+Live in browser. No action needed. Model bundled with MediaPipe runtime.
+
+### 4.2 Face Embedding — MobileFaceNet (client pre-screen, **not** for verdicts)
 | Property | Value |
-|----------|-------|
-| Format | TFLite (Android), CoreML (iOS), WASM (Browser) |
-| Size | ~1.2 MB |
-| Latency target | <30ms |
-| Input | 128x128 RGB |
-| Output | Bounding boxes + 6 keypoints |
-| Status | Already deployed in browser via MediaPipe |
-
-### 4.2 Face Embedding — MobileFaceNet
-
-| Property | Value |
-|----------|-------|
-| Format | TFLite / CoreML / ONNX |
-| Size | ~4.9 MB (INT8 quantized) |
-| Latency target | <100ms |
-| Input | 112x112 aligned face |
+|---|---|
+| Format | ONNX (WASM) |
+| Size | ~4.9 MB INT8 |
+| Input | 112×112 aligned face |
 | Output | 128-dim L2-normalized embedding |
-| Compatibility | Cosine similarity with existing 512-dim ArcFace via projection layer |
+| Role | **Sent to server as `client_embedding` for log-only observation (D2).** Never used for client-side verify. |
 
-**Projection Layer**: Server maintains a learned 128->512 projection matrix to compare client MobileFaceNet embeddings against server ArcFace embeddings. This allows gradual migration without re-enrolling all users.
+**Out of scope:** 128→512 projection matrix, client-side cosine verification, embedding cache on device.
 
-### 4.3 Voice Embedding — Silero VAD + ECAPA-TDNN Lite
-
+### 4.3 Voice VAD — Silero
 | Property | Value |
-|----------|-------|
-| Format | TFLite (Android), CoreML (iOS), ONNX (Desktop/Browser) |
-| Size | ~8.2 MB (Silero 1.8MB + ECAPA-Lite 6.4MB) |
-| Latency target | <200ms for 3-second clip |
-| Input | 16kHz mono PCM |
-| Output | 192-dim speaker embedding |
-| Compatibility | Projection to Resemblyzer 256-dim space |
+|---|---|
+| Format | ONNX (WASM) |
+| Size | ~1.8 MB |
+| Input | 16 kHz mono PCM, 512-sample frames |
+| Output | Per-frame speech probability |
+| Role | Skip upload when `speechRatio < 0.2`. Graceful fallback when model missing. |
 
-### 4.4 Card Detection — YOLOv8n Istanbul Card
-
+### 4.4 Card Detection — YOLOv8n
 | Property | Value |
-|----------|-------|
-| Format | TFLite (Android), CoreML (iOS), ONNX (Desktop/Browser) |
-| Size | ~6.2 MB (FP16) |
-| Latency target | <500ms (vs current 7000ms) |
-| Input | 640x640 RGB |
-| Output | Bounding boxes + class (TC Kimlik, Passport, Driver License) |
-| Training | Custom dataset (Phase 4.3) |
+|---|---|
+| Format | ONNX (WASM) |
+| Size | ~6.2 MB |
+| Input | 640×640 RGB (letterboxed) |
+| Output | Bounding boxes + class |
+| Role | Real-time client overlay; crop sent to server for OCR + MRZ. Server fallback on missing model. |
 
 ### 4.5 Passive Liveness — MobileNet-v3 Anti-Spoof
+Currently heuristic (texture/moire/color) in `PassiveLivenessDetector.ts`. No neural model. Phase 5 will wire it into a gating threshold or demote it — no new model purchase required.
 
-| Property | Value |
-|----------|-------|
-| Format | TFLite / CoreML / ONNX |
-| Size | ~3.1 MB |
-| Latency target | <50ms |
-| Input | 224x224 face crop |
-| Output | real/spoof probability |
-| Note | Client pre-screen only; server liveness remains authoritative |
+### 4.6 Explicitly Deferred
+- ECAPA-TDNN voice embedding (D4 V2)
+- Neural DNN liveness (no incident justifies XL effort)
+- Iris / gaze tracking (no browser API)
+- Demographics (server-only, DeepFace Python)
 
-### Model Delivery
+---
 
-```
-Model Manifest (JSON, CDN-hosted, versioned):
+## 5. Model Delivery (Phase 3 of Rollout Plan)
+
+**Hostinger static bucket** at `app.fivucsas.com/models/` serves the three `.onnx` files. Repo contains a committed `manifest.json` with SHA256 hashes; `scripts/fetch-models.mjs` runs as `prebuild` to download and verify. Fatal on hash mismatch.
+
+```json
 {
-  "version": "2026.04.1",
-  "models": {
-    "face_detect": { "url": "...", "sha256": "...", "size_bytes": 1200000 },
-    "face_embed": { "url": "...", "sha256": "...", "size_bytes": 4900000 },
-    "voice_embed": { "url": "...", "sha256": "...", "size_bytes": 8200000 },
-    "card_detect": { "url": "...", "sha256": "...", "size_bytes": 6200000 },
-    "liveness":    { "url": "...", "sha256": "...", "size_bytes": 3100000 }
-  }
-}
-
-Total download: ~23.6 MB (one-time, cached)
-```
-
----
-
-## 5. KMP Inference Strategy
-
-### expect/actual Pattern for ML Inference
-
-```
-commonMain/
-  ml/
-    InferenceEngine.kt          // expect class
-    ModelManager.kt             // expect class
-    FaceEmbedder.kt             // uses InferenceEngine
-    VoiceEmbedder.kt            // uses InferenceEngine
-    CardDetector.kt             // uses InferenceEngine
-
-androidMain/
-  ml/
-    InferenceEngine.android.kt  // actual: TensorFlow Lite
-    ModelManager.android.kt     // actual: asset extraction + file cache
-
-iosMain/
-  ml/
-    InferenceEngine.ios.kt      // actual: CoreML via cinterop
-    ModelManager.ios.kt         // actual: Bundle + MLModel cache
-
-desktopMain/
-  ml/
-    InferenceEngine.desktop.kt  // actual: ONNX Runtime (Java binding)
-    ModelManager.desktop.kt     // actual: ~/.fivucsas/models/ directory
-```
-
-### Platform-Specific Implementation
-
-```
-+---------------------+-------------------+-------------------+
-|     commonMain      |                   |                   |
-|                     |                   |                   |
-| expect class        |   androidMain     |     iosMain       |
-| InferenceEngine {   | actual class      | actual class      |
-|   fun load(model)   | InferenceEngine { | InferenceEngine { |
-|   fun run(input)    |   // TFLite       |   // CoreML       |
-|   fun close()       |   Interpreter()   |   MLModel()       |
-| }                   | }                 | }                 |
-|                     |                   |                   |
-| expect class        |   desktopMain     |     jsMain        |
-| ModelManager {      | actual class      | actual class      |
-|   fun download()    | InferenceEngine { | InferenceEngine { |
-|   fun getPath()     |   // ONNX Runtime |   // ort-web      |
-|   fun validate()    |   OrtSession()    |   InferSession()  |
-| }                   | }                 | }                 |
-+---------------------+-------------------+-------------------+
-```
-
-### Android (TensorFlow Lite)
-
-```kotlin
-actual class InferenceEngine {
-    private var interpreter: Interpreter? = null
-
-    actual fun load(modelBuffer: ByteArray) {
-        val options = Interpreter.Options().apply {
-            setNumThreads(4)
-            addDelegate(GpuDelegate())  // GPU acceleration
-        }
-        interpreter = Interpreter(ByteBuffer.wrap(modelBuffer), options)
-    }
-
-    actual fun run(input: FloatArray, outputShape: IntArray): FloatArray {
-        val output = Array(1) { FloatArray(outputShape[1]) }
-        interpreter?.run(arrayOf(input), output)
-        return output[0]
-    }
+  "base_url": "https://app.fivucsas.com/models",
+  "files": [
+    {"name": "mobilefacenet.onnx", "sha256": "<hash>", "bytes": 4915200},
+    {"name": "yolo-card-nano.onnx", "sha256": "<hash>", "bytes": 6500000},
+    {"name": "silero-vad.onnx",    "sha256": "<hash>", "bytes": 1850000}
+  ]
 }
 ```
 
-### iOS (CoreML)
-
-```kotlin
-actual class InferenceEngine {
-    private var model: MLModel? = null
-
-    actual fun load(modelBuffer: ByteArray) {
-        // Convert to .mlmodel, compile, load
-        val compiledUrl = MLModel.compileModel(at: modelUrl)
-        model = MLModel(contentsOf: compiledUrl)
-    }
-
-    actual fun run(input: FloatArray, outputShape: IntArray): FloatArray {
-        val mlInput = MLMultiArray(shape: ..., dataType: .float32)
-        val prediction = model?.prediction(from: mlInput)
-        return prediction.featureValue.multiArrayValue.toFloatArray()
-    }
-}
-```
+`.onnx` files are git-ignored. CI runs `npm run fetch-models` before `npm run build`.
 
 ---
 
-## 6. Migration Phases
+## 6. Server Contract for Log-Only Embedding
 
-### Phase 4.2.1 — Face Detection + Quality (2 weeks)
+Web-app already posts `client_embedding` (single JSON array) and `client_embeddings` (JSON array of arrays). Server persists them into `client_embedding_observations` via FastAPI `BackgroundTasks`:
 
-| Task | Effort | Details |
-|------|--------|---------|
-| MediaPipe BlazeFace on all KMP platforms | 3 days | Already works in browser; add Android/iOS/Desktop |
-| Quality gate (blur, brightness, pose) | 2 days | Port from biometric-processor heuristics |
-| Camera capture abstraction | 2 days | expect/actual for CameraX, AVFoundation, OpenCV |
-| Integration tests | 1 day | Compare quality scores: client vs server |
-| Backward compat: server fallback | 2 days | If client detection fails, fall back to /detect endpoint |
-
-**Exit criteria**: Face detection <30ms on Pixel 6, iPhone 13, MacBook M1.
-
-### Phase 4.2.2 — Face Embedding + Local Verify (3 weeks)
-
-| Task | Effort | Details |
-|------|--------|---------|
-| MobileFaceNet model conversion | 2 days | PyTorch -> TFLite + CoreML + ONNX |
-| 128->512 projection matrix training | 3 days | Train on existing face_embeddings table |
-| Client-side face verification | 3 days | Cosine similarity with local embedding cache |
-| Embedding sync manager | 3 days | Delta sync enrolled embeddings to device |
-| Encrypted embedding store | 2 days | Android Keystore / iOS Keychain encryption |
-| Server verification handshake | 2 days | Client embed + server re-verify for critical ops |
-
-**Exit criteria**: Face verify <150ms locally, <1% FAR deviation from server ArcFace.
-
-### Phase 4.2.3 — Voice Embedding (2 weeks)
-
-| Task | Effort | Details |
-|------|--------|---------|
-| Silero VAD integration | 2 days | Voice activity detection before embedding |
-| ECAPA-TDNN Lite conversion | 2 days | PyTorch -> platform models |
-| 192->256 projection layer | 2 days | Map to Resemblyzer embedding space |
-| Client-side voice verify | 2 days | Local speaker verification |
-| Audio preprocessing pipeline | 2 days | Noise reduction, normalization (port from Python) |
-
-**Exit criteria**: Voice verify <250ms on-device, EER within 2% of server Resemblyzer.
-
-### Phase 4.2.4 — Card Detection YOLO Nano (2 weeks)
-
-| Task | Effort | Details |
-|------|--------|---------|
-| YOLOv8n model optimization | 3 days | FP16 quantization, NMS tuning |
-| TFLite/CoreML/ONNX conversion | 2 days | Export from Ultralytics |
-| Real-time camera overlay | 3 days | Bounding box + guidance arrows |
-| OCR handoff pipeline | 2 days | Crop detected card, send to Tesseract endpoint |
-
-**Exit criteria**: Card detection <500ms (vs current 7000ms), mAP@0.5 > 0.90.
-
-### Phase 4.2.5 — Integration + Model Delivery (1 week)
-
-| Task | Effort | Details |
-|------|--------|---------|
-| Model manifest + CDN hosting | 2 days | Version-pinned model URLs with SHA256 |
-| Background model download | 1 day | Download models on first launch, not blocking |
-| A/B testing framework | 1 day | Gradual rollout: 10% -> 50% -> 100% client-side |
-| Monitoring: client vs server accuracy | 1 day | Log both, compare drift |
-
-### Total Effort: ~10 weeks
-
+```sql
+client_embedding_observations (
+  observation_id UUID PK, user_id, tenant_id, session_id,
+  modality ('face'|'card'), flow ('enroll'|'verify'),
+  client_embedding vector(128), client_model_version,
+  server_embedding_ref UUID NULL, cosine_similarity FLOAT8 NULL,
+  device_platform, user_agent, created_at
+)
 ```
-Week 1-2:   Phase 4.2.1 (Face Detection + Quality)
-Week 3-5:   Phase 4.2.2 (Face Embedding + Local Verify)
-Week 6-7:   Phase 4.2.3 (Voice Embedding)
-Week 8-9:   Phase 4.2.4 (Card Detection YOLO)
-Week 10:    Phase 4.2.5 (Integration + Delivery)
-```
+
+Failure to record must **not** break the primary flow. Cosine similarity is computed offline, not at request time.
 
 ---
 
-## 7. Model Training Pipeline (Phase 4.3)
+## 7. Rollout Plan (Active)
 
-### Istanbul Card YOLO Training
+Tracked in `/home/deploy/.claude/plans/resilient-finding-thunder.md`.
 
-**Objective**: Train a custom YOLOv8n model for Turkish identity document detection.
-
-#### Dataset Requirements
-
-| Document Type | Training Images | Validation | Source |
-|--------------|----------------|------------|--------|
-| TC Kimlik (new) | 800 | 200 | Synthetic + real (redacted) |
-| TC Kimlik (old) | 400 | 100 | Synthetic |
-| Passport (TR) | 400 | 100 | Synthetic |
-| Driver License (TR) | 400 | 100 | Synthetic |
-| Negative (no card) | 500 | 125 | Random backgrounds |
-| **Total** | **2,500** | **625** |
-
-#### Synthetic Data Generation Pipeline
-
-```
-+------------------+     +------------------+     +------------------+
-|  Template Cards  | --> |  Augmentation    | --> |  Scene           |
-|  (redacted real  |     |  (rotation,      |     |  Composition     |
-|   specimens)     |     |   blur, noise,   |     |  (hand holding,  |
-|                  |     |   lighting)      |     |   desk, scanner) |
-+------------------+     +------------------+     +------------------+
-                                                          |
-                                                          v
-                                                  +------------------+
-                                                  |  YOLO Format     |
-                                                  |  Annotation      |
-                                                  |  (auto-labeled)  |
-                                                  +------------------+
-```
-
-#### Training Configuration
-
-```yaml
-# yolov8n-card.yaml
-model: yolov8n.pt          # Pretrained COCO nano
-data: istanbul-card.yaml
-epochs: 100
-imgsz: 640
-batch: 16
-device: 0                  # GTX 1650 (4GB VRAM)
-optimizer: AdamW
-lr0: 0.001
-lrf: 0.01
-augment: true
-mosaic: 1.0
-mixup: 0.1
-```
-
-#### Training Infrastructure
-
-- **Local**: GTX 1650 (4GB VRAM) via WSL2 — sufficient for YOLOv8n
-- **Estimated training time**: ~4 hours for 100 epochs on 2,500 images
-- **Export**: `yolo export model=best.pt format=tflite` (+ coreml, onnx)
-- **Validation target**: mAP@0.5 > 0.92, mAP@0.5:0.95 > 0.75
+| Phase | Work | Status |
+|---|---|---|
+| 1 | Rewrite this doc + memory files | Done (this commit) |
+| 2 | Alembic V4 `client_embedding_observations` + route wiring | In progress |
+| 3 | Hostinger bucket + `fetch-models.mjs` + manifest + CI prebuild | Awaiting model hashes (user action) |
+| 4 | Client-side Silero VAD (`VoiceVAD.ts`) + upload gate | In progress |
+| 5 | Wire `PassiveLivenessDetector` into capture gate **or** demote | Pending |
 
 ---
 
-## 8. Performance Benchmarks
+## 8. Explicitly Out of Scope
 
-### Target Latencies (P95)
-
-| Operation | Server (Current) | Client (Target) | Improvement |
-|-----------|-----------------|------------------|-------------|
-| Face detection | 200-400ms | <30ms | 10x |
-| Face quality check | 100-200ms | <20ms | 8x |
-| Face embedding | 300-600ms | <100ms | 5x |
-| Face verification | 900-1500ms | <150ms | 8x |
-| Voice embedding | 490-585ms | <200ms | 3x |
-| Card detection | ~7000ms | <500ms | 14x |
-| Liveness pre-screen | 200-400ms | <50ms | 6x |
-
-### Model Size Budget
-
-| Model | Raw Size | Quantized | Platform |
-|-------|----------|-----------|----------|
-| BlazeFace | 1.5 MB | 1.2 MB (INT8) | All |
-| MobileFaceNet | 8.4 MB | 4.9 MB (INT8) | All |
-| Silero VAD | 1.8 MB | 1.8 MB | All |
-| ECAPA-TDNN Lite | 12 MB | 6.4 MB (FP16) | All |
-| YOLOv8n Card | 12 MB | 6.2 MB (FP16) | All |
-| Liveness MobileNet | 5.4 MB | 3.1 MB (INT8) | All |
-| **Total** | **41.1 MB** | **23.6 MB** | |
-
-### Device Compatibility Matrix
-
-| Device Tier | Example | GPU Delegate | Expected FPS (face) |
-|-------------|---------|-------------|---------------------|
-| High-end | Pixel 8, iPhone 15 | Yes (NNAPI/Metal) | 30+ |
-| Mid-range | Pixel 6, iPhone 13 | Yes | 25-30 |
-| Low-end | Galaxy A14, iPhone SE | CPU only | 15-20 |
-| Desktop | MacBook M1 | ONNX + Metal | 30+ |
-| Browser | Chrome 120+ | WebGL/WASM | 10-20 |
+- 128↔512 projection matrix (retired)
+- Client-primary face verify (retired)
+- Client-side 1:N search
+- Encrypted on-device embedding cache
+- ECAPA-TDNN client voice embedding (deferred per D4)
+- Neural DNN liveness
+- Voice STT challenge (separate `VOICE_STT_PLAN.md`)
+- Server face-detection refactor to MediaPipe Tasks (reversed — strategy is client-first pre-filter, not server rewrite)
+- KMP client-apps ML (this document now scopes to web-app only; mobile has its own track)
 
 ---
 
-## 9. Risk Assessment
+## 9. Risk & Mitigation
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| MobileFaceNet accuracy gap vs ArcFace | Medium | High | Projection matrix + threshold tuning; keep server as trust anchor |
-| Model size bloats app (>50MB) | Low | Medium | Lazy loading, on-demand download, INT8 quantization |
-| iOS CoreML conversion failures | Medium | Medium | Use coremltools with fallback to ONNX Runtime for iOS |
-| Client-side liveness spoofing | High | Critical | Client liveness is pre-screen only; server remains authoritative |
-| YOLO training data insufficiency | Medium | Medium | Synthetic augmentation pipeline; start with server fallback |
-| Cross-platform embedding drift | Medium | High | Weekly projection matrix recalibration; monitoring dashboard |
-| GPU delegate unavailable on low-end | Low | Low | Graceful fallback to CPU with larger latency budget |
-| Model IP theft via APK extraction | Medium | Medium | Encrypt model files, obfuscate weights, use on-demand download |
+| Risk | Mitigation |
+|---|---|
+| Model file missing in production | Build-time fetch with SHA256; fatal on mismatch. Graceful client fallback (server handles) during transition. |
+| Log-only insert fails and breaks enrollment | `try/except` with background task; never raise. Telemetry is best-effort. |
+| Tampered `client_embedding` from malicious client | Field is never trusted. Offline analysis can flag divergence but cannot affect auth. |
+| VAD false-negatives block legitimate users | Threshold conservative (0.2). VAD-unavailable path always allows upload. User error message is retry-friendly. |
+| Doc drift recurs | Single source of truth: this file. Memory files reference it; no parallel "future design" doc. |
 
 ---
 
-## 10. Dependencies and Prerequisites
+## 10. Verification
 
-### Technical Prerequisites
+Each phase has an acceptance check in the rollout plan. Summary:
 
-| Prerequisite | Status | Blocking Phase |
-|-------------|--------|----------------|
-| MediaPipe KMP wrapper | Exists (browser only) | 4.2.1 |
-| TFLite Gradle dependency | Not added | 4.2.1 |
-| CoreML cinterop for KMP | Not built | 4.2.1 |
-| ONNX Runtime Java binding | Available (Maven) | 4.2.1 |
-| MobileFaceNet pretrained weights | Available (InsightFace) | 4.2.2 |
-| Face alignment pipeline (client-side) | Not built | 4.2.2 |
-| ECAPA-TDNN Lite weights | Available (SpeechBrain) | 4.2.3 |
-| Istanbul card training dataset | Not collected | 4.2.4 |
-| CDN for model hosting | Not provisioned | 4.2.5 |
-
-### Team Skills Required
-
-- ML model conversion (PyTorch -> TFLite/CoreML/ONNX)
-- KMP platform-specific development (expect/actual)
-- YOLO training and hyperparameter tuning
-- Performance profiling on mobile devices
-
-### Hardware Required
-
-- Android test devices (low-end + high-end)
-- iOS test device (iPhone 13+ for CoreML Neural Engine)
-- GTX 1650 for YOLO training (already available via WSL2)
+- Phase 1: `grep -n "Primary" docs/plans/CLIENT_SIDE_ML_PLAN.md` returns zero hits in the face-verify row.
+- Phase 2: `alembic upgrade head` clean; round-trip POST with `client_embedding` lands a row; missing field still works.
+- Phase 3: fresh clone → `npm install && npm run build` produces `dist/models/*.onnx` with correct hashes.
+- Phase 4: silent recording blocked; speech recording passes; missing VAD model fails open.
+- Phase 5: every client ML class has at least one real consumer.
 
 ---
 
-*This document should be reviewed and updated after each migration phase is completed. Performance benchmarks should be re-measured on actual devices, not emulators.*
+*Previous v1.0 (2026-04-05) promised client-primary verdicts, projection matrix, CDN, 10-week KMP rollout. That design is retired in favor of the pre-filter-only strategy above. See `/home/deploy/.claude/plans/resilient-finding-thunder.md` for execution detail.*
