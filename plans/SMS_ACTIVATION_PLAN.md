@@ -518,3 +518,30 @@ rate limiting or fraud detection becomes necessary.
 # Logs
 docker logs identity-core-api 2>&1 | grep -i sms
 ```
+
+---
+
+## Appendix: SMS Sender ID Branding (Turkey, +90)
+
+**Status (2026-04-15)**: Twilio Verify SMS messages to Turkish numbers currently show **"TWVerify"** as the sender, not "FIVUCSAS". This is NOT a bug and cannot be fixed in code.
+
+**Why**: "TWVerify" is Twilio's default shared alphanumeric sender for Verify routes in countries where no custom sender has been registered on the account. None of the following affect it:
+- Verify Service "Friendly Name" (internal label only, never shown to end users)
+- "Branded Sender ID" (a separate product — Branded Communications / RCS, not SMS)
+- Java SDK or REST API parameters (`.setFriendlyName`, `.setLocale`, etc.)
+
+**What CAN change it**: Per Twilio Verify documentation, the SMS From field is controlled by (in priority order):
+1. An **Alternate Sender** configured per country under *Verify → Service → Channel Configuration → SMS → Alternate Senders*, or
+2. A Messaging Service SID passed via `.setMessagingServiceSid(...)` whose pool contains a registered alpha sender for TR, or
+3. Twilio's default shared alpha ("TWVerify") — current state.
+
+**To set "FIVUCSAS" as the Turkish sender** (owner: Ahmet):
+1. Register "FIVUCSAS" with the Turkish regulator (BTK / İYS — İleti Yönetim Sistemi) as a brand-origin sender ID.
+2. Open a Twilio Support ticket titled "Register alphanumeric Sender ID 'FIVUCSAS' for Turkey (+90) on Verify Service SID VAxxxx". Attach:
+   - Turkish company registration proof
+   - BTK/İYS registration evidence
+3. Approval: 1–4 weeks.
+4. Once approved, in Twilio Console: **Verify → Services → (service) → Channel Configuration → SMS → Alternate Senders** → add `FIVUCSAS` under country `TR`.
+5. No code change required — existing `Verification.creator(...).setLocale("tr").create()` will pick up the alternate sender automatically.
+
+**Code already in place**: `TwilioVerifySmsService.sendOtp` calls `.setLocale("tr")` so the message body is Turkish regardless of sender branding.
