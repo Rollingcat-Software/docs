@@ -1,27 +1,15 @@
-# FIVUCSAS - Complete PlantUML Diagrams Collection
+# FIVUCSAS - Fixed PlantUML Diagrams
 
-**Document Version:** 2.0
+**Purpose:** Fixed versions of diagrams that failed to generate due to C4-PlantUML dependencies or syntax issues
+
 **Date:** November 4, 2025
-**Purpose:** Production-ready diagrams for documentation and architecture review
 
 ---
 
-## Table of Contents
-
-1. [Entity-Relationship Diagrams](#1-entity-relationship-diagrams)
-2. [Class Diagrams](#2-class-diagrams)
-3. [Sequence Diagrams](#3-sequence-diagrams)
-4. [State Machine Diagrams](#4-state-machine-diagrams)
-5. [Activity Diagrams](#5-activity-diagrams)
-
----
-
-## 1. Entity-Relationship Diagrams
-
-### 1.1 Complete Database ER Diagram
+## 1. Complete Database ER Diagram (Fixed)
 
 ```plantuml
-@startuml fivucsas_er_diagram
+@startuml fivucsas_er_diagram_fixed
 
 skinparam linetype ortho
 skinparam packageStyle rectangle
@@ -196,1036 +184,370 @@ biometric_data ||--o{ verification_logs : used_in
 @enduml
 ```
 
-### 1.2 Core Business Entities ER Diagram (Simplified)
+---
+
+## 2. System-Wide Components (Fixed - No C4)
 
 ```plantuml
-@startuml core_entities_er
+@startuml system_components_fixed
 
-entity "Tenant" as tenant {
-    * id : UUID <<PK>>
-    --
-    * name : VARCHAR
-    * slug : VARCHAR
-    subscription_plan : VARCHAR
-    max_users : INTEGER
-    is_active : BOOLEAN
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+package "API Gateway Layer" {
+    [NGINX Reverse Proxy] as nginx
+    [Rate Limiter] as rate_limiter
+    [Auth Middleware] as auth_middleware
 }
 
-entity "User" as user {
-    * id : UUID <<PK>>
-    --
-    * email : VARCHAR
-    * password_hash : VARCHAR
-    * first_name : VARCHAR
-    * last_name : VARCHAR
-    * status : VARCHAR
-    is_biometric_enrolled : BOOLEAN
-    verification_count : INTEGER
+package "Identity Core API" {
+    component "Presentation Layer" {
+        [Auth Controller] as auth_ctrl
+        [User Controller] as user_ctrl
+        [Biometric Controller] as bio_ctrl
+    }
+
+    component "Application Layer" {
+        [Auth Service] as auth_svc
+        [User Service] as user_svc
+        [Biometric Service] as bio_svc
+    }
+
+    component "Domain Layer" {
+        [User Entity] as user_entity
+        [Biometric Entity] as bio_entity
+        [Repository Interfaces] as repo_interfaces
+    }
+
+    component "Infrastructure Layer" {
+        [JPA Repositories] as jpa_repo
+        [JWT Service] as jwt_svc
+        [Password Encoder] as pwd_encoder
+        [HTTP Client] as http_client
+    }
 }
 
-entity "Role" as role {
-    * id : UUID <<PK>>
-    --
-    * name : VARCHAR
-    display_name : VARCHAR
-    is_system_role : BOOLEAN
+package "Biometric Processor (Python)" {
+    [Face API Endpoints] as face_api
+    [Liveness API Endpoints] as liveness_api
+
+    [Face Recognition Service] as face_recognition
+    [Liveness Detection Service] as liveness_detection
+    [Quality Validator] as quality_validator
+
+    [DeepFace Engine] as deepface
+    [MediaPipe Engine] as mediapipe
 }
 
-entity "Permission" as permission {
-    * id : UUID <<PK>>
-    --
-    * code : VARCHAR
-    * resource : VARCHAR
-    * action : VARCHAR
+package "Mobile/Desktop App (KMP)" {
+    [UI Layer (Compose)] as ui_layer
+    [ViewModel Layer] as vm_layer
+    [Repository Layer] as app_repo
+    [Camera Service] as camera_svc
 }
 
-entity "BiometricData" as biometric {
-    * id : UUID <<PK>>
-    --
-    user_id : UUID <<FK>>
-    biometric_type : VARCHAR
-    embedding : vector(512)
-    quality_score : NUMERIC
-    is_active : BOOLEAN
-    is_primary : BOOLEAN
+database "PostgreSQL 16" {
+    [Users Table] as users_table
+    [Biometric Data (pgvector)] as bio_table
 }
 
-entity "VerificationLog" as verification {
-    * id : UUID <<PK>>
-    --
-    user_id : UUID <<FK>>
-    biometric_data_id : UUID <<FK>>
-    verified : BOOLEAN
-    confidence : NUMERIC
-    distance : NUMERIC
-    verified_at : TIMESTAMP
+database "Redis 7" {
+    [Session Cache] as session_cache
+    [Rate Limit Cache] as rate_cache
+    [Message Queue] as message_queue
 }
 
-' Relationships
-tenant ||--o{ user : "manages"
-user ||--o{ role : "has (M:N)"
-role ||--o{ permission : "has (M:N)"
-user ||--|{ biometric : "has"
-user ||--o{ verification : "verified"
-biometric ||--o{ verification : "used in"
+' API Gateway Flow
+nginx --> auth_middleware : forwards
+auth_middleware --> rate_limiter : validates
+rate_limiter --> auth_ctrl : allows
+rate_limiter --> user_ctrl : allows
+rate_limiter --> bio_ctrl : allows
+
+' Identity Core Internal Flow
+auth_ctrl --> auth_svc
+user_ctrl --> user_svc
+bio_ctrl --> bio_svc
+
+auth_svc --> jwt_svc : generates tokens
+auth_svc --> pwd_encoder : hashes passwords
+user_svc --> jpa_repo : CRUD operations
+bio_svc --> http_client : calls biometric API
+
+jpa_repo --> user_entity
+jpa_repo --> bio_entity
+jpa_repo ..> repo_interfaces : implements
+
+jpa_repo --> users_table : SQL
+jpa_repo --> bio_table : pgvector queries
+jwt_svc --> session_cache : stores sessions
+rate_limiter --> rate_cache : checks limits
+auth_svc --> message_queue : publishes events
+
+' Biometric Processor Flow
+http_client --> face_api : REST
+http_client --> liveness_api : REST
+
+face_api --> face_recognition
+liveness_api --> liveness_detection
+face_api --> quality_validator
+
+face_recognition --> deepface : uses models
+liveness_detection --> mediapipe : facial landmarks
+
+' Mobile App Flow
+camera_svc --> vm_layer : provides images
+vm_layer --> ui_layer : updates state
+app_repo --> nginx : HTTPS API calls
+vm_layer --> app_repo : data requests
 
 @enduml
 ```
 
 ---
 
-## 2. Class Diagrams
-
-### 2.1 Domain Model - Complete Class Diagram
+## 3. Kubernetes Deployment (Fixed - Standard Deployment Diagram)
 
 ```plantuml
-@startuml domain_model
+@startuml kubernetes_deployment_fixed
 
-skinparam classAttributeIconSize 0
-skinparam linetype ortho
+skinparam componentStyle rectangle
 
-package "Domain Layer" {
+node "Kubernetes Cluster" {
 
-    ' Aggregate Roots
-    class Tenant <<Aggregate Root>> {
-        - id: UUID
-        - name: String
-        - slug: String
-        - subscriptionPlan: SubscriptionPlan
-        - subscriptionStatus: SubscriptionStatus
-        - maxUsers: Int
-        - currentUserCount: Int
-        - isActive: Boolean
-        - settings: Map<String, Any>
-        - features: Set<String>
-        - createdAt: Instant
-        - updatedAt: Instant
-        --
-        + activate(): void
-        + suspend(): void
-        + upgradePlan(plan: SubscriptionPlan): void
-        + canAddUser(): Boolean
-        + incrementUserCount(): void
-        + decrementUserCount(): void
+    package "Ingress Layer" {
+        [NGINX Ingress Controller] as ingress
+        [Cert Manager] as cert_manager
     }
 
-    class User <<Aggregate Root>> {
-        - id: UUID
-        - email: String
-        - passwordHash: String
-        - firstName: String
-        - lastName: String
-        - phoneNumber: String?
-        - status: UserStatus
-        - isBiometricEnrolled: Boolean
-        - verificationCount: Int
-        - failedVerificationCount: Int
-        - enrolledAt: Instant?
-        - lastVerifiedAt: Instant?
-        - createdAt: Instant
-        - updatedAt: Instant
-        --
-        + enroll(biometricData: BiometricData): void
-        + verify(verificationResult: VerificationResult): void
-        + activate(): void
-        + suspend(): void
-        + lock(): void
-        + unlock(): void
-        + hasRole(roleName: String): Boolean
-        + hasPermission(permissionCode: String): Boolean
-        + changePassword(newPassword: String): void
-        + incrementVerificationCount(): void
-        + incrementFailedVerificationCount(): void
-        + resetFailedAttempts(): void
+    package "Application Namespace" {
+        node "Identity API Pod 1" {
+            [Identity API Container] as identity1
+        }
+        node "Identity API Pod 2" {
+            [Identity API Container] as identity2
+        }
+        node "Identity API Pod 3" {
+            [Identity API Container] as identity3
+        }
+
+        [Identity Service\n(ClusterIP)] as identity_svc
+        [Horizontal Pod Autoscaler] as hpa
+
+        node "Biometric Pod 1" {
+            [Biometric Processor] as bio1
+        }
+        node "Biometric Pod 2" {
+            [Biometric Processor] as bio2
+        }
+
+        [Biometric Service\n(ClusterIP)] as bio_svc
     }
 
-    ' Value Objects
-    class Email <<Value Object>> {
-        - value: String
-        --
-        + Email(value: String)
-        + validate(): Boolean
-        + toString(): String
-        + equals(other: Email): Boolean
+    package "Data Namespace" {
+        node "PostgreSQL Master" {
+            [PostgreSQL 16] as postgres_master
+            database "Persistent Volume\n(100Gi SSD)" as postgres_pv
+        }
+
+        node "PostgreSQL Replica 1" {
+            [PostgreSQL 16 Replica] as postgres_replica1
+        }
+
+        node "PostgreSQL Replica 2" {
+            [PostgreSQL 16 Replica] as postgres_replica2
+        }
+
+        [PostgreSQL Service\n(ClusterIP)] as postgres_svc
+
+        node "Redis Master" {
+            [Redis 7] as redis_master
+        }
+
+        node "Redis Replica 1" {
+            [Redis 7 Replica] as redis_replica1
+        }
+
+        [Redis Service\n(ClusterIP)] as redis_svc
     }
 
-    class PhoneNumber <<Value Object>> {
-        - value: String
-        - countryCode: String
-        --
-        + PhoneNumber(value: String)
-        + validate(): Boolean
-        + format(): String
-    }
-
-    ' Entities
-    class Role <<Entity>> {
-        - id: UUID
-        - name: String
-        - displayName: String
-        - description: String
-        - parentRole: Role?
-        - level: Int
-        - isSystemRole: Boolean
-        - permissions: Set<Permission>
-        --
-        + addPermission(permission: Permission): void
-        + removePermission(permission: Permission): void
-        + hasPermission(permissionCode: String): Boolean
-        + getAllPermissions(): Set<Permission>
-    }
-
-    class Permission <<Entity>> {
-        - id: UUID
-        - code: String
-        - resource: String
-        - action: String
-        - description: String
-        --
-        + matches(resource: String, action: String): Boolean
-    }
-
-    class BiometricData <<Entity>> {
-        - id: UUID
-        - userId: UUID
-        - biometricType: BiometricType
-        - modelName: String
-        - modelVersion: String
-        - embedding: FloatArray
-        - qualityScore: Float
-        - sharpnessScore: Float
-        - brightnessScore: Float
-        - contrastScore: Float
-        - enrolledAt: Instant
-        - isActive: Boolean
-        - isPrimary: Boolean
-        - version: Int
-        - previousVersionId: UUID?
-        --
-        + calculateDistance(otherEmbedding: FloatArray): Float
-        + verify(queryEmbedding: FloatArray, threshold: Float): Boolean
-        + archive(): void
-        + makeObsolete(): void
-        + isHighQuality(): Boolean
-    }
-
-    class VerificationLog <<Entity>> {
-        - id: UUID
-        - userId: UUID
-        - biometricDataId: UUID?
-        - verified: Boolean
-        - confidence: Float
-        - distance: Float
-        - threshold: Float
-        - modelName: String
-        - detectorBackend: String
-        - verifiedAt: Instant
-        - verificationContext: String
-        - processingTimeMs: Int
-        - failureReason: String?
-        --
-        + isSuccessful(): Boolean
-        + isFastEnough(): Boolean
-    }
-
-    class AuditLog <<Entity>> {
-        - id: UUID
-        - eventType: String
-        - eventCategory: EventCategory
-        - severity: Severity
-        - actorType: ActorType
-        - actorId: UUID?
-        - targetType: String?
-        - targetId: UUID?
-        - description: String
-        - changes: Map<String, Any>
-        - ipAddress: String
-        - occurredAt: Instant
-        --
-        + isSecurityEvent(): Boolean
-        + requiresAlert(): Boolean
-    }
-
-    class Session <<Entity>> {
-        - id: UUID
-        - userId: UUID
-        - refreshTokenHash: String
-        - accessTokenJti: String
-        - deviceFingerprint: String
-        - deviceName: String
-        - ipAddress: String
-        - createdAt: Instant
-        - lastActivityAt: Instant
-        - expiresAt: Instant
-        - isActive: Boolean
-        --
-        + isExpired(): Boolean
-        + revoke(reason: String): void
-        + updateActivity(): void
-        + isFromSameDevice(fingerprint: String): Boolean
-    }
-
-    ' Enums
-    enum UserStatus {
-        ACTIVE
-        INACTIVE
-        SUSPENDED
-        LOCKED
-        PENDING_VERIFICATION
-    }
-
-    enum BiometricType {
-        FACE
-        FINGERPRINT
-        VOICE
-        IRIS
-    }
-
-    enum SubscriptionPlan {
-        TRIAL
-        BASIC
-        PROFESSIONAL
-        ENTERPRISE
-        CUSTOM
-    }
-
-    enum SubscriptionStatus {
-        ACTIVE
-        SUSPENDED
-        CANCELLED
-        EXPIRED
-    }
-
-    enum EventCategory {
-        SECURITY
-        DATA_CHANGE
-        AUTHENTICATION
-        AUTHORIZATION
-        SYSTEM
-    }
-
-    enum Severity {
-        DEBUG
-        INFO
-        WARNING
-        ERROR
-        CRITICAL
-    }
-
-    enum ActorType {
-        USER
-        SYSTEM
-        ADMIN
-        API
+    package "Monitoring Namespace" {
+        [Prometheus] as prometheus
+        [Grafana] as grafana
+        [Jaeger] as jaeger
     }
 }
 
-' Relationships
-Tenant "1" *-- "many" User : manages
-User "1" *-- "many" BiometricData : has
-User "many" -- "many" Role : has
-Role "many" -- "many" Permission : has
-Role "1" o-- "many" Role : parent of
-User "1" *-- "many" VerificationLog : verified
-BiometricData "1" o-- "many" VerificationLog : used in
-User "1" *-- "many" Session : has
-User "1" *-- "many" AuditLog : performed
-
-User *-- Email
-User *-- PhoneNumber
-User -- UserStatus
-BiometricData -- BiometricType
-Tenant -- SubscriptionPlan
-Tenant -- SubscriptionStatus
-AuditLog -- EventCategory
-AuditLog -- Severity
-AuditLog -- ActorType
-
-@enduml
-```
-
-### 2.2 Service Layer Class Diagram
-
-```plantuml
-@startuml service_layer
-
-skinparam classAttributeIconSize 0
-
-package "Application Layer" {
-
-    ' Service Interfaces
-    interface UserService {
-        + createUser(request: CreateUserRequest): User
-        + updateUser(id: UUID, request: UpdateUserRequest): User
-        + deleteUser(id: UUID): void
-        + findById(id: UUID): User?
-        + findAll(pageable: Pageable): Page<User>
-        + search(query: String): List<User>
-    }
-
-    interface AuthService {
-        + register(request: RegisterRequest): AuthResponse
-        + login(request: LoginRequest): AuthResponse
-        + logout(userId: UUID): void
-        + refreshToken(refreshToken: String): TokenPair
-        + verifyToken(token: String): Boolean
-        + resetPassword(email: String): void
-    }
-
-    interface BiometricService {
-        + enrollFace(userId: UUID, image: ByteArray): EnrollmentResponse
-        + verifyFace(userId: UUID, image: ByteArray): VerificationResponse
-        + deleteBiometric(id: UUID): void
-        + getBiometricData(userId: UUID): List<BiometricData>
-    }
-
-    interface RoleService {
-        + createRole(request: CreateRoleRequest): Role
-        + updateRole(id: UUID, request: UpdateRoleRequest): Role
-        + deleteRole(id: UUID): void
-        + assignPermission(roleId: UUID, permissionId: UUID): void
-        + removePermission(roleId: UUID, permissionId: UUID): void
-    }
-
-    ' Service Implementations
-    class UserServiceImpl implements UserService {
-        - userRepository: UserRepository
-        - passwordEncoder: PasswordEncoder
-        - eventPublisher: EventPublisher
-        --
-        + createUser(request: CreateUserRequest): User
-        + updateUser(id: UUID, request: UpdateUserRequest): User
-        - validateUser(request: CreateUserRequest): void
-        - publishUserCreatedEvent(user: User): void
-    }
-
-    class AuthServiceImpl implements AuthService {
-        - userRepository: UserRepository
-        - passwordEncoder: PasswordEncoder
-        - jwtService: JwtService
-        - sessionRepository: SessionRepository
-        --
-        + register(request: RegisterRequest): AuthResponse
-        + login(request: LoginRequest): AuthResponse
-        - validateCredentials(email: String, password: String): User
-        - handleFailedLogin(user: User): void
-    }
-
-    class BiometricServiceImpl implements BiometricService {
-        - biometricRepository: BiometricDataRepository
-        - userRepository: UserRepository
-        - biometricClient: BiometricProcessorClient
-        --
-        + enrollFace(userId: UUID, image: ByteArray): EnrollmentResponse
-        + verifyFace(userId: UUID, image: ByteArray): VerificationResponse
-        - validateImageQuality(image: ByteArray): void
-        - extractEmbedding(image: ByteArray): FloatArray
-    }
-
-    ' External Clients
-    class BiometricProcessorClient {
-        - webClient: WebClient
-        - baseUrl: String
-        --
-        + enrollFace(image: ByteArray): EmbeddingResponse
-        + verifyFace(image: ByteArray, embedding: FloatArray): VerificationResult
-        + healthCheck(): Boolean
-    }
-
-    ' Repositories (Ports)
-    interface UserRepository {
-        + save(user: User): User
-        + findById(id: UUID): User?
-        + findByEmail(email: String): User?
-        + findAll(pageable: Pageable): Page<User>
-        + delete(id: UUID): void
-    }
-
-    interface BiometricDataRepository {
-        + save(data: BiometricData): BiometricData
-        + findByUserId(userId: UUID): List<BiometricData>
-        + findPrimaryByUserId(userId: UUID): BiometricData?
-        + searchSimilar(embedding: FloatArray, threshold: Float): List<BiometricData>
-    }
-
-    interface SessionRepository {
-        + save(session: Session): Session
-        + findByRefreshTokenHash(hash: String): Session?
-        + findActiveByUserId(userId: UUID): List<Session>
-        + deleteExpired(): Int
-    }
-
-    ' DTOs
-    class CreateUserRequest {
-        + email: String
-        + password: String
-        + firstName: String
-        + lastName: String
-        + phoneNumber: String?
-    }
-
-    class AuthResponse {
-        + accessToken: String
-        + refreshToken: String
-        + tokenType: String
-        + expiresIn: Long
-        + user: UserDto
-    }
-
-    class EnrollmentResponse {
-        + success: Boolean
-        + userId: UUID
-        + qualityScore: Float
-        + message: String
-    }
-
-    class VerificationResponse {
-        + verified: Boolean
-        + confidence: Float
-        + distance: Float
-        + message: String
-    }
+cloud "External Access" {
+    [Users] as users
+    [Mobile Apps] as mobile
 }
 
-' Relationships
-UserServiceImpl ..> UserRepository : uses
-AuthServiceImpl ..> UserRepository : uses
-AuthServiceImpl ..> SessionRepository : uses
-BiometricServiceImpl ..> BiometricDataRepository : uses
-BiometricServiceImpl ..> UserRepository : uses
-BiometricServiceImpl ..> BiometricProcessorClient : uses
+' Connections
+users --> ingress : HTTPS
+mobile --> ingress : HTTPS
+ingress --> identity_svc : routes /api/v1/auth, /api/v1/users
+ingress --> bio_svc : routes /api/v1/face
 
-@enduml
-```
+identity_svc --> identity1
+identity_svc --> identity2
+identity_svc --> identity3
 
-### 2.3 Biometric Processor Class Diagram
+bio_svc --> bio1
+bio_svc --> bio2
 
-```plantuml
-@startuml biometric_processor_classes
+hpa ..> identity1 : scales
+hpa ..> identity2 : scales
+hpa ..> identity3 : scales
 
-skinparam classAttributeIconSize 0
+identity1 --> postgres_svc : SQL queries
+identity2 --> postgres_svc : SQL queries
+identity3 --> postgres_svc : SQL queries
 
-package "Biometric Processor" {
+identity1 --> redis_svc : cache/sessions
+identity2 --> redis_svc : cache/sessions
+identity3 --> redis_svc : cache/sessions
 
-    ' Service Classes
-    class FaceRecognitionService {
-        - model_name: str
-        - detector_backend: str
-        - verification_threshold: float
-        --
-        + __init__(model_name: str, detector_backend: str)
-        + extract_embedding(image_path: str): Tuple[bool, str, str]
-        + verify_faces(image_path: str, stored_embedding: str): Tuple[bool, float, str]
-        - _calculate_cosine_distance(emb1: ndarray, emb2: ndarray): float
-        + validate_image(image_path: str): Tuple[bool, str]
-    }
+identity1 --> bio_svc : REST calls
+identity2 --> bio_svc : REST calls
+identity3 --> bio_svc : REST calls
 
-    class LivenessDetectionService {
-        - puzzle_steps: List[PuzzleStep]
-        - timeout_seconds: int
-        --
-        + generate_puzzle(): BiometricPuzzle
-        + verify_liveness(video_frames: List[bytes], puzzle_id: str): LivenessResult
-        - _detect_action(frame: bytes, action: str): bool
-        - _calculate_ear(landmarks: List[Point]): float
-        - _calculate_mar(landmarks: List[Point]): float
-    }
+postgres_svc --> postgres_master : write
+postgres_svc --> postgres_replica1 : read
+postgres_svc --> postgres_replica2 : read
 
-    class ImageQualityValidator {
-        - min_sharpness: float
-        - min_brightness: float
-        - min_contrast: float
-        --
-        + validate(image_path: str): QualityMetrics
-        - _calculate_sharpness(image: ndarray): float
-        - _calculate_brightness(image: ndarray): float
-        - _calculate_contrast(image: ndarray): float
-        - _detect_face_size(image: ndarray): float
-    }
+postgres_master ..> postgres_pv : mounts
 
-    ' Model Classes
-    class FaceEmbedding {
-        + embedding: List[float]
-        + dimension: int
-        + model_name: str
-        --
-        + to_numpy(): ndarray
-        + calculate_distance(other: FaceEmbedding, metric: str): float
-        + get_statistics(): Dict[str, float]
-    }
+redis_svc --> redis_master : write
+redis_svc --> redis_replica1 : read
 
-    class VerificationResult {
-        + verified: bool
-        + confidence: float
-        + distance: float
-        + threshold: float
-        + model_name: str
-        --
-        + is_successful(): bool
-        + to_dict(): Dict[str, Any]
-    }
+prometheus --> identity_svc : scrapes metrics
+prometheus --> bio_svc : scrapes metrics
+prometheus --> postgres_svc : scrapes metrics
+prometheus --> redis_svc : scrapes metrics
 
-    class QualityMetrics {
-        + sharpness_score: float
-        + brightness_score: float
-        + contrast_score: float
-        + face_size_score: float
-        + pose_quality_score: float
-        + overall_score: float
-        + quality_level: QualityLevel
-        + issues: List[str]
-        --
-        + is_acceptable(): bool
-        + get_problematic_metrics(): List[str]
-    }
-
-    class BiometricPuzzle {
-        + puzzle_id: str
-        + steps: List[PuzzleStep]
-        + timeout: int
-        + created_at: datetime
-        + expires_at: datetime
-        --
-        + is_expired(): bool
-        + get_next_step(): PuzzleStep
-    }
-
-    class PuzzleStep {
-        + action: str
-        + duration: int
-        + order: int
-        --
-        + validate_action(detected_action: str): bool
-    }
-
-    class LivenessResult {
-        + success: bool
-        + liveness_confirmed: bool
-        + steps_completed: int
-        + total_steps: int
-        + completion_time: float
-        + failure_reason: str
-        --
-        + is_successful(): bool
-    }
-
-    ' Enums
-    enum QualityLevel {
-        EXCELLENT
-        GOOD
-        FAIR
-        POOR
-        VERY_POOR
-    }
-
-    enum BiometricAction {
-        SMILE
-        BLINK_LEFT
-        BLINK_RIGHT
-        BLINK_BOTH
-        LOOK_LEFT
-        LOOK_RIGHT
-        LOOK_UP
-        LOOK_DOWN
-        NEUTRAL
-    }
-}
-
-' Relationships
-FaceRecognitionService --> FaceEmbedding : creates
-FaceRecognitionService --> VerificationResult : returns
-ImageQualityValidator --> QualityMetrics : returns
-LivenessDetectionService --> BiometricPuzzle : generates
-LivenessDetectionService --> LivenessResult : returns
-BiometricPuzzle *-- PuzzleStep : contains
-QualityMetrics -- QualityLevel : uses
-PuzzleStep -- BiometricAction : defines
+grafana --> prometheus : queries
+jaeger <-- identity1 : traces
+jaeger <-- identity2 : traces
+jaeger <-- identity3 : traces
 
 @enduml
 ```
 
 ---
 
-## 3. Sequence Diagrams
-
-### 3.1 User Registration Flow
+## 4. High Availability Deployment (Fixed)
 
 ```plantuml
-@startuml user_registration
+@startuml ha_deployment_fixed
 
-actor User
-participant "Mobile App" as App
-participant "API Gateway" as Gateway
-participant "Identity Core" as Identity
-participant "Database" as DB
-participant "Email Service" as Email
+skinparam componentStyle rectangle
 
-User -> App: Enter registration details
-App -> App: Validate input locally
+cloud "Region: US-East-1" {
+    node "Availability Zone 1a" {
+        [Load Balancer AZ-1a] as lb1
+        [Identity API Pod 1] as api1
+        [Biometric Processor Pod 1] as bio1
+        database "PostgreSQL Primary" as db1
+        database "Redis Primary" as redis1
+    }
 
-App -> Gateway: POST /api/v1/auth/register
-Gateway -> Identity: Forward request
+    node "Availability Zone 1b" {
+        [Load Balancer AZ-1b] as lb2
+        [Identity API Pod 2] as api2
+        [Biometric Processor Pod 2] as bio2
+        database "PostgreSQL Replica" as db2
+        database "Redis Replica" as redis2
+    }
 
-Identity -> Identity: Validate email format
-Identity -> Identity: Check password strength
+    node "Availability Zone 1c" {
+        [Load Balancer AZ-1c] as lb3
+        [Identity API Pod 3] as api3
+        [Biometric Processor Pod 3] as bio3
+        database "PostgreSQL Replica" as db3
+        database "Redis Replica" as redis3
+    }
 
-Identity -> DB: Check if email exists
-alt Email already exists
-    DB --> Identity: User found
-    Identity --> Gateway: 409 Conflict
-    Gateway --> App: Email already registered
-    App --> User: Show error message
-else Email not found
-    DB --> Identity: No user found
-
-    Identity -> Identity: Hash password (BCrypt)
-    Identity -> Identity: Create User entity
-
-    Identity -> DB: INSERT user
-    DB --> Identity: User created (UUID)
-
-    Identity -> Identity: Generate email verification token
-
-    Identity -> DB: INSERT verification_token
-    DB --> Identity: Token saved
-
-    Identity -> Email: Send verification email
-    Email --> Identity: Email queued
-
-    Identity -> Identity: Generate JWT tokens
-
-    Identity -> DB: INSERT session
-    DB --> Identity: Session created
-
-    Identity --> Gateway: 201 Created + AuthResponse
-    Gateway --> App: Registration successful
-    App --> User: Show success message
-    App -> App: Store tokens securely
-end
-
-@enduml
-```
-
-### 3.2 Face Enrollment with Quality Validation
-
-```plantuml
-@startuml face_enrollment_quality
-
-actor User
-participant "Mobile App" as App
-participant "Camera" as Camera
-participant "API Gateway" as Gateway
-participant "Identity Core" as Identity
-participant "Biometric Processor" as Biometric
-participant "Database" as DB
-
-User -> App: Navigate to enrollment
-App -> Camera: Request camera permission
-Camera --> App: Permission granted
-
-App -> Camera: Start preview
-Camera --> App: Camera stream active
-
-User -> App: Capture face photo
-App -> Camera: Capture image
-Camera --> App: Image captured (ByteArray)
-
-App -> App: Compress image (< 5MB)
-
-App -> Gateway: POST /biometric/enroll/{userId}\n(multipart/form-data)
-Gateway -> Identity: Forward request
-
-Identity -> DB: Check user exists
-DB --> Identity: User found
-
-Identity -> DB: Check if already enrolled
-DB --> Identity: Not enrolled yet
-
-Identity -> Biometric: POST /face/enroll\n(image data)
-
-Biometric -> Biometric: Save temp file
-Biometric -> Biometric: Validate image format
-
-Biometric -> Biometric: **Quality Validation**\n- Check resolution\n- Check file size\n- Verify not corrupted
-
-alt Quality Check Failed
-    Biometric --> Identity: 400 Bad Request\n(Quality issues)
-    Identity --> Gateway: Error response
-    Gateway --> App: Quality validation failed
-    App --> User: Show specific issues:\n- Resolution too low\n- Image too dark\n- etc.
-
-    User -> App: Retake photo
-    App -> Camera: Capture again
-else Quality Check Passed
-
-    Biometric -> Biometric: **Detect Face**\nUsing RetinaFace
-
-    alt No Face Detected
-        Biometric --> Identity: 400 Bad Request\n(No face found)
-        Identity --> Gateway: Error response
-        Gateway --> App: No face detected
-        App --> User: Please center face\nin camera
-    else Multiple Faces
-        Biometric --> Identity: 400 Bad Request\n(Multiple faces)
-        Identity --> Gateway: Error response
-        Gateway --> App: Multiple faces detected
-        App --> User: Ensure only one person\nin frame
-    else Single Face Detected
-
-        Biometric -> Biometric: **Calculate Quality Scores**\n- Sharpness: 85/100\n- Brightness: 78/100\n- Contrast: 82/100\n- Face size: 90/100\n- Pose: 88/100
-
-        alt Overall Quality < Threshold (50)
-            Biometric --> Identity: 400 Bad Request\n(Low quality)
-            Identity --> Gateway: Error with scores
-            Gateway --> App: Quality too low
-            App --> User: Show quality report:\n- Improve lighting\n- Hold steady\n- Move closer
-        else Quality Acceptable
-
-            Biometric -> Biometric: **Extract Embedding**\nVGG-Face model
-            Biometric -> Biometric: Generate 512-D vector
-
-            Biometric -> Biometric: Cleanup temp file
-
-            Biometric --> Identity: 200 OK\n{embedding, quality_score}
-
-            Identity -> Identity: Convert embedding to JSONB
-            Identity -> Identity: Encrypt embedding (AES-256)
-
-            Identity -> DB: INSERT biometric_data
-            DB --> Identity: Biometric saved (UUID)
-
-            Identity -> DB: UPDATE users\nSET is_biometric_enrolled = true
-            DB --> Identity: User updated
-
-            Identity -> DB: INSERT audit_log\n(biometric.enrolled event)
-            DB --> Identity: Audit logged
-
-            Identity --> Gateway: 200 OK\n{success, userId, confidence}
-            Gateway --> App: Enrollment successful
-
-            App --> User: Face enrolled successfully!\nQuality Score: 85/100
-        end
-    end
-end
-
-@enduml
-```
-
-### 3.3 Face Verification with Liveness Detection
-
-```plantuml
-@startuml face_verification_liveness
-
-actor User
-participant "Mobile App" as App
-participant "Camera" as Camera
-participant "API Gateway" as Gateway
-participant "Identity Core" as Identity
-participant "Biometric Processor" as Biometric
-participant "Database" as DB
-participant "Redis" as Redis
-
-User -> App: Initiate verification
-App -> App: Check network connectivity
-
-App -> Gateway: GET /api/v1/liveness/generate-puzzle
-Gateway -> Biometric: Forward request
-
-Biometric -> Biometric: Generate random puzzle\n(3-5 steps)
-Biometric -> Redis: SETEX puzzle:{id} 60
-Redis --> Biometric: Cached
-
-Biometric --> Gateway: 200 OK\n{puzzle_id, steps[], timeout}
-Gateway --> App: Puzzle received
-
-App -> Camera: Start video stream
-Camera --> App: Stream active
-
-App --> User: **Show Instructions**\n1. Smile\n2. Blink both eyes\n3. Look right\n4. Return to neutral
-
-loop For each puzzle step
-    App --> User: Display current step:\n"Please SMILE"
-
-    User -> Camera: Perform action
-    Camera --> App: Video frames
-
-    App -> App: **Detect facial landmarks**\nUsing MediaPipe
-
-    App -> App: **Calculate metrics**\n- EAR (Eye Aspect Ratio)\n- MAR (Mouth Aspect Ratio)\n- Head pose angles
-
-    alt Action detected correctly
-        App --> User: Step complete (green)
-        App -> App: Move to next step
-    else Action timeout (no detection)
-        App --> User: Timeout, try again
-        App -> App: Retry current step
-    end
-end
-
-App -> App: Capture final frame
-App -> App: Extract landmarks sequence
-
-App -> Gateway: POST /api/v1/liveness/verify
-note right
-{
-  "puzzle_id": "uuid",
-  "video_frames": [base64...],
-  "landmarks_sequence": [[x,y]...],
-  "user_id": "uuid"
+    [Global Load Balancer\n(Route 53)] as global_lb
 }
+
+cloud "Region: EU-West-1" {
+    node "AZ eu-west-1a" {
+        [Identity API Pod EU-1] as api_eu1
+        database "PostgreSQL Replica EU" as db_eu1
+    }
+
+    node "AZ eu-west-1b" {
+        [Identity API Pod EU-2] as api_eu2
+        database "PostgreSQL Replica EU-2" as db_eu2
+    }
+}
+
+cloud "Monitoring & Backup" {
+    [CloudWatch] as cloudwatch
+    [S3 Backup Storage] as s3_backup
+    [RDS Snapshots] as rds_snapshots
+}
+
+actor "Users" as users
+
+' Traffic Flow
+users --> global_lb : HTTPS
+global_lb --> lb1 : primary region
+global_lb ..> api_eu1 : failover to EU
+
+lb1 --> api1
+lb2 --> api2
+lb3 --> api3
+
+api1 --> bio1 : REST
+api2 --> bio2 : REST
+api3 --> bio3 : REST
+
+api1 --> db1 : write
+api2 --> db1 : write
+api3 --> db1 : write
+
+api1 --> db2 : read
+api2 --> db2 : read
+api3 --> db3 : read
+
+api1 --> redis1 : cache
+api2 --> redis1 : cache
+api3 --> redis1 : cache
+
+db1 ..> db2 : replication
+db1 ..> db3 : replication
+db1 ..> db_eu1 : cross-region replication
+db1 ..> db_eu2 : cross-region replication
+
+redis1 ..> redis2 : replication
+redis1 ..> redis3 : replication
+
+db1 --> rds_snapshots : automated backups
+db1 --> s3_backup : continuous archival
+
+api1 --> cloudwatch : logs/metrics
+api2 --> cloudwatch : logs/metrics
+api3 --> cloudwatch : logs/metrics
+
+api_eu1 --> db_eu1 : read
+api_eu2 --> db_eu2 : read
+
+note right of global_lb
+  Route 53 Health Checks:
+  - Primary: US-East-1
+  - Failover: EU-West-1
+  - Latency-based routing
 end note
 
-Gateway -> Biometric: Forward request
-
-Biometric -> Redis: GET puzzle:{id}
-Redis --> Biometric: Puzzle data
-
-Biometric -> Biometric: Validate puzzle not expired
-Biometric -> Biometric: Verify step sequence matches
-Biometric -> Biometric: Analyze timing patterns
-
-alt Liveness check failed
-    Biometric --> Gateway: 403 Forbidden\n(Liveness not confirmed)
-    Gateway --> App: Liveness failed
-    App --> User: Verification failed:\nCould not confirm liveness
-else Liveness confirmed
-
-    Biometric --> Gateway: 200 OK\n{liveness_confirmed, final_frame}
-    Gateway -> Identity: POST /biometric/verify/{userId}\n(final_frame)
-
-    Identity -> DB: SELECT embedding\nFROM biometric_data\nWHERE user_id = ?
-    DB --> Identity: Stored embedding
-
-    Identity -> Biometric: POST /face/verify\n{image, stored_embedding}
-
-    Biometric -> Biometric: Extract new embedding
-    Biometric -> Biometric: Calculate cosine distance
-    Biometric -> Biometric: Compare with threshold
-
-    alt Distance < Threshold (0.30)
-        Biometric --> Identity: {verified: true,\nconfidence: 0.92}
-
-        Identity -> DB: UPDATE users\nSET verification_count++,\nlast_verified_at = NOW()
-
-        Identity -> DB: INSERT verification_logs
-
-        Identity -> Redis: PUBLISH user.verified
-
-        Identity --> Gateway: 200 OK\n{verified: true,\nconfidence: 92%}
-        Gateway --> App: Verification successful
-
-        App --> User: **Verified Successfully!**\nConfidence: 92%\nWelcome back!
-    else Distance >= Threshold
-        Biometric --> Identity: {verified: false,\nconfidence: 0.45}
-
-        Identity -> DB: UPDATE users\nSET failed_verification_count++
-
-        Identity -> DB: INSERT verification_logs\n(failed)
-
-        Identity --> Gateway: 200 OK\n{verified: false,\nconfidence: 45%}
-        Gateway --> App: Verification failed
-
-        App --> User: **Verification Failed**\nFace does not match\nConfidence: 45%
-    end
-end
-
-@enduml
-```
-
-### 3.4 Multi-Tenant User Creation
-
-```plantuml
-@startuml multi_tenant_creation
-
-actor "Tenant Admin" as Admin
-participant "Admin Dashboard" as Dashboard
-participant "API Gateway" as Gateway
-participant "Identity Core" as Identity
-participant "PostgreSQL" as DB
-
-Admin -> Dashboard: Login to tenant\n(tenant-acme)
-Dashboard -> Dashboard: Set tenant context\nX-Tenant-ID: tenant-acme
-
-Admin -> Dashboard: Navigate to\n"Add User" page
-Admin -> Dashboard: Fill user form
-
-Dashboard -> Dashboard: Validate form\n- Email format\n- Password strength\n- Required fields
-
-Dashboard -> Gateway: POST /api/v1/users\nHeader: X-Tenant-ID: tenant-acme
-note right
-{
-  "email": "john@acme.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "roles": ["END_USER"]
-}
-end note
-
-Gateway -> Gateway: Extract tenant ID\nfrom header
-Gateway -> Identity: Forward with\ntenant context
-
-Identity -> Identity: Set database schema:\ntenant_acme
-
-Identity -> DB: SET search_path = 'tenant_acme'
-DB --> Identity: Schema set
-
-Identity -> DB: BEGIN TRANSACTION
-
-Identity -> DB: SELECT tenant_id, max_users,\ncurrent_user_count\nFROM shared.tenants\nWHERE slug = 'tenant-acme'
-DB --> Identity: Tenant info
-
-alt Current users >= Max users
-    Identity -> DB: ROLLBACK
-    Identity --> Gateway: 403 Forbidden\n(User limit reached)
-    Gateway --> Dashboard: Quota exceeded
-    Dashboard --> Admin: Cannot add user:\nPlan limit reached (100/100)\nPlease upgrade plan
-else Quota available
-
-    Identity -> DB: SELECT * FROM users\nWHERE email = 'john@acme.com'
-    DB --> Identity: No user found
-
-    alt Email already exists
-        Identity -> DB: ROLLBACK
-        Identity --> Gateway: 409 Conflict
-        Gateway --> Dashboard: Email exists
-        Dashboard --> Admin: User already exists\nin your organization
-    else Email unique
-
-        Identity -> Identity: Hash password
-        Identity -> Identity: Create User entity
-
-        Identity -> DB: INSERT INTO users\n(id, email, first_name, ...)\nVALUES (?, ?, ?, ...)
-        DB --> Identity: User created (UUID)
-
-        Identity -> DB: INSERT INTO user_roles\n(user_id, role_id)\nSELECT ?, id FROM roles\nWHERE name = 'END_USER'
-        DB --> Identity: Roles assigned
-
-        Identity -> DB: UPDATE shared.tenants\nSET current_user_count =\n    current_user_count + 1\nWHERE slug = 'tenant-acme'
-        DB --> Identity: Count updated
-
-        Identity -> DB: INSERT INTO audit_logs\n(event_type, actor_id,\n target_id, description)
-        DB --> Identity: Audit logged
-
-        Identity -> DB: COMMIT TRANSACTION
-        DB --> Identity: Transaction committed
-
-        Identity --> Gateway: 201 Created\n{user object}
-        Gateway --> Dashboard: User created
-
-        Dashboard --> Admin: User created successfully!\nInvitation email sent to:\njohn@acme.com
-
-        Dashboard -> Dashboard: Refresh user list
-        Dashboard --> Admin: Updated list:\nUsers: 51/100
-    end
-end
-
-note right of DB
-**Multi-Tenancy Isolation:**
-- Each tenant has separate schema
-- tenant_acme.users
-- tenant_techcorp.users
-- Complete data isolation
-- Shared tables in 'shared' schema
+note right of db1
+  PostgreSQL Configuration:
+  - Synchronous replication to AZ-1b
+  - Async replication to AZ-1c
+  - Cross-region async to EU
+  - RPO: <5 minutes
+  - RTO: <10 minutes
 end note
 
 @enduml
@@ -1233,233 +555,114 @@ end note
 
 ---
 
-## 4. State Machine Diagrams
-
-### 4.1 User Lifecycle State Machine
+## 5. Multi-Region Deployment (Fixed)
 
 ```plantuml
-@startuml user_state_machine
+@startuml multi_region_deployment_fixed
 
-[*] --> PENDING_VERIFICATION : User registers
+skinparam componentStyle rectangle
 
-PENDING_VERIFICATION --> ACTIVE : Email verified\n& email verification
-PENDING_VERIFICATION --> PENDING_VERIFICATION : Resend verification
+cloud "US-East-1 (Primary)" {
+    package "Production Stack" {
+        [API Gateway US] as api_gw_us
+        [Identity API Cluster (3 pods)] as identity_us
+        [Biometric Processor Cluster (2 pods)] as bio_us
+        database "PostgreSQL Primary" as db_us_primary
+        database "PostgreSQL Read Replica" as db_us_replica
+        database "Redis Cluster" as redis_us
+    }
 
-ACTIVE --> SUSPENDED : Admin suspends\nOR policy violation
-ACTIVE --> LOCKED : Too many\nfailed login attempts
-ACTIVE --> INACTIVE : Admin deactivates\nOR user requests
+    [S3 Bucket US] as s3_us
+    [CloudFront Distribution] as cloudfront_us
+}
 
-SUSPENDED --> ACTIVE : Admin reinstates
-SUSPENDED --> INACTIVE : Permanent suspension
+cloud "EU-West-1 (Secondary)" {
+    package "EU Stack" {
+        [API Gateway EU] as api_gw_eu
+        [Identity API Cluster (2 pods)] as identity_eu
+        [Biometric Processor Cluster (2 pods)] as bio_eu
+        database "PostgreSQL Read Replica" as db_eu
+        database "Redis Cluster" as redis_eu
+    }
 
-LOCKED --> ACTIVE : Unlock timeout expires\nOR admin unlocks
-LOCKED --> ACTIVE : Password reset\ncompleted
+    [S3 Bucket EU] as s3_eu
+    [CloudFront Distribution] as cloudfront_eu
+}
 
-INACTIVE --> ACTIVE : Admin reactivates\nOR user re-registers
+cloud "AP-Southeast-1 (Tertiary)" {
+    package "APAC Stack" {
+        [API Gateway APAC] as api_gw_apac
+        [Identity API Cluster (2 pods)] as identity_apac
+        [Biometric Processor Cluster (2 pods)] as bio_apac
+        database "PostgreSQL Read Replica" as db_apac
+        database "Redis Cluster" as redis_apac
+    }
 
-ACTIVE --> [*] : Account deleted\n(soft delete)
-SUSPENDED --> [*] : Account deleted
-LOCKED --> [*] : Account deleted
-INACTIVE --> [*] : Account deleted
+    [S3 Bucket APAC] as s3_apac
+}
 
-note right of PENDING_VERIFICATION
-  **Initial State**
-  - Created but not verified
-  - Limited access
-  - Email verification required
+[Route 53 Global DNS] as route53
+[WAF (Web Application Firewall)] as waf
+
+actor "US Users" as us_users
+actor "EU Users" as eu_users
+actor "APAC Users" as apac_users
+
+' Traffic Routing
+us_users --> route53 : DNS query
+eu_users --> route53 : DNS query
+apac_users --> route53 : DNS query
+
+route53 --> waf : geolocation routing
+waf --> api_gw_us : US traffic
+waf --> api_gw_eu : EU traffic
+waf --> api_gw_apac : APAC traffic
+
+' US Region Flow
+api_gw_us --> identity_us
+identity_us --> bio_us
+identity_us --> db_us_primary : write
+identity_us --> db_us_replica : read
+identity_us --> redis_us
+bio_us --> s3_us : store images
+cloudfront_us --> s3_us
+
+' EU Region Flow
+api_gw_eu --> identity_eu
+identity_eu --> bio_eu
+identity_eu --> db_eu : read
+identity_eu --> redis_eu
+bio_eu --> s3_eu : store images
+cloudfront_eu --> s3_eu
+
+' APAC Region Flow
+api_gw_apac --> identity_apac
+identity_apac --> bio_apac
+identity_apac --> db_apac : read
+identity_apac --> redis_apac
+bio_apac --> s3_apac : store images
+
+' Database Replication
+db_us_primary ..> db_us_replica : streaming replication (sync)
+db_us_primary ..> db_eu : logical replication (async)
+db_us_primary ..> db_apac : logical replication (async)
+
+' Cross-Region Data
+s3_us ..> s3_eu : S3 Cross-Region Replication
+s3_us ..> s3_apac : S3 Cross-Region Replication
+
+note right of route53
+  Routing Policy:
+  - Geolocation routing for optimal latency
+  - Health checks on all regions
+  - Automatic failover to nearest healthy region
+  - Latency-based routing as fallback
 end note
 
-note right of ACTIVE
-  **Normal State**
-  - Full access
-  - Can enroll biometric
-  - Can verify identity
-end note
-
-note right of LOCKED
-  **Security State**
-  - Auto-locked after 5 failed attempts
-  - Requires password reset
-  - Or auto-unlock after 15 minutes
-end note
-
-note right of SUSPENDED
-  **Administrative State**
-  - Admin action required
-  - Policy violation or security concern
-  - All access revoked
-end note
-
-@enduml
-```
-
-### 4.2 Biometric Enrollment State Machine
-
-```plantuml
-@startuml biometric_enrollment_state
-
-[*] --> NOT_ENROLLED : User created
-
-NOT_ENROLLED --> CAPTURING : Start enrollment
-
-CAPTURING --> VALIDATING_QUALITY : Image captured
-
-VALIDATING_QUALITY --> QUALITY_FAILED : Quality check fails\n(too dark, blurry, etc.)
-QUALITY_FAILED --> CAPTURING : Retry capture
-
-VALIDATING_QUALITY --> DETECTING_FACE : Quality acceptable
-
-DETECTING_FACE --> FACE_NOT_DETECTED : No face found\nOR multiple faces
-FACE_NOT_DETECTED --> CAPTURING : Retry capture
-
-DETECTING_FACE --> EXTRACTING_EMBEDDING : Single face detected
-
-EXTRACTING_EMBEDDING --> EXTRACTION_FAILED : Model error\nOR processing error
-EXTRACTION_FAILED --> CAPTURING : Retry enrollment
-
-EXTRACTING_EMBEDDING --> STORING : Embedding extracted
-
-STORING --> STORAGE_FAILED : Database error
-STORAGE_FAILED --> EXTRACTING_EMBEDDING : Retry storage
-
-STORING --> ENROLLED : Successfully stored
-
-ENROLLED --> UPDATING : Re-enrollment requested
-UPDATING --> VALIDATING_QUALITY : New image captured
-
-ENROLLED --> ARCHIVED : User deactivated\nOR biometric expired
-ARCHIVED --> UPDATING : Re-activation
-
-ENROLLED --> [*] : User deleted
-
-note right of VALIDATING_QUALITY
-  **Quality Checks:**
-  - Sharpness ≥ 40/100
-  - Brightness ≥ 30/100
-  - Contrast ≥ 30/100
-  - Face size ≥ 50% of image
-  - Pose quality ≥ 40/100
-end note
-
-note right of ENROLLED
-  **Final State**
-  - Biometric data stored
-  - User can verify
-  - Version tracking enabled
-end note
-
-@enduml
-```
-
-### 4.3 Verification Attempt State Machine
-
-```plantuml
-@startuml verification_state_machine
-
-[*] --> INITIATED : User starts verification
-
-INITIATED --> LIVENESS_CHECK : Liveness enabled
-INITIATED --> FACE_CAPTURE : Liveness disabled
-
-LIVENESS_CHECK --> PUZZLE_GENERATED : Generate puzzle
-
-PUZZLE_GENERATED --> PERFORMING_ACTIONS : Show instructions
-
-PERFORMING_ACTIONS --> LIVENESS_FAILED : Timeout\nOR wrong sequence\nOR spoofing detected
-LIVENESS_FAILED --> [*] : Return failure
-
-PERFORMING_ACTIONS --> LIVENESS_CONFIRMED : All steps completed\ncorrectly
-
-LIVENESS_CONFIRMED --> FACE_CAPTURE : Capture final frame
-
-FACE_CAPTURE --> QUALITY_CHECK : Image captured
-
-QUALITY_CHECK --> LOW_QUALITY : Quality < threshold
-LOW_QUALITY --> FACE_CAPTURE : Retry capture
-
-QUALITY_CHECK --> EXTRACTING : Quality acceptable
-
-EXTRACTING --> EXTRACTION_ERROR : Processing failed
-EXTRACTION_ERROR --> [*] : Return error
-
-EXTRACTING --> COMPARING : Embedding extracted
-
-COMPARING --> RETRIEVING_STORED : Get stored embedding
-
-RETRIEVING_STORED --> DATABASE_ERROR : User not found\nOR no biometric data
-DATABASE_ERROR --> [*] : Return error
-
-RETRIEVING_STORED --> CALCULATING_DISTANCE : Embeddings retrieved
-
-CALCULATING_DISTANCE --> VERIFICATION_SUCCESS : Distance < threshold\n(e.g., < 0.30)
-CALCULATING_DISTANCE --> VERIFICATION_FAILURE : Distance >= threshold
-
-VERIFICATION_SUCCESS --> LOGGING_SUCCESS : Log successful verification
-LOGGING_SUCCESS --> [*] : Return success
-
-VERIFICATION_FAILURE --> LOGGING_FAILURE : Log failed verification
-LOGGING_FAILURE --> [*] : Return failure
-
-note right of LIVENESS_CHECK
-  **Optional Step**
-  - Enabled for high-security contexts
-  - Random puzzle generation
-  - Prevents photo/video attacks
-end note
-
-note right of COMPARING
-  **Distance Calculation**
-  - Cosine similarity
-  - Threshold: 0.30 (configurable)
-  - Lower distance = higher similarity
-end note
-
-@enduml
-```
-
-### 4.4 Session Lifecycle State Machine
-
-```plantuml
-@startuml session_state_machine
-
-[*] --> CREATED : User logs in
-
-CREATED --> ACTIVE : Token validated
-
-ACTIVE --> ACTIVE : API requests\n(update last_activity)
-
-ACTIVE --> EXPIRED : Reaches expiry time\n(default: 7 days)
-
-ACTIVE --> REVOKED_BY_USER : User logs out
-
-ACTIVE --> REVOKED_BY_ADMIN : Admin revokes session
-
-ACTIVE --> REVOKED_BY_SYSTEM : Security policy\nOR suspicious activity
-
-ACTIVE --> REFRESHED : Refresh token used
-
-REFRESHED --> ACTIVE : New token pair issued
-
-EXPIRED --> [*] : Cleanup job\ndeletes session
-
-REVOKED_BY_USER --> [*] : Session terminated
-REVOKED_BY_ADMIN --> [*] : Session terminated
-REVOKED_BY_SYSTEM --> [*] : Session terminated
-
-note right of ACTIVE
-  **Active Session**
-  - Valid refresh token
-  - Can generate access tokens
-  - Tracks last activity
-  - Device information stored
-end note
-
-note right of REFRESHED
-  **Token Rotation**
-  - Old refresh token invalidated
-  - New refresh token issued
-  - New access token issued
-  - Prevents token replay attacks
+note bottom of db_us_primary
+  Write operations only in US-East-1
+  All other regions read-only
+  Replication lag typically <2 seconds
 end note
 
 @enduml
@@ -1467,617 +670,384 @@ end note
 
 ---
 
-## 5. Activity Diagrams
-
-### 5.1 Complete User Onboarding Activity
+## 6. Network Architecture (Fixed)
 
 ```plantuml
-@startuml user_onboarding_activity
+@startuml network_architecture_fixed
 
-start
+skinparam componentStyle rectangle
 
-:User opens mobile app;
+package "VPC (10.0.0.0/16)" {
 
-if (User has account?) then (yes)
-  :Navigate to login;
-  stop
-else (no)
-  :Tap "Register";
-endif
+    package "Public Subnets (10.0.1.0/24, 10.0.2.0/24)" {
+        [Internet Gateway] as igw
+        [NAT Gateway AZ-1] as nat1
+        [NAT Gateway AZ-2] as nat2
+        [Application Load Balancer] as alb
 
-partition "Registration Process" {
-  :Enter registration details:
-  - Email
-  - Password
-  - First name
-  - Last name
-  - Phone number;
+        [Bastion Host] as bastion
+    }
 
-  :Validate input locally;
+    package "Private App Subnet AZ-1 (10.0.10.0/24)" {
+        [Identity API Pod 1] as api1
+        [Identity API Pod 2] as api2
+        [Biometric Processor Pod 1] as bio1
+    }
 
-  if (All fields valid?) then (no)
-    :Show validation errors;
-    stop
-  endif
+    package "Private App Subnet AZ-2 (10.0.11.0/24)" {
+        [Identity API Pod 3] as api3
+        [Identity API Pod 4] as api4
+        [Biometric Processor Pod 2] as bio2
+    }
 
-  :Submit registration request;
+    package "Private Data Subnet AZ-1 (10.0.20.0/24)" {
+        database "PostgreSQL Primary" as db1
+        database "Redis Master" as redis1
+    }
 
-  fork
-    :Create user account;
-  fork again
-    :Send verification email;
-  end fork
+    package "Private Data Subnet AZ-2 (10.0.21.0/24)" {
+        database "PostgreSQL Replica" as db2
+        database "Redis Replica" as redis2
+    }
 
-  :Show success message;
-  :Auto-login with JWT tokens;
+    package "Security Groups" {
+        [ALB Security Group\nAllow: 80, 443 from 0.0.0.0/0] as sg_alb
+        [App Security Group\nAllow: 8080 from ALB SG] as sg_app
+        [DB Security Group\nAllow: 5432 from App SG] as sg_db
+        [Redis Security Group\nAllow: 6379 from App SG] as sg_redis
+        [Bastion Security Group\nAllow: 22 from Corp IP] as sg_bastion
+    }
+
+    [VPC Flow Logs] as flow_logs
+    [Network ACL] as nacl
 }
 
-partition "Email Verification" {
-  :User opens email;
-  :Click verification link;
-
-  if (Link valid & not expired?) then (yes)
-    :Mark email as verified;
-    :Show success notification;
-  else (no)
-    :Show error: "Link expired";
-    :Offer resend option;
-  endif
+cloud "Internet" {
+    actor "Users" as users
 }
 
-partition "Profile Completion" {
-  :Navigate to profile;
-
-  if (Profile complete?) then (no)
-    :Prompt to complete profile:
-    - Profile photo (optional)
-    - Date of birth
-    - Address;
-
-    :Save profile updates;
-  endif
+cloud "AWS Services" {
+    [S3 (via VPC Endpoint)] as s3
+    [CloudWatch (via VPC Endpoint)] as cloudwatch
 }
 
-partition "Biometric Enrollment" {
-  :Show enrollment prompt:
-  "Secure your account with
-  face recognition";
-
-  if (User agrees?) then (yes)
-    :Navigate to enrollment screen;
-
-    repeat
-      :Request camera permission;
-
-      if (Permission granted?) then (no)
-        :Show permission explanation;
-        :Request again;
-        stop
-      endif
-
-      :Show camera preview;
-      :Display face position guide;
-
-      :User captures face photo;
-
-      :Validate image quality;
-
-    repeat while (Quality acceptable?) is (no)
-    ->yes;
-
-    :Extract face embedding;
-    :Store biometric data;
-
-    :Show success:
-    "Face enrolled successfully!";
-  else (no)
-    :Show "Skip for now" option;
-    note right
-      User can enroll later
-      from settings
-    end note
-  endif
-}
-
-partition "Onboarding Complete" {
-  :Show welcome tour;
-  :Highlight key features;
-  :Navigate to home screen;
-}
-
-stop
-
-@enduml
-```
-
-### 5.2 Face Verification Decision Activity
-
-```plantuml
-@startuml verification_decision_activity
-
-start
-
-:Receive verification request;
-
-partition "Pre-Verification Checks" {
-  if (User exists?) then (no)
-    :Return 404 Not Found;
-    stop
-  endif
-
-  if (User is active?) then (no)
-    :Return 403 Forbidden\n"Account suspended";
-    stop
-  endif
-
-  if (User has biometric enrolled?) then (no)
-    :Return 400 Bad Request\n"No biometric data";
-    stop
-  endif
-
-  :Check rate limit;
-
-  if (Rate limit exceeded?) then (yes)
-    :Return 429 Too Many Requests;
-    stop
-  endif
-}
-
-partition "Liveness Detection" {
-  if (Liveness required?) then (yes)
-    :Generate liveness puzzle;
-    :Return puzzle to client;
-
-    :Wait for liveness verification;
-
-    if (Liveness confirmed?) then (no)
-      :Log liveness failure;
-      :Return 403 Forbidden\n"Liveness check failed";
-      stop
-    endif
-  endif
-}
-
-partition "Image Processing" {
-  :Receive face image;
-
-  fork
-    :Validate image format;
-  fork again
-    :Check file size;
-  fork again
-    :Validate image dimensions;
-  end fork
-
-  if (Image valid?) then (no)
-    :Return 400 Bad Request\n"Invalid image";
-    stop
-  endif
-
-  :Forward to Biometric Processor;
-}
-
-partition "Quality Assessment" {
-  :Calculate quality metrics;
-
-  if (Sharpness < 40?) then (yes)
-    :Return error: "Image too blurry";
-    stop
-  endif
-
-  if (Brightness < 30 OR > 80?) then (yes)
-    :Return error: "Poor lighting";
-    stop
-  endif
-
-  if (Face size < 50%?) then (yes)
-    :Return error: "Face too small";
-    stop
-  endif
-}
-
-partition "Face Detection" {
-  :Detect faces in image;
-
-  if (Faces detected?) then (== 0)
-    :Return error: "No face detected";
-    stop
-  elseif (> 1)
-    :Return error: "Multiple faces";
-    stop
-  endif
-}
-
-partition "Embedding Extraction & Comparison" {
-  :Extract embedding from image;
-
-  :Retrieve stored embedding(s);
-
-  if (Primary biometric exists?) then (yes)
-    :Use primary embedding;
-  else (no)
-    :Use most recent active embedding;
-  endif
-
-  :Calculate cosine distance;
-
-  if (Distance < threshold?) then (yes)
-    :Set verified = true;
-    :Calculate confidence = 1 - distance;
-  else (no)
-    :Set verified = false;
-    :Calculate confidence;
-  endif
-}
-
-partition "Post-Verification Actions" {
-  if (Verified?) then (yes)
-    fork
-      :Increment verification_count;
-    fork again
-      :Update last_verified_at;
-    fork again
-      :Reset failed_verification_count;
-    fork again
-      :Log successful verification;
-    fork again
-      :Publish "user.verified" event;
-    end fork
-
-    :Return success response:
-    {
-      verified: true,
-      confidence: 0.92,
-      message: "Verified successfully"
-    };
-  else (no)
-    fork
-      :Increment failed_verification_count;
-    fork again
-      :Log failed verification;
-    end fork
-
-    if (Failed count > 5?) then (yes)
-      :Lock user account;
-      :Send security alert;
-    endif
-
-    :Return failure response:
-    {
-      verified: false,
-      confidence: 0.45,
-      message: "Face does not match"
-    };
-  endif
-}
-
-stop
-
-@enduml
-```
-
-### 5.3 Tenant Management Activity
-
-```plantuml
-@startuml tenant_management_activity
-
-start
-
-:System Admin logs in;
-
-partition "Tenant Creation" {
-  :Navigate to "Create Tenant";
-
-  :Enter tenant details:
-  - Organization name
-  - Domain (optional)
-  - Contact email
-  - Subscription plan;
-
-  :Validate input;
-
-  if (Slug available?) then (no)
-    :Show error: "Name taken";
-    stop
-  endif
-
-  fork
-    :Create tenant in shared schema;
-  fork again
-    :Create dedicated schema\n"tenant_{slug}";
-  fork again
-    :Copy schema structure;
-  fork again
-    :Insert default roles\nand permissions;
-  fork again
-    :Generate API credentials;
-  end fork
-
-  :Send welcome email to tenant;
-
-  :Show tenant dashboard;
-}
-
-partition "Tenant Configuration" {
-  :Tenant Admin logs in;
-
-  repeat
-    :View current configuration;
-
-    if (Need to change settings?) then (yes)
-      :Select setting to modify:
-      |Settings|
-      - Subscription plan
-      - User quota
-      - Feature flags
-      - Security policies
-      - Branding
-      - Notification settings;
-
-      :Update configuration;
-
-      if (Requires approval?) then (yes)
-        :Submit change request;
-        :Notify system admin;
-
-        :System admin reviews;
-
-        if (Approved?) then (yes)
-          :Apply changes;
-        else (no)
-          :Notify tenant admin;
-        endif
-      else (no)
-        :Apply changes immediately;
-      endif
-
-      :Log configuration change;
-    endif
-  repeat while (More changes?) is (yes)
-  ->no;
-}
-
-partition "Usage Monitoring" {
-  :View tenant dashboard;
-
-  fork
-    :Show current user count;
-  fork again
-    :Show API call statistics;
-  fork again
-    :Show storage usage;
-  fork again
-    :Show verification metrics;
-  end fork
-
-  if (Approaching quota limits?) then (yes)
-    :Show warning notification;
-
-    if (Upgrade offered?) then (yes)
-      :Initiate upgrade process;
-
-      :Select new plan;
-      :Process payment;
-      :Update subscription;
-      :Increase quotas;
-
-      :Send confirmation;
-    endif
-  endif
-}
-
-partition "Tenant Suspension/Deletion" {
-  if (Suspend tenant?) then (yes)
-    :System admin suspends;
-
-    fork
-      :Set is_active = false;
-    fork again
-      :Revoke all active sessions;
-    fork again
-      :Notify tenant admin;
-    fork again
-      :Log suspension event;
-    end fork
-
-    :All access blocked;
-  endif
-
-  if (Delete tenant?) then (yes)
-    :Confirm deletion;
-
-    if (Data retention required?) then (yes)
-      :Export tenant data;
-      :Store in archive;
-    endif
-
-    fork
-      :Soft delete tenant record;
-    fork again
-      :Mark schema for cleanup;
-    fork again
-      :Revoke all credentials;
-    fork again
-      :Cancel subscription;
-    fork again
-      :Send deletion confirmation;
-    end fork
-  endif
-}
-
-stop
-
-@enduml
-```
-
-### 5.4 Biometric Re-enrollment Activity
-
-```plantuml
-@startuml biometric_reenrollment_activity
-
-start
-
-:User initiates re-enrollment;
-
-partition "Reason Determination" {
-  if (Why re-enroll?) then (Quality improvement)
-    :User wants better quality;
-  elseif (Appearance changed)
-    :Significant change:
-    - Weight loss/gain
-    - Surgery
-    - Aging;
-  elseif (Failed verifications)
-    :Multiple verification failures;
-  elseif (Security concern)
-    :Suspected compromise;
-  elseif (Upgrade model)
-    :New model available;
-  endif
-}
-
-partition "Pre-Enrollment Validation" {
-  :Retrieve existing biometric data;
-
-  if (Active biometric exists?) then (no)
-    :Redirect to initial enrollment;
-    stop
-  endif
-
-  :Check re-enrollment cooldown;
-
-  if (Too soon since last enrollment?) then (yes)
-    :Show warning:
-    "Please wait 24 hours
-    between enrollments";
-
-    if (Admin override?) then (no)
-      stop
-    endif
-  endif
-
-  :Require re-authentication;
-
-  if (Password verified?) then (no)
-    :Return to login;
-    stop
-  endif
-}
-
-partition "Capture New Biometric" {
-  :Show camera interface;
-
-  repeat
-    :Capture face image;
-    :Validate quality;
-  repeat while (Quality < existing?) is (yes)
-  ->better;
-
-  :Extract new embedding;
-}
-
-partition "Comparison with Existing" {
-  :Compare new vs. old embedding;
-
-  if (Similarity > 0.5?) then (yes)
-    :Likely same person;
-    :Proceed with re-enrollment;
-  else (no)
-    :Suspiciously different;
-
-    if (Admin approval required?) then (yes)
-      :Create approval request;
-      :Notify admin;
-
-      :Wait for admin review;
-
-      if (Approved?) then (no)
-        :Reject re-enrollment;
-        :Log security event;
-        stop
-      endif
-    endif
-  endif
-}
-
-partition "Version Management" {
-  :Create new biometric_data record:
-  - version = old_version + 1
-  - previous_version_id = old_id;
-
-  :Store new embedding;
-
-  if (Keep old version?) then (yes)
-    :Archive old biometric:
-    - Set is_active = false
-    - Keep for audit;
-  else (no)
-    :Delete old biometric;
-  endif
-
-  :Update user record:
-  - enrolled_at = NOW()
-  - Set new as primary;
-}
-
-partition "Testing New Biometric" {
-  :Prompt user:
-  "Test new enrollment?";
-
-  if (User agrees?) then (yes)
-    :Perform test verification;
-
-    repeat
-      :Capture test image;
-      :Verify against new embedding;
-
-      if (Verified successfully?) then (yes)
-        :Show success message;
-      else (no)
-        :Show failure;
-
-        if (Rollback?) then (yes)
-          :Restore old biometric;
-          :Delete new biometric;
-          stop
-        endif
-      endif
-    repeat while (Try again?) is (yes)
-  endif
-}
-
-partition "Finalization" {
-  fork
-    :Log re-enrollment event;
-  fork again
-    :Update verification logs;
-  fork again
-    :Notify user via email;
-  fork again
-    :Update analytics;
-  end fork
-
-  :Show success screen:
-  "Biometric updated successfully
-  Quality improved: 75 → 92";
-}
-
-stop
+' Traffic Flow
+users --> igw : HTTPS (443)
+igw --> alb : forwards
+alb --> api1 : HTTP (8080)
+alb --> api2 : HTTP (8080)
+alb --> api3 : HTTP (8080)
+alb --> api4 : HTTP (8080)
+
+api1 --> nat1 : outbound internet
+api2 --> nat1 : outbound internet
+api3 --> nat2 : outbound internet
+api4 --> nat2 : outbound internet
+
+api1 --> bio1 : HTTP (8001)
+api2 --> bio1 : HTTP (8001)
+api3 --> bio2 : HTTP (8001)
+api4 --> bio2 : HTTP (8001)
+
+api1 --> db1 : PostgreSQL (5432)
+api2 --> db1 : PostgreSQL (5432)
+api3 --> db1 : PostgreSQL (5432)
+api4 --> db1 : PostgreSQL (5432)
+
+api1 --> redis1 : Redis (6379)
+api2 --> redis1 : Redis (6379)
+api3 --> redis1 : Redis (6379)
+api4 --> redis1 : Redis (6379)
+
+db1 ..> db2 : replication (5432)
+redis1 ..> redis2 : replication (6379)
+
+api1 --> s3 : store files
+api2 --> s3 : store files
+api3 --> s3 : store files
+api4 --> s3 : store files
+
+api1 --> cloudwatch : logs/metrics
+api2 --> cloudwatch : logs/metrics
+
+bastion --> api1 : SSH debugging
+bastion --> db1 : psql client
+
+alb -[hidden]-> sg_alb
+api1 -[hidden]-> sg_app
+db1 -[hidden]-> sg_db
+
+note right of sg_alb
+  Security Group Rules:
+
+  ALB SG:
+  Inbound: 443 (0.0.0.0/0)
+  Outbound: 8080 (App SG)
+
+  App SG:
+  Inbound: 8080 (ALB SG), 22 (Bastion SG)
+  Outbound: 5432 (DB SG), 6379 (Redis SG), 443 (0.0.0.0/0)
+
+  DB SG:
+  Inbound: 5432 (App SG), 5432 (Bastion SG)
+  Outbound: None
+
+  Redis SG:
+  Inbound: 6379 (App SG)
+  Outbound: None
+end note
+
+note left of flow_logs
+  Monitoring & Compliance:
+  - VPC Flow Logs to S3
+  - CloudWatch Logs
+  - GuardDuty threat detection
+  - AWS Config compliance
+  - Network ACLs for subnet isolation
+end note
 
 @enduml
 ```
 
 ---
 
-**This file contains:**
-- ER Diagrams (2 variants)
-- Class Diagrams (3 detailed diagrams)
-- Sequence Diagrams (4 comprehensive flows)
-- State Machine Diagrams (4 lifecycle diagrams)
-- Activity Diagrams (4 complex processes)
+## 7. Security Architecture (Fixed)
 
-**Continue to PLANTUML_DIAGRAMS_PART2.md for:**
-- Component Diagrams
-- Deployment Diagrams
-- Use Case Diagrams
-- Additional Diagrams
+```plantuml
+@startuml security_architecture_fixed
+
+skinparam componentStyle rectangle
+
+rectangle "Layer 1: Perimeter Security" {
+    [WAF (Web Application Firewall)] as waf
+    [DDoS Protection\n(AWS Shield)] as shield
+    [Rate Limiting] as rate_limit
+}
+
+rectangle "Layer 2: Network Security" {
+    [VPC] as vpc
+    [Security Groups] as security_groups
+    [Network ACLs] as nacl
+    [Private Subnets] as private_subnet
+    [VPC Flow Logs] as flow_logs
+}
+
+rectangle "Layer 3: Application Security" {
+    [API Gateway\n(NGINX)] as api_gateway
+    [JWT Validation] as jwt
+    [CORS Policy] as cors
+    [Input Validation] as input_validation
+    [HTTPS/TLS 1.3] as tls
+}
+
+rectangle "Layer 4: Authentication & Authorization" {
+    [Spring Security] as spring_security
+    [Password Hashing\n(BCrypt)] as bcrypt
+    [JWT Service\n(HS512)] as jwt_service
+    [Multi-Factor Auth] as mfa
+    [Role-Based Access Control] as rbac
+    [Permission System] as permissions
+}
+
+rectangle "Layer 5: Data Security" {
+    [Encryption at Rest\n(AES-256)] as encryption_rest
+    [Encryption in Transit\n(TLS 1.3)] as encryption_transit
+    [Database RLS\n(Row-Level Security)] as rls
+    [Multi-Tenancy Isolation] as multi_tenancy
+    [Data Masking] as masking
+    [Audit Logging] as audit
+}
+
+rectangle "Layer 6: Secrets Management" {
+    [AWS Secrets Manager] as secrets_manager
+    [Environment Variables] as env_vars
+    [Vault Integration] as vault
+}
+
+rectangle "Layer 7: Monitoring & Compliance" {
+    [CloudWatch Alarms] as alarms
+    [Security Audit Logs] as security_logs
+    [Intrusion Detection\n(GuardDuty)] as ids
+    [Compliance Reports\n(KVKK/GDPR)] as compliance
+    [Vulnerability Scanning] as vuln_scan
+}
+
+actor "Attacker" as attacker
+actor "Legitimate User" as user
+
+' Attack Flow (Blocked)
+attacker --> shield : DDoS Attack
+shield -[#red]-> waf : BLOCKED
+attacker --> waf : SQL Injection
+waf -[#red]-> attacker : BLOCKED
+attacker --> rate_limit : Brute Force
+rate_limit -[#red]-> attacker : BLOCKED
+
+' Legitimate Flow
+user --> shield : Normal Request
+shield --> waf : Allowed
+waf --> rate_limit : Pass WAF Rules
+rate_limit --> api_gateway : Within Limits
+
+api_gateway --> tls : HTTPS Only
+tls --> jwt : Decrypt
+jwt --> spring_security : Validate Token
+spring_security --> rbac : Check Roles
+rbac --> permissions : Check Permissions
+
+api_gateway --> input_validation : Sanitize Input
+input_validation --> spring_security
+
+spring_security --> encryption_transit : Access DB
+encryption_transit --> rls : Row Filtering
+rls --> encryption_rest : Read Data
+encryption_rest --> masking : Sensitive Fields
+masking --> audit : Log Access
+
+spring_security --> secrets_manager : Get DB Credentials
+jwt_service --> secrets_manager : Get JWT Secret
+
+security_groups --> private_subnet : Isolate Resources
+nacl --> flow_logs : Log Traffic
+flow_logs --> security_logs : Centralize
+
+alarms --> security_logs : Monitor
+ids --> security_logs : Detect Threats
+vuln_scan --> compliance : Automated Scans
+
+note right of waf
+  WAF Rules:
+  - Block SQL Injection
+  - Block XSS
+  - Block common exploits
+  - Rate limiting per IP
+  - Geo-blocking (optional)
+  - Bot detection
+end note
+
+note right of spring_security
+  Authentication Flow:
+  1. User submits credentials
+  2. BCrypt verifies password
+  3. JWT token generated (HS512)
+  4. MFA challenge (if enabled)
+  5. Roles & permissions loaded
+  6. Access granted
+end note
+
+note right of encryption_rest
+  Data Encryption:
+  - Database: AES-256 at rest
+  - Biometric embeddings: Encrypted column
+  - Backups: Encrypted with KMS
+  - File storage: S3 encryption
+end note
+
+note right of multi_tenancy
+  Tenant Isolation:
+  - Separate schemas per tenant
+  - Row-Level Security (RLS)
+  - Tenant ID in JWT
+  - No cross-tenant queries
+  - Audit all tenant access
+end note
+
+note bottom of compliance
+  Compliance Features:
+  - KVKK (Turkish GDPR)
+  - GDPR (EU)
+  - Data retention policies
+  - Right to be forgotten
+  - Consent management
+  - Audit trail (7 years)
+  - Encrypted PII
+end note
+
+@enduml
+```
+
+---
+
+## How to Generate These Fixed Diagrams
+
+### Method 1: PlantUML Online Editor
+1. Visit: http://www.plantuml.com/plantuml/uml/
+2. Copy the content between `@startuml` and `@enduml`
+3. Paste into the editor
+4. The diagram will render automatically
+5. Download as PNG or SVG
+
+### Method 2: VS Code with PlantUML Extension
+1. Install "PlantUML" extension by jebbs
+2. Open this markdown file
+3. Right-click on a code block
+4. Select "Preview Current Diagram"
+5. Export via right-click → "Export Current Diagram"
+
+### Method 3: Command Line (with Java and Graphviz)
+```bash
+# Install PlantUML
+brew install plantuml   # macOS
+# OR
+apt-get install plantuml   # Ubuntu
+
+# Generate diagram
+plantuml diagram.puml -o output/
+
+# Generate all diagrams in a file
+plantuml -tpng PLANTUML_DIAGRAMS_FIXED.md
+```
+
+### Method 4: IntelliJ IDEA
+1. Install "PlantUML integration" plugin
+2. Open this file
+3. Click the PlantUML icon in the gutter
+4. Export via toolbar
+
+---
+
+## Differences from Original Diagrams
+
+### What Was Fixed:
+
+1. **Removed C4-PlantUML dependencies** (`!include <C4/C4_Component>`)
+   - Replaced with standard PlantUML component syntax
+   - Works with vanilla PlantUML installations
+
+2. **Fixed deployment diagram syntax**
+   - Replaced C4 deployment elements with standard `node`, `component`, `database`
+   - More compatible with various PlantUML renderers
+
+3. **Simplified ER diagram**
+   - Changed from custom macros to standard `entity` syntax
+   - Better compatibility across PlantUML versions
+
+4. **Removed deployment-specific C4 elements**
+   - `Container_Boundary` → `package`
+   - `Component` → `[Component Name]`
+   - `ContainerDb` → `database`
+
+5. **Fixed network and security diagrams**
+   - Used standard PlantUML `rectangle`, `package`, `component`
+   - No external dependencies required
+
+---
+
+## Summary
+
+**Fixed Diagrams:** 7 diagrams
+- Complete Database ER Diagram
+- System-Wide Components
+- Kubernetes Deployment
+- High Availability Deployment
+- Multi-Region Deployment
+- Network Architecture
+- Security Architecture
+
+**Compatibility:** Standard PlantUML (no C4 library required)
+
+**Status:** ✅ Ready to generate with any PlantUML installation
+
+---
+
+**Note:** These fixed diagrams provide the same information as the original diagrams but use standard PlantUML syntax for maximum compatibility.
