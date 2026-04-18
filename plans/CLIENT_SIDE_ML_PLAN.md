@@ -21,7 +21,7 @@ The server has no GPU. All heavy ML **inference for auth decisions** stays serve
 | ID | Decision | Rationale |
 |---|---|---|
 | D1 | **Pre-filter only** | Client pre-screens; server is sole source of truth for embeddings and verdicts. Delivers latency/bandwidth wins without rebuilding auth. |
-| D2 | **`client_embedding` log-only** | Server accepts and persists the field for offline MobileFaceNet-vs-ArcFace divergence analysis. Never trusted for auth decisions. |
+| D2 | **`client_embedding` log-only** | Client embedding is now landmark-geometry (512-dim, MediaPipe-based). MobileFaceNet ONNX deprecated 2026-04-18 — server-side DeepFace Facenet512 remains the sole trusted embedding for auth. Server accepts and persists the field for offline divergence analysis only. Never trusted for auth decisions. |
 | D3 | **Build-time model fetch (Hostinger static + SHA256 manifest)** | Deterministic deploys, no git-lfs, matches the no-dockerize-static rule. |
 | D4 | **Voice V1 now, V2 later** | V1: Silero VAD client-side, skip upload on silence. V2 (ECAPA-TDNN client embedding, remove librosa pin): deferred until V33 stable. |
 
