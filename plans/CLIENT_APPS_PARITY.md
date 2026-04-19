@@ -183,9 +183,9 @@ Any legacy AVFoundation camera / CoreNFC / LocalAuthentication work is **not sch
 | E2E             | Maestro cloud: launch → OAuth Custom Tab → back into app → dashboard; 5 flows | Maestro iOS: same 5 flows                            | Scripted UI via `KotlinNative-Robot` / JUnit     |
 | Device-farm     | Firebase Test Lab: Pixel 4a, Pixel 7, Galaxy S22, Xiaomi Redmi 9 | BrowserStack App Live: iPhone 12 / 14 / 15, iPad 10 | GitHub Actions matrix (`windows-latest`, `ubuntu-latest`) |
 | Perf budgets    | Cold start ≤ 1.5 s P75; OAuth round-trip ≤ 3 s P75 (network-bound) | Cold start ≤ 1.5 s P75                              | Cold start ≤ 2.0 s P75; installer ≤ 80 MB (hosted-first shrinks this vs. old ~180 MB target) |
-| Regression gate | PR must keep client-apps Kotlin test count ≥ 424 (current baseline; was 401 at pre-pivot) | Same                                                | Same                                             |
+| Regression gate | PR must keep client-apps Kotlin test count ≥ 425 (current baseline; was 401 at pre-pivot) | Same                                                | Same                                             |
 
-Shared `commonTest` currently ships **424 Kotlin tests** (v5.1.0 added ~23 for the TOTP engine + `otpauth://` parser). That number must only rise.
+Shared `commonTest` currently ships **425 Kotlin tests** (v5.1.0 added ~23 for the TOTP engine + `otpauth://` parser; +1 MFA_PREPARING-adjacent test from v5.2.0-rc1). That number must only rise.
 
 ---
 
