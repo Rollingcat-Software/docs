@@ -1,8 +1,36 @@
 # FIVUCSAS — Client-Apps Parity Roadmap (Hosted-First Rewrite)
 
-> Last updated: 2026-04-18e — rewritten after the 2026-04-16 hosted-first pivot.
+> Last updated: 2026-04-20 — re-verified after audit 2026-04-19. Android is **10/13** hosted-first (legacy password/MFA path still supported in-app), Desktop **2/13**, iOS **0/13** (no `iosApp/` module exists). §2 matrix below now matches §0a honest audit numbers.
 > Owner: client-apps workstream
-> Cross-refs: `../../ROADMAP.md` (Phase I Android 13/13 done; Phase J Desktop hosted-first active), `./NFC_PUSH_APPROVAL_PROTOCOL.md`, `./AUTH_METHOD_SECURITY_LEVELS.md`, `./CLIENT_SIDE_ML_PLAN.md`, `../../CHANGELOG.md` (2026-04-18 MobileFaceNet deprecation + V37/V38), `../../client-apps/ROADMAP_CLIENT_APPS.md` (per-module history), `../../client-apps/CHANGELOG.md`, `../../web-app/docs/AUDIT_REPORT_2026-04-16.md`, `../../web-app/docs/plans/HOSTED_LOGIN_INTEGRATION.md`.
+> Cross-refs: `../../ROADMAP.md` (Phase I Android **partial**, not 13/13 — see §0a below; Phase J Desktop hosted-first active), `../audits/AUDIT_2026-04-19.md` (Audit 4, MO-C1/C2).
+
+---
+
+## 0a. 2026-04-19 audit correction — what the "13/13" claim actually meant
+
+The 2026-04-19 five-team audit (`../audits/AUDIT_2026-04-19.md`, Audit 4, MO-C1)
+found that `androidApp/` has **no OAuth code at all**: no `net.openid:appauth`
+dependency, no Chrome Custom Tabs intent, no `https://verify.fivucsas.com/callback`
+App Link, no `authorize`/`code_challenge` anywhere. Grep returns zero hits. The
+app still runs the legacy password + native MFA path through `MfaFlowScreen.kt`
+and `LoginViewModel`.
+
+True state (re-verified 2026-04-20 against `client-apps/**`):
+
+| Platform | Hosted-first features shipped | Out of 13 |
+|---|---|---|
+| Android | legacy MFA methods, NFC, push (FCM wired), EncryptedSharedPreferences, signed APK, dashboard, TOTP companion, QR display/scan, GDPR export — but **no OAuth redirect (0 AppAuth / Custom-Tabs / authorize hits), no callback deep-link for `verify.fivucsas.com/callback`, no refresh scheduler** | **10/13** — rows 1, 3, 4 of §2 remain `✗` (legacy password + native MFA path still supported) |
+| Desktop | `OAuthLoopbackClient` (row 1) + `SecureTokenStorage` DPAPI/libsecret/fallback (row 2). Verified files: `client-apps/desktopApp/src/desktopMain/kotlin/com/fivucsas/desktop/auth/OAuthLoopbackClient.kt`, `.../security/{DpapiTokenStorage,LibsecretTokenStorage,FallbackTokenStorage,TokenStorageFactory}.kt` | **2/13** |
+| iOS | only the shared KMP framework builds; **no `client-apps/iosApp/` directory exists** (confirmed by `ls` 2026-04-20) | **0/13** |
+
+**v5.2.0-rc1 must not promote as a tri-platform release.** Ship as
+Android-only stable with explicit release notes. The three items needed to
+honestly close Phase I on Android: (a) add `net.openid:appauth` + Chrome
+Custom Tabs `AuthorizationService`, (b) register `https://verify.fivucsas.com/callback`
+App Link + `fivucsas://` custom scheme intent-filter, (c) background refresh
+scheduler with 80 % TTL renewal.
+
+---, `./NFC_PUSH_APPROVAL_PROTOCOL.md`, `./AUTH_METHOD_SECURITY_LEVELS.md`, `./CLIENT_SIDE_ML_PLAN.md`, `../../CHANGELOG.md` (2026-04-18 MobileFaceNet deprecation + V37/V38), `../../client-apps/ROADMAP_CLIENT_APPS.md` (per-module history), `../../client-apps/CHANGELOG.md`, `../../web-app/docs/AUDIT_REPORT_2026-04-16.md`, `../../web-app/docs/plans/HOSTED_LOGIN_INTEGRATION.md`.
 
 ---
 
@@ -51,14 +79,14 @@ FIVUCSAS ships three native clients from one Kotlin Multiplatform codebase: **An
 
 Statuses: `✗` not started · `scaffolded` (stubs / interface only) · `implemented` (functional in a debug build) · `tested` (unit + UI/instrumented coverage ≥ 70 %) · `signed-release` (built from CI with release signing) · `store-listed` (publicly downloadable by end users).
 
-Honest snapshot as of 2026-04-18e, verified against `/opt/projects/fivucsas/client-apps/`:
+Honest snapshot as of 2026-04-20, re-verified against `/opt/projects/fivucsas/client-apps/`:
 
 | # | Feature                                                                                          | Android (v5.2.0-rc1) | Desktop (Win+Linux) | iOS (Phase 2) |
 |---|--------------------------------------------------------------------------------------------------|----------------------|---------------------|---------------|
-| 1 | **OAuth login** — Custom Tabs (Android) / ASWebAuthenticationSession (iOS) / RFC 8252 loopback (Desktop) | implemented (AppAuth + Custom Tabs) | scaffolded (Agent B loopback WIP) | ✗ |
-| 2 | **Secure token storage** — Keystore (Android) / Keychain (iOS) / DPAPI (Windows) / libsecret (Linux) | implemented (`EncryptedSharedPreferences`) | scaffolded (`SecureTokenStorage` iface + DPAPI/libsecret impls WIP) | ✗ |
-| 3 | **Token refresh + auto-renewal** (refresh_token grant, proactive renewal at 80 % TTL)              | implemented         | ✗                    | ✗ |
-| 4 | **Deep-link handler** (`fivucsas://` custom scheme mobile; loopback redirect desktop)             | implemented         | scaffolded (Agent B) | ✗ |
+| 1 | **OAuth login** — Custom Tabs (Android) / ASWebAuthenticationSession (iOS) / RFC 8252 loopback (Desktop) | ✗ (no AppAuth / Custom Tabs / authorize wiring — legacy password + native MFA only) | scaffolded (`OAuthLoopbackClient`) | ✗ |
+| 2 | **Secure token storage** — Keystore (Android) / Keychain (iOS) / DPAPI (Windows) / libsecret (Linux) | implemented (`EncryptedSharedPreferences`) | scaffolded (`SecureTokenStorage` iface + DPAPI/libsecret/fallback impls) | ✗ |
+| 3 | **Token refresh + auto-renewal** (refresh_token grant, proactive renewal at 80 % TTL)              | ✗ (no refresh scheduler; legacy session handling only) | ✗                    | ✗ |
+| 4 | **Deep-link handler** (`fivucsas://` custom scheme mobile; loopback redirect desktop)             | ✗ for OAuth callback (`fivucsas://` intent-filter exists for FCM approvals, not for `verify.fivucsas.com/callback`) | scaffolded          | ✗ |
 | 5 | **Account dashboard** (enrollments, profile, data export link, sessions list)                     | implemented         | scaffolded (Compose skeleton) | ✗ |
 | 6 | **Cross-device sessions** (view active sessions, revoke remote)                                   | implemented         | scaffolded          | ✗ |
 | 7 | **GDPR/KVKK export** (fire `GET /users/{id}/export`, save to Downloads / file picker)             | implemented (v5.2.0-rc1 `DataExportViewModel` + MediaStore) | ✗ | ✗ |
@@ -69,10 +97,10 @@ Honest snapshot as of 2026-04-18e, verified against `/opt/projects/fivucsas/clie
 | 12 | **Signed release artifact** (CI-built, release-signed)                                            | signed-release (v5.2.0-rc1 tagged 2026-04-18e) | ✗ (unsigned builds only) | ✗ |
 | 13 | **Public distribution** (Play Store / TestFlight / `fivucsas.com/download`)                        | APK on GitHub Releases + Play Store listing planned | ✗ | ✗ |
 
-**Counts (implemented-or-above):**
-- **Android: 13 / 13** — v5.2.0-rc1 tagged 2026-04-18e (Phase I complete per `../../ROADMAP.md`).
-- **Desktop (Windows + Linux): 2 / 13** — scaffolding work actively in flight (Agents B/C/D on OAuth loopback + secure storage + installers).
-- **iOS: 0 / 13** — no `iosApp/` module exists; Phase 2 (July 2026), blocked on Apple Developer enrollment.
+**Counts (implemented-or-above), honest as of 2026-04-20:**
+- **Android: 10 / 13** — rows 1, 3, 4 are `✗` (no OAuth redirect, no refresh scheduler, no OAuth callback deep-link). Legacy password + native MFA path still supported end-to-end. v5.2.0-rc1 tagged 2026-04-18e ships as Android-only stable, **not** tri-platform; the "13/13" claim in earlier drafts of this doc was disproven by audit 2026-04-19.
+- **Desktop (Windows + Linux): 2 / 13** — rows 1 + 2 scaffolded (`OAuthLoopbackClient`, `SecureTokenStorage` DPAPI/libsecret/fallback). Agents B/C/D in flight on loopback + secure storage + installers.
+- **iOS: 0 / 13** — no `client-apps/iosApp/` directory (confirmed via `ls` 2026-04-20); only the shared KMP framework builds. Phase 2 opens July 2026, blocked on Apple Developer enrollment.
 - **macOS: out of scope** — no Mac hardware available for code-signing and notarytool.
 
 Dropped columns (vs. pre-pivot 20-row matrix): Face verification, Voice verification, Fingerprint biometric, Passport NFC, TCKN NFC, Istanbulkart NFC, Student card NFC, Password login, Email OTP entry, SMS OTP entry, Biometric enrollment flow. **All of these now happen in the browser tab that hosts `verify.fivucsas.com/login`.** The native apps never touch them.
