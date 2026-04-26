@@ -78,8 +78,8 @@ After Wave 2 agents merge:
 
 ## Out of scope
 
-- **iOS parity.** Tracked under Phase 2 of `docs/plans/CLIENT_APPS_PARITY.md`. TOTP engine's iOS HMAC actuals are the first iOS gap; see `client-apps/docs/TODO.md` Phase B.
-- **Desktop NFC + installer signing.** PC/SC NFC stack, Windows Authenticode, and macOS notarization are Phase 3 of `CLIENT_APPS_PARITY.md`. Tracked under `client-apps/docs/TODO.md` Phase C.
+- **iOS / macOS parity.** DROPPED 2026-04-26 — permanently out of scope. The product owner has no Apple hardware for development, signing, or testing. Android APK + Windows + Linux desktop cover the demonstration target. Pre-existing KMP `iosMain` directories remain in the codebase for compile structure but receive no further engineering work.
+- **Desktop NFC + installer signing.** PC/SC NFC stack and Windows Authenticode are Phase 3 of `CLIENT_APPS_PARITY.md`. macOS notarization is dropped (no Mac hardware). Tracked under `client-apps/docs/TODO.md` Phase C.
 - **GitGuardian #29836028 keystore rotation.** User-gated; full playbook in `docs/SECURITY_INCIDENTS.md`. Rotation scaffolding already shipped (`cb6eab9`), but actual `keytool -storepasswd` + `keytool -keypasswd` + GitHub-secret paste is a manual operator action.
 - **Phase C Wave 0 secret rotation.** PostgreSQL / Redis / JWT / Twilio / biometric / Hostinger SMTP rotation + `.env.prod` history purge requires a scheduled 2-hour maintenance window. Tracked as Phase C1–C5 in parent `ROADMAP.md`.
 - **Biometric-processor 79 CVE triage.** Separate workstream; independent of client-apps 20/20 push.
@@ -87,5 +87,5 @@ After Wave 2 agents merge:
 
 ## Cross-references
 
-- [`docs/plans/CLIENT_APPS_PARITY.md`](./CLIENT_APPS_PARITY.md) — 22-row feature matrix; Phase 2 (iOS) and Phase 3 (Desktop) roadmap.
+- [`docs/plans/CLIENT_APPS_PARITY.md`](./CLIENT_APPS_PARITY.md) — feature matrix; Phase 2 (Desktop Win+Linux) roadmap. iOS dropped 2026-04-26.
 - [`docs/plans/NFC_PUSH_APPROVAL_PROTOCOL.md`](./NFC_PUSH_APPROVAL_PROTOCOL.md) — cross-device NFC handoff spec; `fivucsas://nfc-session` deep link, Ed25519 device registration, FCM/APNS push payload, V39 migration sketch, 13-threat security review.
