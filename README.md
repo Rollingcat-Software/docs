@@ -18,7 +18,7 @@
 | **Understand architecture** | [Architecture Analysis](02-architecture/ARCHITECTURE_ANALYSIS.md) |
 | **Start developing** | [Developer Guide (CLAUDE.md)](03-development/CLAUDE.md) ⭐ |
 | **Run tests** | [Testing Guide](05-testing/TESTING_GUIDE.md) |
-| **Check project status** | [Implementation Status](IMPLEMENTATION_STATUS_REPORT.md) |
+| **Check project status** | [Project Status](07-status/README.md) |
 
 ---
 
@@ -31,14 +31,19 @@
 
 ### 1️⃣ [Getting Started](01-getting-started/)
 **New to FIVUCSAS? Start here!**
+- [tenant-onboarding.md](01-getting-started/tenant-onboarding.md) - ⭐ **Tenant onboarding playbook** (5-minute quickstart)
 - [GETTING_STARTED.md](01-getting-started/GETTING_STARTED.md) - Complete getting started guide
 - [RUNNING_APPS.md](01-getting-started/RUNNING_APPS.md) - Running all applications
+- [quick-start.md](01-getting-started/quick-start.md) - 5-Minute staging deployment reference
+- [local-development.md](01-getting-started/local-development.md) - Full-stack local development
 
 ### 2️⃣ [Architecture](02-architecture/)
 **System design and architectural decisions**
 - [ARCHITECTURE_ANALYSIS.md](02-architecture/ARCHITECTURE_ANALYSIS.md) - Complete architecture analysis
 - [SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md](02-architecture/SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md) - Design decisions
+- [data-flow.md](02-architecture/data-flow.md) / [event-bus.md](02-architecture/event-bus.md) / [webhooks.md](02-architecture/webhooks.md) / [security.md](02-architecture/security.md) / [structure.md](02-architecture/structure.md)
 - [Diagrams](02-architecture/diagrams/) - 35+ professional UML/PlantUML diagrams
+- [adr/](adr/) - ⭐ **Architecture Decision Records** (8 ADRs)
 
 ### 3️⃣ [Development](03-development/)
 **Developer guides and implementation documentation**
@@ -70,19 +75,18 @@
 **Testing guides and test reports**
 - [TESTING_GUIDE.md](05-testing/TESTING_GUIDE.md) - Complete testing guide (908 lines)
 - [MOBILE_TESTING_GUIDE.md](05-testing/MOBILE_TESTING_GUIDE.md) - Mobile app testing
-- [BACKEND_TEST_REPORT.md](05-testing/BACKEND_TEST_REPORT.md) - Backend test results
+- [baseline-results.md](05-testing/baseline-results.md) / [integration-testing.md](05-testing/integration-testing.md) / [load-testing.md](05-testing/load-testing.md) / [test-report.md](05-testing/test-report.md)
 
 ### 6️⃣ [Deployment](06-deployment/)
 **Deployment and operations guides**
 - [START_ALL_SERVICES.md](06-deployment/START_ALL_SERVICES.md) - Starting all services
-- Local development setup guides
+- [deployment-guide.md](06-deployment/deployment-guide.md) / [monitoring.md](06-deployment/monitoring.md) / [staging.md](06-deployment/staging.md)
+- Runbook index → see [06-deployment/README.md](06-deployment/README.md) "Runbooks" section
 
 ### 7️⃣ [Project Status](07-status/)
 **Current project status and roadmaps**
-- [IMPLEMENTATION_STATUS_REPORT.md](IMPLEMENTATION_STATUS_REPORT.md) - ⭐ **Authoritative project status (December 2025)**
-- [FINAL_COMPLETION_REPORT.md](07-status/FINAL_COMPLETION_REPORT.md) - Completion summary
-- [KMP_IMPLEMENTATION_STATUS.md](07-status/KMP_IMPLEMENTATION_STATUS.md) - Kotlin Multiplatform status
-- [MOBILE_APP_STATUS.md](07-status/MOBILE_APP_STATUS.md) - Mobile app status
+- [07-status/README.md](07-status/README.md) - ⭐ **Authoritative project status**
+- Historical reports archived in [archive/2026-04-16/](archive/2026-04-16/) (FINAL_COMPLETION_REPORT, KMP_IMPLEMENTATION_STATUS, MOBILE_APP_STATUS, IMPLEMENTATION_STATUS_REPORT)
 
 ### 8️⃣ [Website & Marketing](08-website/)
 **Landing website documentation for fivucsas.com**
@@ -165,7 +169,7 @@ Identity Core API:        ██████████████████
 Mobile/Desktop UI:        ████████████░░░░░░░░  60% ⚠️ UI complete, integration pending
 ```
 
-**Details:** [Implementation Status Report](IMPLEMENTATION_STATUS_REPORT.md)
+**Details:** [Project Status](07-status/README.md)
 
 ---
 
