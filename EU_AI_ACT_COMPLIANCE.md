@@ -725,7 +725,7 @@ The current deployment at `116.203.222.213:8080` processes biometric data in a *
 
 | Document | Path |
 |---------|------|
-| Implementation Status Report | `docs/IMPLEMENTATION_STATUS_REPORT.md` |
+| Implementation Status Report | `docs/07-status/README.md` |
 | Architecture Analysis | `docs/02-architecture/ARCHITECTURE_ANALYSIS.md` |
 | API Services Overview | `docs/04-api/SERVICES_OVERVIEW.md` |
 | Database Schema — Biometric Tables | `identity-core-api/src/main/resources/db/migration/V4__create_biometric_tables.sql` |
