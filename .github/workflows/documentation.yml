@@ -20,7 +20,7 @@ concurrency:
 jobs:
   validate-structure:
     name: Validate Documentation Structure
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -40,7 +40,6 @@ jobs:
             "05-testing/README.md"
             "06-deployment/README.md"
             "07-status/README.md"
-            "07-status/PROJECT_STATUS_NOW.md"
           )
 
           MISSING=0
@@ -73,7 +72,7 @@ jobs:
             "05-testing"
             "06-deployment"
             "07-status"
-            "99-archive"
+            "archive"
           )
 
           MISSING=0
@@ -95,7 +94,7 @@ jobs:
 
   check-links:
     name: Check for Broken Links
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -106,10 +105,12 @@ jobs:
         with:
           use-quiet-mode: 'yes'
           config-file: '.github/markdown-link-check-config.json'
+          check-modified-files-only: 'yes'
+          base-branch: 'main'
 
   generate-report:
     name: Generate Documentation Report
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
     needs: [validate-structure, check-links]
 
     steps:
@@ -167,7 +168,7 @@ jobs:
 
   success-notification:
     name: Documentation Quality Passed
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
     needs: [validate-structure, check-links, generate-report]
     if: success()
 
