@@ -145,7 +145,7 @@ const { tokens } = await auth.stepUp({ amrRequired: ['fpt'] });
 // returns an elevated-privilege access token after a fresh fingerprint prompt
 ```
 
-Step-up requires the user to already hold a session. See `STEP_UP_AUTH_GUIDE.md` for the mobile-native ECDSA P-256 path.
+Step-up requires the user to already hold a session. See [`STEP_UP_AUTH_GUIDE.md`](STEP_UP_AUTH_GUIDE.md) for the mobile-native ECDSA P-256 path.
 
 ---
 
@@ -196,7 +196,7 @@ Users who land on `verify.fivucsas.com` directly (not via a `loginRedirect`) get
 
 - Subscribe to webhook events at `https://app.fivucsas.com/integrations/webhooks` for `user.login_succeeded`, `user.login_failed`, `mfa.step_failed`, `session.revoked`, `account.locked`.
 - Liveness / uptime: `https://status.fivucsas.com` (Uptime Kuma; 60s probe interval).
-- Errors surface as standard OAuth 2.0 `error` + `error_description` per RFC 6749 §5.2; the SDK exposes them via `FivucsasAuthError` with a `code` field (`invalid_request`, `invalid_grant`, `account_locked`, `mfa_required`, `rate_limited`, ...). See `INTEGRATION_GUIDE.md` Appendix C.
+- Errors surface as standard OAuth 2.0 `error` + `error_description` per RFC 6749 §5.2; the SDK exposes them via `FivucsasAuthError` with a `code` field (`invalid_request`, `invalid_grant`, `account_locked`, `mfa_required`, `rate_limited`, ...). See [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md) Appendix C.
 
 ### Operational tips
 
@@ -208,8 +208,8 @@ Users who land on `verify.fivucsas.com` directly (not via a `loginRedirect`) get
 
 ## Reference documentation
 
-- `EMBEDDABLE_AUTH_WIDGET_ARCHITECTURE.md` — full SDK architecture, package matrix, deployment topology.
-- `INTEGRATION_GUIDE.md` — exhaustive integration recipes per framework (vanilla, React, Web Components, KMP).
-- `STEP_UP_AUTH_GUIDE.md` — mobile-native ECDSA P-256 step-up flow (Aysenur's track).
+- [`EMBEDDABLE_AUTH_WIDGET_ARCHITECTURE.md`](../02-architecture/EMBEDDABLE_AUTH_WIDGET_ARCHITECTURE.md) — full SDK architecture, package matrix, deployment topology.
+- [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md) — exhaustive integration recipes per framework (vanilla, React, Web Components, KMP).
+- [`STEP_UP_AUTH_GUIDE.md`](STEP_UP_AUTH_GUIDE.md) — mobile-native ECDSA P-256 step-up flow (Aysenur's track).
 - `09-auth-flows/` — the 10-document set covering platform capability matrix, session state machine, per-method enrollment flows, cross-device QR-bridge protocol.
 - `adr/` — architectural decisions captured separately. Start with `0001-hosted-first-oidc.md`.

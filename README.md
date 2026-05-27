@@ -28,6 +28,7 @@
 **Documentation about documentation**
 - [Module Design](00-meta/module-design/) - Documentation module design and analysis
 - [Project Artifacts](00-meta/project-artifacts/) - PSD, proposals, original documents
+- [ADD_2403.txt](00-meta/ADD_2403.txt) - Student project title page
 
 ### 1️⃣ [Getting Started](01-getting-started/)
 **New to FIVUCSAS? Start here!**
@@ -36,12 +37,20 @@
 - [RUNNING_APPS.md](01-getting-started/RUNNING_APPS.md) - Running all applications
 - [quick-start.md](01-getting-started/quick-start.md) - 5-Minute staging deployment reference
 - [local-development.md](01-getting-started/local-development.md) - Full-stack local development
+- [INTEGRATION_GUIDE.md](01-getting-started/INTEGRATION_GUIDE.md) - Per-framework integration recipes
+- [EMAIL_OTP_SETUP.md](01-getting-started/EMAIL_OTP_SETUP.md) - Email OTP configuration
+- [STEP_UP_AUTH_GUIDE.md](01-getting-started/STEP_UP_AUTH_GUIDE.md) - Mobile-native step-up authentication
+- [METRICS_COLLECTION_GUIDE.md](01-getting-started/METRICS_COLLECTION_GUIDE.md) - Metrics collection
+- [EU_AI_ACT_COMPLIANCE.md](01-getting-started/EU_AI_ACT_COMPLIANCE.md) - EU AI Act compliance notes
 
 ### 2️⃣ [Architecture](02-architecture/)
 **System design and architectural decisions**
 - [ARCHITECTURE_ANALYSIS.md](02-architecture/ARCHITECTURE_ANALYSIS.md) - Complete architecture analysis
 - [SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md](02-architecture/SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md) - Design decisions
 - [data-flow.md](02-architecture/data-flow.md) / [event-bus.md](02-architecture/event-bus.md) / [webhooks.md](02-architecture/webhooks.md) / [security.md](02-architecture/security.md) / [structure.md](02-architecture/structure.md)
+- [BIOMETRIC_ENGINE_ARCHITECTURE.md](02-architecture/BIOMETRIC_ENGINE_ARCHITECTURE.md) - Biometric engine design
+- [VERIFICATION_PIPELINE_ARCHITECTURE.md](02-architecture/VERIFICATION_PIPELINE_ARCHITECTURE.md) - Verification pipeline design
+- [EMBEDDABLE_AUTH_WIDGET_ARCHITECTURE.md](02-architecture/EMBEDDABLE_AUTH_WIDGET_ARCHITECTURE.md) - Embeddable auth widget SDK architecture
 - [Diagrams](02-architecture/diagrams/) - 35+ professional UML/PlantUML diagrams
 - [adr/](adr/) - ⭐ **Architecture Decision Records** (8 ADRs)
 
@@ -51,6 +60,8 @@
 - [KOTLIN_MULTIPLATFORM_GUIDE.md](03-development/KOTLIN_MULTIPLATFORM_GUIDE.md) - Mobile app development
 - [IMPLEMENTATION_GUIDE.md](03-development/IMPLEMENTATION_GUIDE.md) - Implementation details
 - [TECHNOLOGY_DECISIONS.md](03-development/TECHNOLOGY_DECISIONS.md) - Technology stack decisions
+- [PRECOMMIT_HOOKS.md](03-development/PRECOMMIT_HOOKS.md) - Pre-commit hooks setup
+- [UX_DESIGN_GUIDE.md](03-development/UX_DESIGN_GUIDE.md) - UX design guidelines
 
 ### 4️⃣ [API Documentation](04-api/)
 **Interactive API documentation (auto-generated from code)**
@@ -87,6 +98,7 @@
 **Current project status and roadmaps**
 - [07-status/README.md](07-status/README.md) - ⭐ **Authoritative project status**
 - Historical reports archived in [archive/2026-04-16/](archive/2026-04-16/) (FINAL_COMPLETION_REPORT, KMP_IMPLEMENTATION_STATUS, MOBILE_APP_STATUS, IMPLEMENTATION_STATUS_REPORT)
+- [archive/LOGIN_SURFACES_COMPARISON_2026-04-26.md](archive/LOGIN_SURFACES_COMPARISON_2026-04-26.md) - Login surfaces comparison (dated snapshot)
 
 ### 8️⃣ [Website & Marketing](08-website/)
 **Landing website documentation for fivucsas.com**
