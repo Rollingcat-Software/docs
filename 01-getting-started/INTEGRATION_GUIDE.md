@@ -33,8 +33,8 @@ Add FIVUCSAS biometric auth to any page with a single script tag.
 <body>
   <button id="login-btn">Log In with FIVUCSAS</button>
 
-  <!-- 1. Load the SDK -->
-  <script src="https://verify.fivucsas.com/sdk/fivucsas-auth.iife.js"></script>
+  <!-- 1. Load the SDK (CDN — live at https://verify.fivucsas.com/) -->
+  <script src="https://verify.fivucsas.com/fivucsas-auth.js"></script>
 
   <script>
     // 2. Initialize with your client ID
@@ -260,19 +260,22 @@ The auth widget (`verify.fivucsas.com`) runs in a sandboxed iframe and handles c
 
 ### Option A — `@fivucsas/auth-js` (Vanilla JS)
 
-**CDN (IIFE, zero dependencies):**
+> **Delivery status:** The CDN is live at `https://verify.fivucsas.com/`. npm packages (`@fivucsas/auth-*`) are **not yet published** — use the CDN paths below until npm availability is announced.
+
+**CDN — IIFE (zero dependencies, browser globals):**
 ```html
-<script src="https://verify.fivucsas.com/sdk/fivucsas-auth.iife.js"></script>
+<script src="https://verify.fivucsas.com/fivucsas-auth.js"></script>
 ```
 
-**ESM import:**
+**CDN — ESM (for `<script type="module">` or import maps):**
 ```js
-import { FivucsasAuth } from 'https://verify.fivucsas.com/sdk/fivucsas-auth.esm.js';
+import { FivucsasAuth } from 'https://verify.fivucsas.com/fivucsas-auth.esm.js';
 ```
 
-**npm (if bundling):**
+**npm (coming soon — not yet published):**
 ```bash
-npm install @fivucsas/auth-js
+# Not available yet — use the CDN URLs above
+# npm install @fivucsas/auth-js
 ```
 
 **Usage:**
@@ -338,8 +341,11 @@ auth.destroy();
 
 ### Option B — `@fivucsas/auth-react`
 
+> **Not yet published on npm.** Load auth-js via CDN and use the raw postMessage API or Option D (raw iframe) in the meantime. This section documents the planned React API.
+
 ```bash
-npm install @fivucsas/auth-react
+# Coming soon — not yet published
+# npm install @fivucsas/auth-react
 ```
 
 **Wrap your app with `<FivucsasProvider>`:**
@@ -426,12 +432,15 @@ function CustomLogin() {
 | `error` | `Error \| null` | Last error |
 | `reset` | `() => void` | Clear result and error state |
 
-### Option C — `@fivucsas/auth-elements` (Web Components — coming soon)
+### Option C — `@fivucsas/auth-elements` (Web Components — coming soon, not yet published)
 
-Declarative HTML, framework-agnostic:
+> **Not yet published.** The CDN file `fivucsas-auth-elements.js` is not yet live. Use Option A or Option D until this is released.
+
+Planned declarative HTML, framework-agnostic usage:
 
 ```html
-<script src="https://verify.fivucsas.com/sdk/fivucsas-auth-elements.js"></script>
+<script src="https://verify.fivucsas.com/fivucsas-auth-elements.js"></script>
+<!-- NOTE: file not yet published — check https://verify.fivucsas.com for availability -->
 
 <fivucsas-verify
   client-id="fiv_YOUR_CLIENT_ID"
@@ -793,7 +802,7 @@ Content-Security-Policy:
 - [ ] Tested on mobile (camera permission prompt, touch fingerprint)
 - [ ] Tested Escape / backdrop click cancellation (should not cause errors)
 - [ ] Tested token expiration and refresh
-- [ ] Verified Swagger docs at https://api.fivucsas.com/swagger-ui.html for latest endpoint signatures
+- [ ] Verified Swagger docs at `https://api.fivucsas.com/swagger-ui.html` (admin-IP-gated, 403 from external IPs) for latest endpoint signatures
 
 ---
 
@@ -801,11 +810,11 @@ Content-Security-Policy:
 
 | Resource | URL |
 |----------|-----|
-| Identity API | https://api.fivucsas.com |
+| Identity API | `https://api.fivucsas.com` (auth required — returns 401 without a valid Bearer token) |
 | Auth Widget | https://verify.fivucsas.com |
 | Developer Portal | https://app.fivucsas.com/developer-portal |
 | Widget Demo | https://app.fivucsas.com/widget-demo |
-| Swagger UI | https://api.fivucsas.com/swagger-ui.html |
+| Swagger UI | `https://api.fivucsas.com/swagger-ui.html` (admin-IP-gated — returns 403 from external IPs) |
 | OIDC Discovery | https://api.fivucsas.com/.well-known/openid-configuration |
 | JWKS | https://api.fivucsas.com/.well-known/jwks.json |
 | Auth Flow Builder | https://app.fivucsas.com/auth-flow-builder |
@@ -815,6 +824,6 @@ Content-Security-Policy:
 
 ## Support
 
-- **Swagger UI**: Full endpoint documentation at https://api.fivucsas.com/swagger-ui.html
+- **Swagger UI**: Full endpoint documentation at `https://api.fivucsas.com/swagger-ui.html` (admin-IP-gated — returns 403 from external IPs)
 - **Widget Demo**: Live integration demo at https://app.fivucsas.com/widget-demo
 - **Developer Portal**: Manage your apps at https://app.fivucsas.com/developer-portal

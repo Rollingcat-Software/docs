@@ -486,7 +486,7 @@ sequenceDiagram
     alt User Found
         ICA->>ICA: Verify BCrypt Password
         alt Password Valid
-            ICA->>ICA: Generate JWT (HS512)
+            ICA->>ICA: Generate JWT (RS256)
             ICA->>ICA: Generate Refresh Token
             ICA->>RD: Store Session
             ICA->>DB: Log Login Event
@@ -938,8 +938,40 @@ graph TB
 
 ---
 
+## 11. Draw.io Source Diagrams
+
+The `diagrams/` folder contains editable draw.io XML sources. Open any `.drawio` file at [app.diagrams.net](https://app.diagrams.net) to view or edit.
+
+| File | Topic | Status |
+|------|-------|--------|
+| [`system_architecture.drawio`](../diagrams/system_architecture.drawio) | Full system layered view (clients → gateway → services → data) | Accurate — JWT RS256 corrected 2026-05-28 |
+| [`hexagonal_architecture.drawio`](../diagrams/hexagonal_architecture.drawio) | Ports & Adapters / DDD for Identity Core API | Accurate |
+| [`er_diagram.drawio`](../diagrams/er_diagram.drawio) | Database ER diagram — core tables | Broadly accurate (pre-V55 schema; see Flyway migrations for V55–V60 column changes) |
+| [`use_case_diagram.drawio`](../diagrams/use_case_diagram.drawio) | Use cases by actor (End User, Tenant Admin, System Admin, External) | Accurate |
+| [`biometric_puzzle_flow.drawio`](../diagrams/biometric_puzzle_flow.drawio) | Active liveness challenge flow (blink / smile / turn) | Accurate |
+| [`data_flow_diagram.drawio`](../diagrams/data_flow_diagram.drawio) | DFD Level 1 — face verification and identity management | Accurate |
+| [`nfc_handshake.drawio`](../diagrams/nfc_handshake.drawio) | NFC BAC authentication handshake (ICAO 9303 / ISO 14443) | Accurate |
+| [`deployment_architecture.drawio`](../diagrams/deployment_architecture.drawio) | Docker Compose topology | **Needs regeneration** — shows NGINX as gateway; production uses Traefik (see infra/traefik/) |
+| [`ml_pipeline.drawio`](../diagrams/ml_pipeline.drawio) | Face recognition pipeline (input → detect → align → extract → match) | Accurate — 9 DeepFace models shown (VGG-Face, FaceNet, ArcFace, etc.); MobileFaceNet was a separate stripped model not listed here |
+| [`technology_stack.drawio`](../diagrams/technology_stack.drawio) | Full technology stack per layer | **Partially stale** — API gateway section shows NGINX; prod uses Traefik. JWT RS256 is correctly shown. |
+| [`implementation_progress.drawio`](../diagrams/implementation_progress.drawio) | Progress bars — Fall 2025 snapshot | **Stale** — percentages reflect Fall 2025; project is now 98%+ complete (V60 migrations applied). |
+
+## 12. Additional PNG Diagrams
+
+The `ADD_diagrams/` folder contains exported PNG diagrams produced alongside the early development phase.
+
+| File | Topic | Status |
+|------|-------|--------|
+| [`diagram_01_use_cases_by_actor.png`](../ADD_diagrams/diagram_01_use_cases_by_actor.png) | Use cases grouped by actor (wide layout) | Accurate — complements §10 above |
+| [`diagram_02_domain_model___core_entities.png`](../ADD_diagrams/diagram_02_domain_model___core_entities.png) | UML class diagram — Tenant / User / BiometricData / Role / AuditLog / VerificationLog | Accurate |
+| [`diagram_03_entity_relationship_diagram.png`](../ADD_diagrams/diagram_03_entity_relationship_diagram.png) | Full ER schema export | Broadly accurate; see Flyway V55–V60 for latest column changes (refresh_tokens.token column dropped V60) |
+| [`diagram_04_system_architecture_overview.png`](../ADD_diagrams/diagram_04_system_architecture_overview.png) | Layered architecture block diagram | **Needs regeneration** — shows NGINX gateway and "DeepFace 9 Models"; prod uses Traefik and MobileFaceNet was removed |
+| [`diagram_05_docker_deployment.png`](../ADD_diagrams/diagram_05_docker_deployment.png) | Docker network topology | **Needs regeneration** — shows nginx:8000 and web-app:5173; prod uses Traefik and the widget app is verify.fivucsas.com |
+
+---
+
 **Document Location:** `docs/02-architecture/ARCHITECTURE_DIAGRAMS.md`
 **Related Documents:**
 - [Architecture Analysis](ARCHITECTURE_ANALYSIS.md)
-- [System Design Decisions](SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md)
+- System Design Decisions
 - [PlantUML Diagrams](diagrams/PLANTUML_DIAGRAMS.md)
