@@ -6,8 +6,8 @@ Testing guides and test reports for FIVUCSAS.
 
 - **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - ⭐ Complete testing guide (908 lines)
 - **[MOBILE_TESTING_GUIDE.md](MOBILE_TESTING_GUIDE.md)** - Mobile app testing
-- **[BACKEND_TEST_REPORT.md](BACKEND_TEST_REPORT.md)** - Backend test results
-- **[QUICKSTART_TEST.md](QUICKSTART_TEST.md)** - Quick testing guide
+- **BACKEND_TEST_REPORT.md** - Backend test results
+- **[TEST_QUICKSTART.md](TEST_QUICKSTART.md)** - Quick testing guide
 - **[HOW_TO_TEST_APPS.md](HOW_TO_TEST_APPS.md)** - How to test applications
 
 ## Quick Test Commands

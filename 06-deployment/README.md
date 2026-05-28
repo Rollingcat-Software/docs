@@ -5,8 +5,8 @@ Deployment and operations guides for FIVUCSAS.
 ## Local Development
 
 - **[START_ALL_SERVICES.md](START_ALL_SERVICES.md)** - How to start all services locally
-- **[BACKEND_DAY_1_PLAN.md](BACKEND_DAY_1_PLAN.md)** - Backend setup plan
-- **[BACKEND_NEXT_STEPS.md](BACKEND_NEXT_STEPS.md)** - Backend next steps
+- **BACKEND_DAY_1_PLAN.md** - Backend setup plan
+- **BACKEND_NEXT_STEPS.md** - Backend next steps
 
 ## Quick Start All Services
 
@@ -61,8 +61,8 @@ Operator runbooks live in the `infra/` repo at `/opt/projects/infra/RUNBOOK_*.md
 
 | Runbook | Path | When to use |
 |---------|------|-------------|
-| **Disk capacity** | [`infra/RUNBOOK_DISK.md`](../../infra/RUNBOOK_DISK.md) | Before any `docker compose build --no-cache` on the Hetzner CX43 host; on `ENOSPC` alerts. Documents the 5 defence-in-depth layers (per-container log caps, journald cap, hourly disk-guard, daily sweep, weekly aggressive prune). |
-| **Audit log partitioning (pg_partman V57)** | [`infra/RUNBOOK_AUDIT_LOG_PARTMAN.md`](../../infra/RUNBOOK_AUDIT_LOG_PARTMAN.md) | When applying or reasoning about Flyway V57. pg_partman with monthly partitions, premake=12, retention 24 months; fail-soft when extension missing (`RAISE WARNING + RETURN`). Includes explicit opt-out `ALTER DATABASE identity_core SET app.skip_partman_v57='on'`. |
+| **Disk capacity** | [`infra/RUNBOOK_DISK.md`](https://github.com/Rollingcat-Software/FIVUCSAS/blob/master/infra/RUNBOOK_DISK.md) | Before any `docker compose build --no-cache` on the Hetzner CX43 host; on `ENOSPC` alerts. Documents the 5 defence-in-depth layers (per-container log caps, journald cap, hourly disk-guard, daily sweep, weekly aggressive prune). |
+| **Audit log partitioning (pg_partman V57)** | [`infra/RUNBOOK_AUDIT_LOG_PARTMAN.md`](https://github.com/Rollingcat-Software/FIVUCSAS/blob/master/infra/RUNBOOK_AUDIT_LOG_PARTMAN.md) | When applying or reasoning about Flyway V57. pg_partman with monthly partitions, premake=12, retention 24 months; fail-soft when extension missing (`RAISE WARNING + RETURN`). Includes explicit opt-out `ALTER DATABASE identity_core SET app.skip_partman_v57='on'`. |
 | **Disaster recovery** | `infra/RUNBOOK_DR.md` | Annual DR drill, or a real outage requiring restore from off-site backup. |
 | **Flyway repair** | `infra/RUNBOOK_FLYWAY_REPAIR.md` | When `schema_history` is out of sync with the migrations on disk. |
 | **Network** | `infra/RUNBOOK_NETWORK.md` | DNS, Traefik routing, firewall, VPN. |

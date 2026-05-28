@@ -26,7 +26,7 @@
 
 ### 0️⃣ [Meta Documentation](00-meta/)
 **Documentation about documentation**
-- [Module Design](00-meta/module-design/) - Documentation module design and analysis
+- Module Design - Documentation module design and analysis
 - [Project Artifacts](00-meta/project-artifacts/) - PSD, proposals, original documents
 - [ADD_2403.txt](00-meta/ADD_2403.txt) - Student project title page
 
@@ -46,7 +46,7 @@
 ### 2️⃣ [Architecture](02-architecture/)
 **System design and architectural decisions**
 - [ARCHITECTURE_ANALYSIS.md](02-architecture/ARCHITECTURE_ANALYSIS.md) - Complete architecture analysis
-- [SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md](02-architecture/SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md) - Design decisions
+- SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md - Design decisions
 - [data-flow.md](02-architecture/data-flow.md) / [event-bus.md](02-architecture/event-bus.md) / [webhooks.md](02-architecture/webhooks.md) / [security.md](02-architecture/security.md) / [structure.md](02-architecture/structure.md)
 - [BIOMETRIC_ENGINE_ARCHITECTURE.md](02-architecture/BIOMETRIC_ENGINE_ARCHITECTURE.md) - Biometric engine design
 - [VERIFICATION_PIPELINE_ARCHITECTURE.md](02-architecture/VERIFICATION_PIPELINE_ARCHITECTURE.md) - Verification pipeline design
@@ -78,7 +78,7 @@
 
 #### Reference Documentation
 - [SERVICES_OVERVIEW.md](archive/2026-05-28/SERVICES_OVERVIEW.md) - Service capabilities overview (archived Nov-2025 snapshot)
-- [BACKEND_REVIEW.md](04-api/BACKEND_REVIEW.md) - Backend code review
+- BACKEND_REVIEW.md - Backend code review
 - [Backend SpringDoc Setup](04-api/backend-api/SPRINGDOC_SETUP.md) - SpringDoc OpenAPI implementation
 - [Biometric FastAPI Setup](04-api/biometric-service/FASTAPI_SETUP.md) - FastAPI documentation setup
 
@@ -102,7 +102,7 @@
 
 ### 8️⃣ [Website & Marketing](08-website/)
 **Landing website documentation for fivucsas.com**
-- [ADD_LANDING_WEBSITE.md](08-website/ADD_LANDING_WEBSITE.md) - ⭐ **Landing website Analysis & Design Document**
+- ADD_LANDING_WEBSITE.md - Landing website Analysis & Design Document
 - Domain: `fivucsas.com` (Hostinger)
 - Purpose: Marketing, branding, lead generation
 
@@ -158,9 +158,9 @@
 | **Biometric Processor** | FastAPI (Python 3.11) | ✅ 100% | [FastAPI Docs](http://localhost:8001/docs) |
 | **Demo GUI** | Next.js 14, TypeScript | ✅ 100% | Embedded in Biometric Processor |
 | **Identity Core API** | Spring Boot 3.2 (Java 21) | ⚠️ 90% | [Swagger UI](http://localhost:8080/swagger-ui.html) |
-| **Web Admin Dashboard** | React 18, Material-UI | ✅ 100% | [web-app submodule](../web-app/) |
+| **Web Admin Dashboard** | React 18, Material-UI | ✅ 100% | [web-app submodule](https://github.com/Rollingcat-Software/web-app) |
 | **Mobile/Desktop** | Kotlin Multiplatform | ⚠️ 60% (UI) | [KMP Guide](03-development/KOTLIN_MULTIPLATFORM_GUIDE.md) |
-| **NFC Reader** | Kotlin, Jetpack Compose | ✅ 85% | [practice-and-test](../practice-and-test/) |
+| **NFC Reader** | Kotlin, Jetpack Compose | ✅ 85% | [practice-and-test](https://github.com/Rollingcat-Software/practice-and-test) |
 | **Database** | PostgreSQL 16 + pgvector | ✅ 100% | [Architecture](02-architecture/ARCHITECTURE_ANALYSIS.md) |
 | **Cache/Queue** | Redis 7 | ✅ Ready | Docker Compose configured |
 
@@ -191,8 +191,8 @@ Mobile/Desktop UI:        ████████████░░░░░░
 - **Department:** Computer Engineering
 - **Course:** Engineering Project (CSE4297)
 - **Project Type:** Multi-tenant Biometric SaaS Platform
-- **Proposal:** [CSE4297_Project_Proposal.pdf](00-meta/project-artifacts/CSE4297_Project_Proposal.pdf)
-- **Specification:** [PSD.docx](00-meta/project-artifacts/PSD.docx)
+- **Proposal:** CSE4297_Project_Proposal.pdf
+- **Specification:** PSD.docx
 
 ---
 
@@ -270,9 +270,9 @@ This documentation follows professional software engineering principles:
 - **Automation** - API docs auto-generated from code (always accurate, zero maintenance)
 
 See design documentation:
-- [Design Analysis](00-meta/module-design/DOCS_MODULE_DESIGN_ANALYSIS.md)
-- [Professional Design](00-meta/module-design/DOCS_MODULE_PROFESSIONAL_DESIGN.md)
-- [Implementation Plan](00-meta/module-design/DOCS_MODULE_IMPLEMENTATION_PLAN.md)
+- Design Analysis (DOCS_MODULE_DESIGN_ANALYSIS.md)
+- Professional Design (DOCS_MODULE_PROFESSIONAL_DESIGN.md)
+- Implementation Plan (DOCS_MODULE_IMPLEMENTATION_PLAN.md)
 
 ---
 
