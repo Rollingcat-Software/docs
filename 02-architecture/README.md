@@ -12,12 +12,12 @@ System architecture, design decisions, and architectural diagrams.
 - **[MODULE_STRUCTURE.md](MODULE_STRUCTURE.md)** - ⭐ Official module structure and organization (NEW)
 - **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)** - ⭐ Mermaid diagrams for SE (NEW)
 - **[ARCHITECTURE_ANALYSIS.md](ARCHITECTURE_ANALYSIS.md)** - Comprehensive architecture analysis
-- **[SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md](SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md)** - Design decisions
+- **SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md** - Design decisions
 
 ### Audits & Reports
-- **[PROJECT_DESIGN_AUDIT.md](PROJECT_DESIGN_AUDIT.md)** - Design audit report
-- **[DESIGN_AUDIT_REPORT.md](DESIGN_AUDIT_REPORT.md)** - Detailed audit findings
-- **[PROJECT_DESIGN_AND_STATUS_ANALYSIS.md](PROJECT_DESIGN_AND_STATUS_ANALYSIS.md)** - Design and status analysis
+- **PROJECT_DESIGN_AUDIT.md** - Design audit report
+- **DESIGN_AUDIT_REPORT.md** - Detailed audit findings
+- **PROJECT_DESIGN_AND_STATUS_ANALYSIS.md** - Design and status analysis
 
 ---
 

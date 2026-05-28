@@ -973,5 +973,5 @@ The `ADD_diagrams/` folder contains exported PNG diagrams produced alongside the
 **Document Location:** `docs/02-architecture/ARCHITECTURE_DIAGRAMS.md`
 **Related Documents:**
 - [Architecture Analysis](ARCHITECTURE_ANALYSIS.md)
-- [System Design Decisions](SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md)
+- System Design Decisions
 - [PlantUML Diagrams](diagrams/PLANTUML_DIAGRAMS.md)
