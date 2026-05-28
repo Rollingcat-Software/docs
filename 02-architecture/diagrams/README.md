@@ -54,9 +54,7 @@ Professional UML and PlantUML diagrams for the FIVUCSAS platform.
 ## Source Files
 
 PlantUML source files:
-- **[PLANTUML_DIAGRAMS.md](PLANTUML_DIAGRAMS.md)** - PlantUML diagrams part 1
-- **[PLANTUML_DIAGRAMS_PART2.md](PLANTUML_DIAGRAMS_PART2.md)** - PlantUML diagrams part 2
-- **[PLANTUML_DIAGRAMS_FIXED.md](PLANTUML_DIAGRAMS_FIXED.md)** - Fixed PlantUML diagrams
+- **[PLANTUML_DIAGRAMS.md](PLANTUML_DIAGRAMS.md)** - PlantUML diagram sources
 
 ## Diagram Tools
 
@@ -68,8 +66,6 @@ These diagrams were created using:
 
 These diagrams are referenced throughout the documentation:
 - [Architecture Analysis](../ARCHITECTURE_ANALYSIS.md)
-- [System Design](../SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md)
-- [Design Audit](../DESIGN_AUDIT_REPORT.md)
 
 ---
 

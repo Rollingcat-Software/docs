@@ -15,3 +15,15 @@ Bulk cleanup. Moved ~45 files out of the public docs tree because they were:
 - **Presentation / prep** — `PRESENTATION_COMPLETE_GUIDE`, `PRESENTATION_SPEECHES`, `SCREENSHOTS_NEEDED`, `TASK_LOG_TEMPLATE`, `ANALYTICS_PLAN` (root; lives at `docs/plans/ANALYTICS_PLAN.md`).
 
 All moves via `git mv` — authorship and timestamps preserved.
+
+## 2026-05-28
+
+Freshness audit. Moved 7 files that were pre-implementation planning docs contradicted by current repo state:
+
+- **`SERVICES_OVERVIEW.md`** (from `04-api/`) — Nov-2025 snapshot, called Java API "Kotlin", used H2 in-memory DB.
+- **`test-report.md`** (from `05-testing/`) — Jan-2025 synthetic static-analysis report, cited HS256 JWT which has since been superseded by RS256 default.
+- **`modules/biometric-processor.md`** — Pre-implementation plan, status "NOT STARTED"; service is live.
+- **`modules/identity-core-api.md`** — Pre-implementation plan, status "Basic CRUD only"; superseded by MODULE_STRUCTURE.md.
+- **`modules/client-apps.md`** — Pre-implementation plan, superseded by MODULE_STRUCTURE.md.
+- **`modules/web-app.md`** — Pre-implementation plan, superseded by MODULE_STRUCTURE.md.
+- **`modules/documentation.md`** — Pre-implementation plan, superseded by MODULE_STRUCTURE.md.

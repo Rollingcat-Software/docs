@@ -15,7 +15,7 @@ See [START_ALL_SERVICES.md](START_ALL_SERVICES.md) for detailed instructions.
 ### Start Backend API
 ```bash
 cd identity-core-api
-./gradlew bootRun
+./mvnw spring-boot:run
 # Access: http://localhost:8080
 ```
 
@@ -35,15 +35,7 @@ cd mobile-app
 
 ## Production Deployment
 
-⚠️ Production deployment not yet configured. Coming soon.
-
-**Planned Production Setup:**
-- PostgreSQL database (replacing H2 in-memory)
-- Redis cache and message queue
-- Docker containers
-- Kubernetes orchestration (optional)
-- NGINX reverse proxy
-- Monitoring and logging
+Production is live on Hetzner CX43 via Docker Compose + Traefik (api.fivucsas.com). PostgreSQL with pgvector, Redis, and Loki/Grafana monitoring are all running.
 
 ## Environment Configuration
 

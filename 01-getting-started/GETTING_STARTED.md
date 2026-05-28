@@ -40,7 +40,7 @@ Before running the mobile/desktop apps, ensure backend services are running:
 
 ```bash
 # Navigate to project root
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS
+cd path/to/FIVUCSAS
 
 # Start all backend services
 docker-compose up -d
@@ -63,7 +63,7 @@ docker-compose ps
 
 ```bash
 # Navigate to mobile-app directory
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\client-apps
+cd path/to/FIVUCSAS/client-apps
 
 # Build Debug APK
 ./gradlew :androidApp:assembleDebug
@@ -100,7 +100,7 @@ adb install -r androidApp\build\outputs\apk\debug\androidApp-debug.apk
 #### Method A: Run in Development Mode
 
 ```bash
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\client-apps
+cd path/to/FIVUCSAS/client-apps
 
 # Run desktop app
 ./gradlew :desktopApp:run
@@ -140,7 +140,7 @@ Output location:
 #### Step 1: Generate Xcode Framework
 
 ```bash
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\client-apps
+cd path/to/FIVUCSAS/client-apps
 
 # Install CocoaPods (if not installed)
 sudo gem install cocoapods
@@ -176,7 +176,7 @@ open iosApp.xcworkspace
 
 ```bash
 # Terminal 1: Start services
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS
+cd path/to/FIVUCSAS
 docker-compose up
 
 # Verify services

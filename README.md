@@ -77,7 +77,7 @@
 - **OpenAPI JSON:** [http://localhost:8001/openapi.json](http://localhost:8001/openapi.json)
 
 #### Reference Documentation
-- [SERVICES_OVERVIEW.md](04-api/SERVICES_OVERVIEW.md) - Service capabilities overview
+- [SERVICES_OVERVIEW.md](archive/2026-05-28/SERVICES_OVERVIEW.md) - Service capabilities overview (archived Nov-2025 snapshot)
 - [BACKEND_REVIEW.md](04-api/BACKEND_REVIEW.md) - Backend code review
 - [Backend SpringDoc Setup](04-api/backend-api/SPRINGDOC_SETUP.md) - SpringDoc OpenAPI implementation
 - [Biometric FastAPI Setup](04-api/biometric-service/FASTAPI_SETUP.md) - FastAPI documentation setup
@@ -86,7 +86,7 @@
 **Testing guides and test reports**
 - [TESTING_GUIDE.md](05-testing/TESTING_GUIDE.md) - Complete testing guide (908 lines)
 - [MOBILE_TESTING_GUIDE.md](05-testing/MOBILE_TESTING_GUIDE.md) - Mobile app testing
-- [baseline-results.md](05-testing/baseline-results.md) / [integration-testing.md](05-testing/integration-testing.md) / [load-testing.md](05-testing/load-testing.md) / [test-report.md](05-testing/test-report.md)
+- [baseline-results.md](05-testing/baseline-results.md) / [integration-testing.md](05-testing/integration-testing.md) / [load-testing.md](05-testing/load-testing.md) / [test-report.md](archive/2026-05-28/test-report.md) (archived Jan-2025 synthetic)
 
 ### 6️⃣ [Deployment](06-deployment/)
 **Deployment and operations guides**
@@ -242,7 +242,7 @@ cd client-apps && ./gradlew :shared:test
 **For API Integration:**
 1. [Backend API Docs](http://localhost:8080/swagger-ui.html)
 2. [Biometric Service Docs](http://localhost:8001/docs)
-3. [Services Overview](04-api/SERVICES_OVERVIEW.md)
+3. [Services Overview](archive/2026-05-28/SERVICES_OVERVIEW.md) (archived Nov-2025 snapshot)
 
 **For Testing:**
 1. [Testing Guide](05-testing/TESTING_GUIDE.md)

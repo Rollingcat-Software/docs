@@ -176,7 +176,7 @@ pip install pydantic-settings
 ### ❌ "Cannot find JAR file"
 ```powershell
 cd identity-core-api
-.\gradlew.bat clean bootJar
+./mvnw clean package -DskipTests
 ```
 
 ### ❌ Desktop app won't start

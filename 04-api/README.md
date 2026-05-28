@@ -14,7 +14,7 @@ Interactive API documentation for FIVUCSAS services.
 **Note:** Start the backend first:
 ```bash
 cd identity-core-api
-./gradlew bootRun
+./mvnw spring-boot:run
 ```
 
 ### Biometric Service (FastAPI)
@@ -33,7 +33,7 @@ uvicorn app.main:app --reload --port 8001
 
 ## Reference Documentation
 
-- **[SERVICES_OVERVIEW.md](SERVICES_OVERVIEW.md)** - Overview of service capabilities
+- **[SERVICES_OVERVIEW.md](../archive/2026-05-28/SERVICES_OVERVIEW.md)** - Service capabilities overview (archived Nov-2025 snapshot)
 - **[BACKEND_REVIEW.md](BACKEND_REVIEW.md)** - Backend code review
 
 ### Implementation Guides

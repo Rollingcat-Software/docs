@@ -15,8 +15,8 @@ Testing guides and test reports for FIVUCSAS.
 ### Backend Tests
 ```bash
 cd identity-core-api
-./gradlew test
-./gradlew test --tests "com.fivucsas.identity.*"
+./mvnw test
+./mvnw test -Dtest="com.fivucsas.identity.*"
 ```
 
 ### Mobile App Tests
