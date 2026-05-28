@@ -14,13 +14,21 @@ A button on your site that, when clicked, takes the user to `verify.fivucsas.com
 
 ## 5-minute quickstart
 
-### 1. Install the SDK
+### 1. Load the SDK
 
-```bash
-npm install @fivucsas/auth-js
+> **npm packages (`@fivucsas/auth-*`) are not yet published.** Use the CDN instead:
+
+```html
+<!-- IIFE build — browser globals, zero bundler required -->
+<script src="https://verify.fivucsas.com/fivucsas-auth.js"></script>
 ```
 
-For React projects, `@fivucsas/auth-react` is also available with hooks and ready-made components — see the integration guide. The rest of this quickstart assumes vanilla JS.
+```js
+// ESM build — for <script type="module"> or import maps
+import { FivucsasAuth } from 'https://verify.fivucsas.com/fivucsas-auth.esm.js';
+```
+
+For React projects, `@fivucsas/auth-react` is planned with hooks and ready-made components (not yet published — see the integration guide). The rest of this quickstart uses the vanilla JS SDK.
 
 ### 2. Initiate the login
 
@@ -110,9 +118,9 @@ Each registered URI is enforced character-for-character; trailing slashes matter
 - `client_id` is **not a secret** — it is safe to bundle into your SPA build.
 - `client_secret`, if you have one, is a real secret. Never check it into git, never ship it to the browser. Use it only from server-side code with an environment variable.
 
-### d. Install the SDK and wire `loginRedirect`
+### d. Load the SDK and wire `loginRedirect`
 
-See the 5-minute quickstart above.
+See the 5-minute quickstart above (CDN delivery — npm not yet published).
 
 ### e. Handle the code exchange
 

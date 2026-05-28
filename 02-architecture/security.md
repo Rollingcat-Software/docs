@@ -605,8 +605,8 @@ Required elements:
 ### Security Contacts
 
 ```
-Security Team: security@fivucsas.com
-Vulnerability Disclosure: security@fivucsas.com (PGP key available)
+Security Team: info@fivucsas.com
+Vulnerability Disclosure: info@fivucsas.com (primary) | rollingcat.help@gmail.com (alternate)
 Incident Hotline: +1-555-SECURITY (24/7)
 ```
 

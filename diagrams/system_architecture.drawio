@@ -79,7 +79,7 @@
         </mxCell>
 
         <!-- Identity Core Features -->
-        <mxCell id="id-feat1" value="JWT Authentication&#xa;(HS512 + Refresh)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c6f6d5;strokeColor=#48bb78;fontSize=10;" vertex="1" parent="1">
+        <mxCell id="id-feat1" value="JWT Authentication&#xa;(RS256 + Refresh)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c6f6d5;strokeColor=#48bb78;fontSize=10;" vertex="1" parent="1">
           <mxGeometry x="135" y="395" width="110" height="40" as="geometry" />
         </mxCell>
         <mxCell id="id-feat2" value="Multi-Tenancy&#xa;(Row-Level Security)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c6f6d5;strokeColor=#48bb78;fontSize=10;" vertex="1" parent="1">

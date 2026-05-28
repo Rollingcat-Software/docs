@@ -48,48 +48,31 @@ Layer 3: Secure Capture (iframe from verify.fivucsas.com)
 
 ### Integration Code (What Developers Write)
 
-**Option A: Script Tag (simplest, like reCAPTCHA)**
+**Option A: Script Tag (simplest, like reCAPTCHA) — CDN live**
+
+> The IIFE and ESM builds are available at `https://verify.fivucsas.com/`. npm packages are **not yet published**.
+
 ```html
-<script src="https://cdn.fivucsas.com/auth-elements@1/fivucsas.min.js"></script>
+<!-- IIFE build (live) -->
+<script src="https://verify.fivucsas.com/fivucsas-auth.js"></script>
 
-<fivucsas-verify
-  client-id="fiv_live_abc123"
-  flow="login"
-  theme="auto"
-  lang="tr"
-  on-complete="handleVerified">
-</fivucsas-verify>
-
-<script>
-function handleVerified(event) {
-  const { authCode, userId } = event.detail;
-  fetch('/api/auth/fivucsas-callback', {
-    method: 'POST',
-    body: JSON.stringify({ code: authCode })
-  });
-}
-</script>
+<!-- Web Components build (coming soon — not yet live):
+<script src="https://verify.fivucsas.com/fivucsas-auth-elements.js"></script>
+-->
 ```
 
-**Option B: React**
+**Option B: React — coming soon (npm not yet published)**
 ```tsx
-import { FivucsasProvider, VerifyButton } from '@fivucsas/auth-react';
-
-function App() {
-  return (
-    <FivucsasProvider clientId="fiv_live_abc123">
-      <VerifyButton
-        flow="login"
-        onComplete={({ authCode }) => { /* exchange code */ }}
-      />
-    </FivucsasProvider>
-  );
-}
+// @fivucsas/auth-react is not yet on npm.
+// In the meantime, use the CDN IIFE build (Option C) wrapped in a useEffect.
+// import { FivucsasProvider, VerifyButton } from '@fivucsas/auth-react'; // future
 ```
 
-**Option C: Programmatic**
+**Option C: Programmatic (CDN ESM)**
 ```typescript
-import { FivucsasAuth } from '@fivucsas/auth-js';
+import { FivucsasAuth } from 'https://verify.fivucsas.com/fivucsas-auth.esm.js';
+// or via IIFE: window.FivucsasAuth after loading fivucsas-auth.js
+// @fivucsas/auth-js npm package is not yet published
 
 const auth = new FivucsasAuth({ clientId: 'fiv_live_abc123' });
 const result = await auth.verify({

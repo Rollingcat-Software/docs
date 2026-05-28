@@ -36,6 +36,19 @@ See **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)** for:
 - Entity Relationship Diagram
 - Use Case Diagram
 
+### Draw.io Source Diagrams
+See [diagrams/](../diagrams/) folder for editable `.drawio` XML sources:
+- `system_architecture.drawio` — layered system view (JWT RS256, accurate as of 2026-05-28)
+- `hexagonal_architecture.drawio` — Ports & Adapters / DDD for Identity Core API
+- `er_diagram.drawio` — core database ER schema
+- `use_case_diagram.drawio` — actors and use cases
+- `biometric_puzzle_flow.drawio` — active liveness challenge protocol
+- `data_flow_diagram.drawio` — DFD Level 1
+- `nfc_handshake.drawio` — BAC handshake (ICAO 9303)
+
+Diagrams needing regeneration: `deployment_architecture.drawio`, `technology_stack.drawio` (NGINX→Traefik), `implementation_progress.drawio` (stale Fall-2025 percentages).
+See §11–12 of [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) for full per-diagram status.
+
 ### PlantUML Diagrams
 See [diagrams/](diagrams/) folder for 35+ professional UML diagrams:
 - Entity-Relationship (ER) diagrams
@@ -45,6 +58,11 @@ See [diagrams/](diagrams/) folder for 35+ professional UML diagrams:
 - Deployment diagrams (development, Kubernetes, HA, multi-region)
 - Network architecture diagrams
 - Security architecture diagrams
+
+### Additional PNG Diagrams
+See [ADD_diagrams/](../ADD_diagrams/) for exported PNGs from the early development phase.
+Accurate: `diagram_01_use_cases_by_actor.png`, `diagram_02_domain_model___core_entities.png`, `diagram_03_entity_relationship_diagram.png`.
+Needs regeneration: `diagram_04_system_architecture_overview.png`, `diagram_05_docker_deployment.png` (NGINX→Traefik, MobileFaceNet removed).
 
 ---
 

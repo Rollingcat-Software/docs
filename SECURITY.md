@@ -4,7 +4,7 @@
 
 If you believe you've found a security vulnerability in docs — the documentation repository of the FIVUCSAS biometric authentication platform — please report it privately so we can fix it before disclosing publicly.
 
-**Email:** info@app.fivucsas.com (subject prefix: `[SECURITY] docs`)
+**Email:** info@fivucsas.com (subject prefix: `[SECURITY] docs`) — alternate: rollingcat.help@gmail.com
 
 Please include:
 - A clear description of the issue and its impact.
