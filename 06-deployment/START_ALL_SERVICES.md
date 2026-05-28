@@ -176,7 +176,7 @@ pip install pydantic-settings
 ### ❌ "Cannot find JAR file"
 ```powershell
 cd identity-core-api
-.\gradlew.bat clean bootJar
+./mvnw clean package -DskipTests
 ```
 
 ### ❌ Desktop app won't start
@@ -211,7 +211,7 @@ Once all running, access these URLs in browser:
 All green? You're good to go! ✅
 
 - [ ] Terminal 1 shows: "Tomcat started on port 8080"
-- [ ] Terminal 2 shows: "Uvicorn running on http://0.0.0.0:8001"
+- [ ] Terminal 2 shows: "Uvicorn running on `http://0.0.0.0:8001`"
 - [ ] Terminal 3 shows desktop window
 - [ ] `curl http://localhost:8080/api/v1/auth/health` works
 - [ ] `curl http://localhost:8001/health` works

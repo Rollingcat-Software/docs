@@ -7,7 +7,7 @@
 ```bash
 cd identity-core-api
 export JWT_SECRET=your-dev-secret-key-change-in-production
-./gradlew bootRun --args='--spring.profiles.active=dev'
+./mvnw spring-boot:run --args='--spring.profiles.active=dev'
 ```
 
 Backend ready at: `http://localhost:8080`

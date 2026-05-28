@@ -96,13 +96,13 @@ netsh advfirewall firewall show rule name="FastAPI Biometric"
 
 **Terminal 1 - Spring Boot:**
 ```powershell
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\identity-core-api
-.\gradlew.bat bootRun
+cd path/to/FIVUCSAS/identity-core-api
+./mvnw spring-boot:run
 ```
 
 **Terminal 2 - FastAPI:**
 ```powershell
-cd C:\Users\ahabg\OneDrive\Belgeler\GitHub\FIVUCSAS\biometric-processor
+cd path/to/FIVUCSAS/biometric-processor
 .\venv\Scripts\Activate.ps1
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8001
 ```
@@ -395,7 +395,7 @@ netsh advfirewall firewall add rule name="FIVUCSAS" dir=in action=allow protocol
 
 # Start Spring Boot
 cd identity-core-api
-.\gradlew.bat bootRun
+./mvnw spring-boot:run
 
 # In another terminal - Start FastAPI
 cd biometric-processor

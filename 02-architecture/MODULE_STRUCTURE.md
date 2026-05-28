@@ -82,7 +82,7 @@ graph TD
 
 **Contains:**
 - `src/main/java/` - Hexagonal Architecture implementation
-- `src/main/resources/db/migration/` - Flyway migrations (6 versions)
+- `src/main/resources/db/migration/` - Flyway migrations (60 versions)
 - `src/test/` - JUnit 5 + Mockito tests
 
 ---
@@ -160,7 +160,7 @@ docs/
 ├── 05-testing/        # Testing guides
 ├── 06-deployment/     # Deployment guides
 ├── 07-status/         # Status reports
-└── 99-archive/        # Historical documents
+└── archive/           # Historical documents
 ```
 
 ---

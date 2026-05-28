@@ -28,15 +28,19 @@
 
 ### Module Repositories
 
-The project is split into **5 independent repositories**:
+The project uses **7 submodules under 1 parent repository (8 repos total)**. See [MODULE_STRUCTURE.md](../02-architecture/MODULE_STRUCTURE.md) for the full list and current status.
 
-| Repository | Purpose | Technology | Status |
-|-----------|---------|-----------|--------|
-| **identity-core-api** | Backend API & Auth | Spring Boot (Java) | ⚠️ 60% |
-| **web-app** | Admin Dashboard | React + TypeScript | ✅ 100% UI |
-| **biometric-processor** | AI/ML Service | FastAPI (Python) | ❌ 0% |
-| **mobile-app** | Desktop + Mobile Apps | Kotlin Multiplatform | ⚠️ 96% Desktop |
-| **docs** | Documentation | Markdown + Docusaurus | ❌ Basic |
+Key submodules:
+
+| Repository | Purpose | Technology |
+|-----------|---------|-----------|
+| **identity-core-api** | Backend API & Auth | Java 21 / Spring Boot 3.4.7 (Maven) |
+| **web-app** | Admin Dashboard | React 18 + TypeScript + Vite |
+| **biometric-processor** | AI/ML Service | Python / FastAPI (port 8001) |
+| **client-apps** | Desktop + Mobile Apps | Kotlin Multiplatform |
+| **spoof-detector** | PAD algorithms | Python |
+| **practice-and-test** | R&D & Experiments | Mixed |
+| **docs** | Documentation | Markdown |
 
 ### Why Separate Repositories?
 
@@ -103,7 +107,7 @@ The project is split into **5 independent repositories**:
 **Repository**: https://github.com/Rollingcat-Software/biometric-processor
 
 **Technology**: FastAPI (Python 3.10+)
-**Port**: 8000
+**Port**: 8001
 **Database**: PostgreSQL 16 (pgvector)
 
 **Responsibilities**:
@@ -187,7 +191,7 @@ The project is split into **5 independent repositories**:
 │  │ identity-core-api  │◄─────────►│  biometric-      │   │
 │  │  (Spring Boot)     │  Webhooks │  processor       │   │
 │  │  Port: 8080        │           │  (FastAPI)       │   │
-│  └──────┬─────────────┘           │  Port: 8000      │   │
+│  └──────┬─────────────┘           │  Port: 8001      │   │
 │         │                         └──────┬───────────┘   │
 │         │                                │               │
 │  ┌──────▼────────┐              ┌───────▼──────────┐    │
@@ -214,7 +218,7 @@ identity-core-api:8080/api/v1
 ```
 identity-core-api
   ↓ POST /biometric/enroll
-biometric-processor:8000/enroll
+biometric-processor:8001/enroll
   ↓ Returns job ID
   ↓ Processes async
   ↓ Webhook callback
@@ -514,17 +518,17 @@ pip install -r requirements.txt
 cat > .env << EOF
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fivucsas
 REDIS_URL=redis://localhost:6379/0
-APP_PORT=8000
+APP_PORT=8001
 EOF
 
 # Start FastAPI server
-uvicorn main:app --reload --port 8000
+uvicorn main:app --reload --port 8001
 
 # Start Celery worker (separate terminal)
 celery -A app.worker worker --loglevel=info
 
 # Test
-curl http://localhost:8000/health
+curl http://localhost:8001/health
 # Expected: {"status":"ok","version":"1.0.0"}
 ```
 
@@ -550,7 +554,7 @@ cd ../mobile-app
 # Check all services
 curl http://localhost:8080/api/v1/auth/health  # identity-core-api
 curl http://localhost:5173                     # web-app (should see HTML)
-curl http://localhost:8000/health              # biometric-processor
+curl http://localhost:8001/health              # biometric-processor
 
 # Check databases
 docker ps | grep postgres  # PostgreSQL running
@@ -904,7 +908,7 @@ Use Prometheus + Grafana:
 ## 📈 Success Criteria
 
 ### Development Complete
-- ✅ All 5 repositories have code and tests
+- ✅ All repositories have code and tests
 - ✅ All services run locally without errors
 - ✅ Integration tests pass
 - ✅ Documentation complete

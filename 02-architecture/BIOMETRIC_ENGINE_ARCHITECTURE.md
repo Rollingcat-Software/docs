@@ -2,7 +2,7 @@
 
 **Version:** 2.0
 **Date:** 2026-03-19
-**Status:** Design Document (Pre-Implementation)
+**Status:** Implemented (Phase 4 complete 2026-05-16)
 **Source of Truth:** `biometric-processor/demo_local_fast.py` (2551 lines)
 
 ---
@@ -278,7 +278,7 @@ Nice to have. Server-side alternatives exist for all of these.
 | Component | Responsibility | Server Fallback |
 |-----------|---------------|-----------------|
 | `PassiveLivenessDetector` | Texture/color/moire liveness scoring | Server-side liveness via `biometric-processor` is the primary authority. Client-side is supplementary. Gabor convolution is expensive; defer to Phase 3. |
-| `EmbeddingComputer` | ONNX MobileFaceNet face embeddings | Server-side DeepFace embedding via REST API |
+| `EmbeddingComputer` | ONNX face embeddings | Server-side DeepFace embedding via REST API. **Note:** MobileFaceNet was removed per ADR 0003 (2026-04-18); the active client path is geometry-512 (landmark-based fallback). |
 | `CardDetector` | ONNX YOLO card detection | Server-side YOLO (current production path) |
 
 ---

@@ -30,9 +30,11 @@ dependencies {
 }
 ```
 
+**Note:** identity-core-api uses Maven (`./mvnw`), not Gradle.
+
 **Test:**
 ```bash
-./gradlew clean build
+./mvnw clean package -DskipTests
 # Should compile successfully
 ```
 
@@ -962,7 +964,7 @@ public class AuthResponse {
 ```bash
 # Start the backend
 cd identity-core-api
-./gradlew bootRun
+./mvnw spring-boot:run
 ```
 
 **Access Points:**
@@ -1011,10 +1013,10 @@ Once implemented, you'll have:
 **Solution:**
 ```bash
 # Check if dependency is added
-./gradlew dependencies | grep springdoc
+./mvnw dependency:tree | grep springdoc
 
 # Verify application starts
-./gradlew bootRun | grep "Swagger"
+./mvnw spring-boot:run | grep "Swagger"
 ```
 
 ### Issue: Endpoints not appearing

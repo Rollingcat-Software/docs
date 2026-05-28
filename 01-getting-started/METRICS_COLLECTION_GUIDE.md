@@ -196,8 +196,8 @@ SELECT pg_size_pretty(pg_relation_size('biometric_data_embedding_idx'));
 ```bash
 # For Identity Core (Java/Spring Boot)
 cd identity-core-api
-./gradlew test jacocoTestReport
-# Report generated at: build/reports/jacoco/test/html/index.html
+./mvnw test jacoco:report
+# Report generated at: target/site/jacoco/index.html
 
 # For Biometric Processor (Python/FastAPI)
 cd biometric-processor

@@ -438,7 +438,7 @@ cd identity-core-api
 export JWT_SECRET=your-secret-key-here
 
 # Run with development profile
-./gradlew bootRun --args='--spring.profiles.active=dev'
+./mvnw spring-boot:run --args='--spring.profiles.active=dev'
 ```
 
 Backend will be available at: `http://localhost:8080`

@@ -93,7 +93,7 @@ adb devices
 **Terminal 1 - Identity Core API**
 ```bash
 cd identity-core-api
-./gradlew.bat bootRun
+./mvnw spring-boot:run
 # Should start on http://localhost:8080
 ```
 
@@ -409,7 +409,7 @@ cd mobile-app
 **To test with full system:**
 ```bash
 # Terminal 1
-cd identity-core-api && ./gradlew.bat bootRun
+cd identity-core-api && ./mvnw spring-boot:run
 
 # Terminal 2
 cd biometric-processor && venv\Scripts\activate && uvicorn app.main:app --reload --port 8001
