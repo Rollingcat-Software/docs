@@ -653,7 +653,7 @@ Step 1: Document Photo Capture
   - Capture front of ID document
 
 Step 2: Document Classification
-  - POST /api/v1/card/detect (biometric processor, YOLO-based)
+  - In-browser YOLOv8n ONNX detection (client-only, web-app #111; no server round-trip)
   - Detect document type: passport, national ID, driver's license, etc.
 
 Step 3: Data Extraction

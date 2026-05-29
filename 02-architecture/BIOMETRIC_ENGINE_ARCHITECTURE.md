@@ -279,7 +279,7 @@ Nice to have. Server-side alternatives exist for all of these.
 |-----------|---------------|-----------------|
 | `PassiveLivenessDetector` | Texture/color/moire liveness scoring | Server-side liveness via `biometric-processor` is the primary authority. Client-side is supplementary. Gabor convolution is expensive; defer to Phase 3. |
 | `EmbeddingComputer` | ONNX face embeddings | Server-side DeepFace embedding via REST API. **Note:** MobileFaceNet was removed per ADR 0003 (2026-04-18); the active client path is geometry-512 (landmark-based fallback). |
-| `CardDetector` | ONNX YOLO card detection | Server-side YOLO (current production path) |
+| `CardDetector` | ONNX YOLO card detection | None — client-only in production; the server-side YOLO card path was removed (web-app #111) |
 
 ---
 
