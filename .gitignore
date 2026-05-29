@@ -11,3 +11,7 @@ audit/
 
 # Generation scripts
 generate_*.py
+
+# Python bytecode cache
+__pycache__/
+*.pyc
