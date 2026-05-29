@@ -43,7 +43,7 @@ The server has no GPU. All heavy ML **inference for auth decisions** stays serve
 | Voice VAD | **Primary** (Phase 4, this plan) | — | In progress |
 | Voice embedding | — | **Only** (Resemblyzer 256-dim) | Server only, V2 may revisit |
 | Voice 1:1 verify | — | **Only** | Server only |
-| Card detection | **Primary** (YOLOv8n ONNX / WASM) | Fallback | Wired, awaiting model file (Phase 3) |
+| Card detection | **Only** (YOLOv8n ONNX / WASM, in-browser) | — | Live — client-only; server fallback removed (web-app #111). True 12.3 MB YOLOv8n delivered + integrated (web-app #109, biometric-processor #116) |
 | Card OCR + MRZ | — | **Only** | Server only |
 | Proctoring gaze / deepfake / object | — | **Only** | Server only |
 
@@ -80,10 +80,10 @@ Live in browser. No action needed. Model bundled with MediaPipe runtime.
 | Property | Value |
 |---|---|
 | Format | ONNX (WASM) |
-| Size | ~6.2 MB |
+| Size | ~12.3 MB (true YOLOv8n, opset 12) |
 | Input | 640×640 RGB (letterboxed) |
 | Output | Bounding boxes + class |
-| Role | Real-time client overlay; crop sent to server for OCR + MRZ. Server fallback on missing model. |
+| Role | Real-time client overlay + detection (client-only); crop sent to server for OCR + MRZ. No server fallback for detection (removed, web-app #111). |
 
 ### 4.5 Passive Liveness — MobileNet-v3 Anti-Spoof
 Currently heuristic (texture/moire/color) in `PassiveLivenessDetector.ts`. No neural model. Phase 5 will wire it into a gating threshold or demote it — no new model purchase required.
@@ -105,7 +105,7 @@ Currently heuristic (texture/moire/color) in `PassiveLivenessDetector.ts`. No ne
   "base_url": "https://app.fivucsas.com/models",
   "files": [
     {"name": "mobilefacenet.onnx", "sha256": "<hash>", "bytes": 4915200},
-    {"name": "yolo-card-nano.onnx", "sha256": "<hash>", "bytes": 6500000},
+    {"name": "yolo-card-nano.onnx", "sha256": "<hash>", "bytes": 12300000},
     {"name": "silero-vad.onnx",    "sha256": "<hash>", "bytes": 1850000}
   ]
 }

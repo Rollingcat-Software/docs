@@ -147,10 +147,10 @@ FIVUCSAS supports **5 client platforms** and **10 authentication methods** acros
 #### Card Detection (ID Document Scan)
 - **Input**: Camera captures image of physical document
 - **Platforms**: All camera-equipped devices
-- **Dependencies**: Biometric Processor API (`/api/v1/card/detect` - YOLO-based)
-- **Processing**: Server-side (image classification + OCR)
+- **Dependencies**: In-browser ONNX YOLOv8n (client-side detection, web-app #111); Biometric Processor API only for OCR/MRZ on the captured crop
+- **Processing**: Client-side detection/classification; server-side OCR only
 - **Enrollment**: Capture front/back of ID document, extract and verify data
-- **Offline Capable**: No (requires biometric processor)
+- **Offline Capable**: Detection yes (client-side ONNX runs without server); OCR/MRZ extraction still requires the biometric processor
 
 ---
 

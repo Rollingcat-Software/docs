@@ -567,7 +567,7 @@ function App() {
 | High | Widget dogfooding — use own widget in web-app login | In Progress |
 | High | Mobile app backend integration tests | URLs configured |
 | Medium | SMS gateway (Twilio) production activation | Code ready |
-| Medium | Client-side ONNX card detection (replacing server YOLO) | In Progress |
+| Medium | Client-side ONNX card detection (replacing server YOLO) | Done (web-app #111; server YOLO card path removed) |
 | Low | ISO/IEC 30107 compliance certification | Future |
 | Low | Full WebAuthn attestation (CBOR) | Research |
 | Future | iOS app UI implementation | Framework ready |
