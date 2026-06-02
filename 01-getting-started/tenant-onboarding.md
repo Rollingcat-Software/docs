@@ -33,7 +33,8 @@ For React projects, `@fivucsas/auth-react` is planned with hooks and ready-made 
 ### 2. Initiate the login
 
 ```ts
-import { FivucsasAuth } from '@fivucsas/auth-js';
+// FivucsasAuth is the global from the CDN script tag (Step 1) — no import needed.
+// (When the @fivucsas/auth-js npm package ships, you will be able to import it instead.)
 
 const auth = new FivucsasAuth({
   clientId: 'fiv_live_abc123',          // from app.fivucsas.com admin console
@@ -57,7 +58,7 @@ When the user finishes the auth flow on `verify.fivucsas.com`, the browser is re
 
 ```ts
 // pages/auth/callback (vanilla JS — works on any framework)
-import { FivucsasAuth } from '@fivucsas/auth-js';
+// FivucsasAuth is the global from the CDN script tag (Step 1).
 
 const auth = new FivucsasAuth({ /* same config as above */ });
 const params = new URLSearchParams(window.location.search);
