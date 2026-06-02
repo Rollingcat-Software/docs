@@ -4,7 +4,7 @@
 
 > Multi-tenant biometric authentication platform for face recognition, liveness detection, and identity management.
 
-**Project Status:** ~80% Complete | **University:** Marmara University | **Department:** Computer Engineering
+**Project Status:** Production-deployed (core platform live) | **University:** Marmara University | **Department:** Computer Engineering
 
 ---
 
@@ -168,18 +168,27 @@
 
 ## 📊 Project Completion Status
 
-**Overall:** ~80% Complete (February 2026)
+**Overall:** Core platform production-deployed (June 2026). The API, biometric
+processor, web dashboard, hosted login + OAuth/OIDC, and the 10 auth methods are
+live in production; a per-feature truth-table (works / partial / roadmap) is
+maintained in the repo audit docs. Some advanced layers are intentionally
+roadmap/flag-off (see "Known limitations" below).
 
 ```
-Biometric Processor API:  ████████████████████ 100% ✅ Production Ready
-Demo Web GUI:             ████████████████████ 100% ✅ 14+ interactive pages
+Biometric Processor API:  ████████████████████ 100% ✅ Deployed (face/voice/liveness)
 Web Admin Dashboard:      ████████████████████ 100% ✅ React 18, Material-UI, deployed
-Database Schema:          ████████████████████ 100% ✅ PostgreSQL + pgvector, 15 migrations
-Auth Flow Architecture:   ████████████████████ 100% ✅ 10 design documents
-NFC Reader (Universal):   █████████████████░░░  85% ✅ 10+ card types
-Identity Core API:        ██████████████████░░  90% ⚠️ Multi-modal auth in progress
-Mobile/Desktop UI:        ████████████░░░░░░░░  60% ⚠️ UI complete, integration pending
+Identity Core API:        ████████████████████ 100% ✅ Deployed — 10 auth methods, OAuth/OIDC, MFA
+Database Schema:          ████████████████████ 100% ✅ PostgreSQL 17 + pgvector, 79 Flyway migrations
+Hosted login + SDK:       ████████████████████ 100% ✅ verify.fivucsas.com + CDN SDK
+NFC Reader (mobile):      █████████████████░░░  85% ✅ Serial/UID + ICAO 9303 BAC; chip passive-auth WIP
+Mobile (Android):         ██████████████████░░  90% ✅ Android app (all 10 methods); iOS host app = roadmap
 ```
+
+**Known limitations (roadmap / not yet live):** iOS host app, BYOD (own-DB),
+biometric demographics endpoint, OIDC pairwise subjects, the advanced multi-layer
+anti-spoof fusion pipeline, and the `@fivucsas/*` npm packages are **planned /
+flag-off** and should not be presented as live. NFC chip passive-authentication
+needs a CSCA trust store. See the per-feature audit docs for the exact status.
 
 **Details:** [Project Status](07-status/README.md)
 
