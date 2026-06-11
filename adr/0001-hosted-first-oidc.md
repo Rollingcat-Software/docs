@@ -6,7 +6,7 @@
 
 ## Context
 
-FIVUCSAS originally shipped as an embeddable iframe widget that tenants dropped into their site, with the user typing credentials and completing MFA inside the iframe. The widget proved brittle across the surfaces that real customers need to cover:
+FIVUCSAS originally shipped as an embeddable iframe widget that tenants dropped into their site, with the user typing credentials and completing MFA inside the iframe. The widget proved brittle across the surfaces that real-world integrations need to cover:
 
 - **Web NFC** cannot be used inside a cross-origin iframe — the spec restricts the API to top-level browsing contexts. NFC-driven authentication (Turkish e-ID, MRZ-bearing documents) was effectively dead in-iframe.
 - **WebAuthn / passkeys** suffer cross-origin edge cases. Cross-origin iframes carry restrictive Permissions Policy defaults, and even with `publickey-credentials-get` delegated, Safari and several embedded webviews refuse the request.
