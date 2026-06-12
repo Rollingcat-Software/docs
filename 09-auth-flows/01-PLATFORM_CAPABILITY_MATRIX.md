@@ -105,9 +105,9 @@ FIVUCSAS supports **5 client platforms** and **10 authentication methods** acros
 - **Input**: Live camera feed for face capture
 - **Platforms**: All camera-equipped devices
 - **Dependencies**: Biometric Processor API (FastAPI), front-facing camera
-- **Processing**: Server-side (image sent to biometric-processor for embedding extraction/matching)
+- **Processing**: Server-authoritative matching + liveness verdict. Legacy/default path (flag OFF): the browser pre-filters and uploads the image; biometric-processor extracts the Facenet512 embedding and matches. Client-side embedding path (flag `app.auth.client-side-embedding`, default OFF): the browser computes the Facenet512 embedding via onnxruntime-web and uploads only the 512-d vector (raw image never leaves the device); the server matches against enrolled templates. Either way the server owns the match + liveness verdict + accept/reject decision.
 - **Quality Requirements**: Minimum face size 112x112px, centered, well-lit, eyes open
-- **Anti-Spoofing**: Passive liveness detection (texture analysis) + optional active challenges (blink, smile)
+- **Anti-Spoofing**: Passive liveness detection (texture analysis) + active Biometric Puzzle (randomized challenge, server re-scored)
 - **Enrollment**: 1-3 face images captured with quality validation
 - **Offline Capable**: No (requires biometric processor)
 

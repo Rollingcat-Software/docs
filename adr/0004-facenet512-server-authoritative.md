@@ -1,8 +1,24 @@
 # ADR 0004: Facenet512 as the server-authoritative face embedding
 
-**Status**: Accepted
+**Status**: Accepted; **amended 2026-06-11** (see note below)
 **Date**: 2026-04-18
 **Deciders**: Biometric processing, security, backend
+
+> **Amendment (2026-06-11) — client-side embedding option.** The encoder choice
+> (DeepFace **Facenet512**, **512-dim**, cosine match) is unchanged and remains the
+> single platform-wide embedding shape. What changed: a flag-gated path
+> (`app.auth.client-side-embedding`, default OFF) computes that **same Facenet512
+> embedding in the browser** (onnxruntime-web, exported from our own SHA-pinned
+> weights) and uploads **only the 512-d vector** — the raw face image never leaves
+> the device. When the flag is ON, the client embedding is the **authoritative**
+> template/probe (re-enroll on the client pipeline so probe and template share
+> preprocessing); the server still owns the pgvector match, the liveness verdict, and
+> the accept/reject decision, and the legacy image→Facenet512 path is retained as
+> fallback. This supersedes the §Decision claim that the client embedding is "a
+> different model / shape … never compared against `face_embeddings`": the *old*
+> `geometry-512` pre-filter (ADR 0003) was indeed different, but the *new*
+> client-side Facenet512 is identical to the server encoder by design. See
+> [`plans/CLIENT_SIDE_ML_PLAN.md`](../plans/CLIENT_SIDE_ML_PLAN.md) (v3.0).
 
 ## Context
 

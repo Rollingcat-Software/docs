@@ -145,7 +145,7 @@ After migration, all real-time detection logic moves into the engine library. Th
 |  |  P2 (Enhancement — deferrable to Phase 3+):                          |  |
 |  |  +-------------------+  +--------------------+  +-----------------+  |  |
 |  |  | PassiveLiveness   |  | EmbeddingComputer  |  | CardDetector    |  |  |
-|  |  | Detector          |  | (MobileFaceNet)    |  | (ONNX YOLO)    |  |  |
+|  |  | Detector          |  | (Facenet512 ONNX)  |  | (ONNX YOLO)    |  |  |
 |  |  +-------------------+  +--------------------+  +-----------------+  |  |
 |  +=====================================================================+  |
 |                             |                                              |
@@ -278,7 +278,7 @@ Nice to have. Server-side alternatives exist for all of these.
 | Component | Responsibility | Server Fallback |
 |-----------|---------------|-----------------|
 | `PassiveLivenessDetector` | Texture/color/moire liveness scoring | Server-side liveness via `biometric-processor` is the primary authority. Client-side is supplementary. Gabor convolution is expensive; defer to Phase 3. |
-| `EmbeddingComputer` | ONNX face embeddings | Server-side DeepFace embedding via REST API. **Note:** MobileFaceNet was removed per ADR 0003 (2026-04-18); the active client path is geometry-512 (landmark-based fallback). |
+| `EmbeddingComputer` | ONNX face embeddings | Server-side DeepFace embedding via REST API is the legacy/default path (flag OFF). **Note:** MobileFaceNet was removed per ADR 0003 (2026-04-18) for licensing. The client-side embedding path (flag `app.auth.client-side-embedding`, default OFF) computes the **authoritative Facenet512 embedding in the browser** via onnxruntime-web and uploads only the 512-d vector — the raw face image never leaves the device; the server keeps the image→Facenet512 path as fallback and owns the pgvector match + liveness verdict + decision either way. See [CLIENT_SIDE_ML_PLAN](../plans/CLIENT_SIDE_ML_PLAN.md). |
 | `CardDetector` | ONNX YOLO card detection | None — client-only in production; the server-side YOLO card path was removed (web-app #111) |
 
 ---
