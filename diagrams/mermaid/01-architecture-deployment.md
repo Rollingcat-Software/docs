@@ -2,9 +2,21 @@
 
 > All diagrams below reflect the **real** deployed system (verified against the parent
 > `CLAUDE.md`, `identity-core-api/CLAUDE.md`, `infra/traefik/config/*.yml`, the prod
-> compose files, and the actual Java/Python package trees on `HEAD`, 2026-06-02).
+> compose files, and the actual Java/Python package trees on `HEAD`, 2026-06-02; the
+> client-side-embedding + puzzle-layer path refreshed 2026-06-12 against `origin/main`).
 >
 > **Honesty notes that shaped these diagrams:**
+> - **Client-side face embedding (flag-gated, default OFF).** When
+>   `app.auth.client-side-embedding` is ON, the **browser** computes the Facenet512
+>   embedding (onnxruntime-web) and uploads **only the 512-float vector** — the raw face
+>   image never leaves the device. The server then owns liveness + the pgvector match +
+>   the accept/reject decision. With the flag OFF (the default) the legacy image-upload
+>   path runs unchanged: the browser pre-filters and uploads a JPEG; the server extracts
+>   the embedding. Both paths are drawn where they matter (see §1, the biometric pipelines
+>   doc, and the puzzle-layer flow). Privacy framing is precise: the raw image is not
+>   transmitted; the only biometric data sent is a derived, non-invertible 512-d embedding,
+>   over TLS, stored encrypted at rest (Fernet) — this is **data minimization**, NOT
+>   "biometric data never leaves the device".
 > - **Tenant isolation is application-layer**, not Postgres RLS — it is a Hibernate
 >   `@Filter(tenantFilter)` (`@FilterDef` on `User` + 8 tenant-scoped entities) plus a
 >   controller-level `TenantScopeResolver`. There is **no Postgres Row-Level Security**.
@@ -40,7 +52,7 @@ C4Container
 
     System_Boundary(clients, "Clients") {
         Container(web, "Web Dashboard", "React 18 + TS + Vite", "app.fivucsas.com — admin & self-service (Hostinger static)")
-        Container(verify, "Hosted Login + Auth Widget", "React build + nginx", "verify.fivucsas.com — OIDC universal login + step-up MFA iframe (Docker)")
+        Container(verify, "Hosted Login + Auth Widget", "React build + nginx", "verify.fivucsas.com — OIDC universal login + step-up MFA iframe (Docker). Flag-gated: computes the Facenet512 embedding in-browser (onnxruntime-web) and uploads only the 512-vector")
         Container(mobile, "Mobile App", "Kotlin Multiplatform / Compose", "Android · iOS · Desktop — AppAuth OIDC")
         System_Ext(thirdparty, "Third-Party App", "Tenant relying party — redirective OIDC via FivucsasAuth SDK")
     }
@@ -49,7 +61,7 @@ C4Container
 
     System_Boundary(backend, "Backend (Docker, Hetzner CX43)") {
         Container(api, "Identity Core API", "Spring Boot 3.4.7 / Java 21 :8080", "Auth, OAuth2/OIDC, MFA, RBAC, multi-tenancy (Hibernate @Filter), 29 controllers, hexagonal")
-        Container(bio, "Biometric Processor", "FastAPI / Python 3.12 :8001 — INTERNAL ONLY, X-API-Key", "Face/voice embeddings, liveness, anti-spoof, NFC eMRTD passive-auth (CPU-only, ALLOW_HEAVY_ML=false)")
+        Container(bio, "Biometric Processor", "FastAPI / Python 3.12 :8001 — INTERNAL ONLY, X-API-Key", "Liveness + pgvector match + decision. Accepts a client-computed 512-vector (/verify-embedding, /enroll-embedding) OR extracts Facenet512 from an image (legacy path). Voice, anti-spoof, puzzle re-score, NFC eMRTD passive-auth (CPU-only, ALLOW_HEAVY_ML=false)")
     }
 
     System_Boundary(data, "Data Stores (Docker volumes)") {
@@ -67,7 +79,7 @@ C4Container
     Rel(tenantdev, thirdparty, "Builds")
 
     Rel(web, traefik, "REST /api/v1", "HTTPS")
-    Rel(verify, traefik, "REST + OAuth2", "HTTPS")
+    Rel(verify, traefik, "REST + OAuth2; FACE step uploads a 512-d embedding (flag ON) or a JPEG (legacy)", "HTTPS / TLS")
     Rel(mobile, traefik, "OIDC + REST", "HTTPS")
     Rel(thirdparty, traefik, "OIDC redirect + /oauth2/token", "HTTPS")
 

@@ -2,13 +2,27 @@
 
 Accurate, code-grounded Mermaid diagrams of the FIVUCSAS biometric stack.
 All facts below were read directly from `biometric-processor`, `spoof-detector`,
-and `identity-core-api` source on 2026-06-02 — not invented.
+and `identity-core-api` source on 2026-06-02 (client-side-embedding + puzzle-layer
+paths refreshed 2026-06-12 against `origin/main`) — not invented.
 
 **Honesty notes (read these before trusting any marketing slide):**
 
-- **Auth decision is server-side.** The browser pre-filters with MediaPipe and
-  may send a 128-dim client embedding, but that is **log-only** (D2). The
-  authoritative 1:1 cosine match runs in `VerifyFaceUseCase` on the server.
+- **Auth decision is server-side, embedding can be client-side (flag-gated).**
+  Two FACE paths exist and both end with the server owning the verdict:
+  - **Legacy / default (`app.auth.client-side-embedding=false`):** the browser
+    pre-filters with MediaPipe (and may send a 128-dim *log-only* landmark-geometry
+    embedding, D2), uploads the **image**, and the server extracts Facenet512 and
+    runs the 1:1 cosine match in `VerifyFaceUseCase`.
+  - **Client-side embedding (`app.auth.client-side-embedding=true`):** the browser
+    computes the **authoritative** Facenet512 embedding in onnxruntime-web and uploads
+    **only the 512-float vector** (raw image never leaves the device). The server skips
+    detection/quality/server-Facenet512 and runs the SAME pgvector match + threshold
+    via `POST /api/v1/verify-embedding` (enrollment: `POST /api/v1/enroll-embedding`).
+    A precomputed embedding carries **no liveness** — this path MUST be paired with a
+    liveness factor (passive or the puzzle layer) before it is trusted as a login factor.
+  Privacy framing: the raw image is not transmitted; the only biometric data sent is a
+  derived, non-invertible 512-d embedding, over TLS, stored encrypted at rest (Fernet) —
+  **data minimization**, NOT "biometric data never leaves the device".
 - **Server-side fingerprint was REMOVED** (it was a SHA-256 placeholder, never a
   real biometric). `FINGERPRINT` is delivered *only* via WebAuthn / FIDO2
   platform authenticators in `identity-core-api` (`FingerprintAuthHandler`).
@@ -29,15 +43,24 @@ and `identity-core-api` source on 2026-06-02 — not invented.
 
 ## 1a. Face ENROLLMENT pipeline (8 stages in 4 cards)
 
-`POST /enroll` and `/enroll/multi`. Server-authoritative passive liveness +
-anti-spoof now run **before** the embedding is persisted
+`POST /enroll` and `/enroll/multi` (image path). Server-authoritative passive
+liveness + anti-spoof run **before** the embedding is persisted
 (`ENROLL_LIVENESS_ENABLED=true`, default; multi-image is **fail-CLOSED** per
 frame). Embedding is written twice: encrypted ciphertext (store-of-record) +
 plaintext pgvector column (search index).
 
+**Client-side-embedding branch (flag ON):** when
+`app.auth.client-side-embedding=true`, the browser computes the Facenet512
+vector and enrollment goes through `POST /api/v1/enroll-embedding` — Stages 1–6
+(detect, quality, landmark, align, server-Facenet512, fusion) already happened in
+the browser, so the server jumps straight to **Card 3 → Card 4** (encrypt at rest
++ dual-column persist). Liveness for the enrolling frame is enforced upstream
+(Identity Core, e.g. the puzzle layer), since no image reaches bio on this branch.
+
 ```mermaid
 flowchart TB
-    IN[/"Image(s) upload<br/>multipart/form-data"/]
+    IN[/"Image(s) upload<br/>multipart/form-data<br/>POST /enroll · legacy/default"/]
+    INV[/"512-d vector (JSON)<br/>POST /enroll-embedding<br/>client-side embedding · flag ON<br/>raw image NOT sent"/]
 
     subgraph C1["Card 1 — Detect + Quality"]
         S1["Stage 1 · Detect face<br/>DeepFace + OpenCV (default backend)<br/>AsyncFaceDetector → thread pool<br/>+ circuit breaker, 30s timeout"]
@@ -58,7 +81,7 @@ flowchart TB
     end
 
     subgraph C3["Card 3 — Embed + Encrypt"]
-        S5["Stage 5 · Extract embedding<br/>Facenet-512 (512-dim, L2-normalized)<br/>AsyncEmbeddingExtractor → thread pool"]
+        S5["Stage 5 · Extract embedding<br/>Facenet-512 (512-dim, L2-normalized)<br/>AsyncEmbeddingExtractor → thread pool<br/><i>skipped on /enroll-embedding</i>"]
         S6["Stage 6 · Multi-image fusion (optional)<br/>EmbeddingFusionService<br/>quality-weighted centroid + L2"]
         S7["Stage 7 · Encrypt at rest<br/>EmbeddingCipher (Fernet / AES-128-CBC<br/>+ HMAC-SHA256), u32-len header"]
         S5 --> S6 --> S7
@@ -73,52 +96,74 @@ flowchart TB
     LIVE -->|"live + not spoof"| C2
     LIVE -.->|"non-live / spoof<br/>fail-CLOSED → HTTP 400"| REJ[["Reject enrollment"]]
     C2 --> C3 --> C4
+    INV -->|"client already did<br/>Stages 1–6 in-browser;<br/>liveness enforced upstream"| S7
     C4 --> OUT[/"BiometricResponse<br/>quality_score, dimension"/]
 ```
 
 ---
 
-## 1b. Face VERIFICATION (1:1) — sequence
+## 1b. Face VERIFICATION (1:1) — sequence (two paths, one verdict owner)
 
-Client MediaPipe pre-filter (log-only) → server detect → embed → cosine match
-with aged-threshold adaptation → flag-gated anti-spoof veto. The `/verify` route
-runs a passive-liveness **floor** (score ≥ 0.4) before the match.
+`FaceVerifyMfaStepHandler` routes on `ClientSideEmbeddingPolicy` (flag
+`app.auth.client-side-embedding`, default OFF):
+
+- **Legacy / default:** browser MediaPipe pre-filter (log-only) → upload **image** →
+  server detect → embed → cosine match (aged-threshold adaptation) → flag-gated
+  anti-spoof veto. `/verify` runs a passive-liveness **floor** (score ≥ 0.4) first.
+- **Client-side embedding (flag ON):** the browser computes the authoritative
+  Facenet512 vector and uploads **only the 512-d embedding** to
+  `POST /api/v1/verify-embedding`; the server runs ONLY the pgvector match +
+  threshold/decision. This path has **no image and therefore no liveness of its own** —
+  it MUST be paired with a liveness factor (passive or the puzzle layer §7) upstream.
+
+In both branches the **server** owns the accept/reject decision (and lockout / rate-limit).
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant B as Browser (MediaPipe FaceLandmarker)
-    participant API as identity-core-api (FaceVerifyMfaStepHandler)
-    participant V as bio /verify (verification.py)
+    participant B as Browser (MediaPipe + onnxruntime-web)
+    participant API as identity-core-api (FaceVerifyMfaStepHandler + ClientSideEmbeddingPolicy)
+    participant V as bio verification.py
     participant LU as CheckLivenessUseCase (UniFace)
     participant UC as VerifyFaceUseCase
     participant DB as PostgreSQL + pgvector
 
-    B->>B: detect face, quality pre-filter,<br/>passive-liveness gate (0.45)
-    B->>API: face image (+ optional 128-dim<br/>client_embedding = LOG-ONLY)
-    API->>V: POST /verify (X-API-Key, user_id, file)
-    V->>V: validate magic bytes + format
-    V->>LU: passive liveness (UniFace MiniFASNet)
-    LU-->>V: is_live, score
-    alt not is_live OR score < 0.4
-        V-->>API: 400 LIVENESS_FAILED
-    end
-    V->>UC: execute(user_id, image_path, tenant_id)
-    UC->>UC: detect → face region → quality (≥50)
-    UC->>UC: extract Facenet-512 embedding
-    UC->>DB: find_by_user_id (tenant-scoped)
-    DB-->>UC: stored embedding (decrypted from ciphertext)
-    UC->>UC: cosine distance vs threshold 0.45
-    UC->>DB: find_created_at
-    DB-->>UC: enrollment age
-    UC->>UC: if age > 2 yr → use _AGED (more permissive)
-    UC-->>V: verified, distance, confidence, threshold
-    V->>V: anti-spoof helpers (flag-gated):<br/>device-risk, assembler, EAR (single frame)
-    alt block_reason AND ANTISPOOF_BLOCK_ENFORCE
-        V-->>API: 403 ANTISPOOF_BLOCKED {reason}
-    else allowed
-        V->>DB: BackgroundTask: log client-embedding<br/>observation (offline divergence, no auth use)
-        V-->>API: 200 VerificationResponse
+    alt client-side embedding (app.auth.client-side-embedding = ON)
+        B->>B: detect + align (MediaPipe eye-aligner)<br/>compute Facenet512 in onnxruntime-web<br/>(BGR, [0,1], 160×160, L2-norm)
+        Note over B: raw image NEVER leaves the device<br/>only the 512-float vector is sent
+        B->>API: 512-d embedding (JSON, TLS) — NO image
+        API->>API: liveness already proven by a paired<br/>factor (passive / puzzle §7); else FAIL
+        API->>V: POST /api/v1/verify-embedding<br/>{tenant_id, user_id, embedding[512]}
+        V->>UC: match_embedding (skips detect/quality/<br/>liveness/server-Facenet512)
+        UC->>DB: find_by_user_id (tenant-scoped)
+        DB-->>UC: stored template (decrypted from ciphertext)
+        UC->>UC: cosine distance vs threshold 0.45<br/>(aged > 2 yr → _AGED)
+        UC-->>V: verified, distance, confidence
+        V-->>API: 200 VerificationResponse (anti-spoof fields None — no image)
+    else legacy image upload (flag OFF — default)
+        B->>B: detect face, quality pre-filter,<br/>passive-liveness gate (0.45)
+        B->>API: face image (+ optional 128-dim<br/>client_embedding = LOG-ONLY)
+        API->>V: POST /verify (X-API-Key, user_id, file)
+        V->>V: validate magic bytes + format
+        V->>LU: passive liveness (UniFace MiniFASNet)
+        LU-->>V: is_live, score
+        alt not is_live OR score < 0.4
+            V-->>API: 400 LIVENESS_FAILED
+        end
+        V->>UC: execute(user_id, image_path, tenant_id)
+        UC->>UC: detect → face region → quality (≥50)
+        UC->>UC: extract Facenet-512 embedding
+        UC->>DB: find_by_user_id (tenant-scoped)
+        DB-->>UC: stored embedding (decrypted from ciphertext)
+        UC->>UC: cosine distance vs threshold 0.45<br/>(aged > 2 yr → _AGED)
+        UC-->>V: verified, distance, confidence, threshold
+        V->>V: anti-spoof helpers (flag-gated):<br/>device-risk, assembler, EAR (single frame)
+        alt block_reason AND ANTISPOOF_BLOCK_ENFORCE
+            V-->>API: 403 ANTISPOOF_BLOCKED {reason}
+        else allowed
+            V->>DB: BackgroundTask: log client-embedding<br/>observation (offline divergence, no auth use)
+            V-->>API: 200 VerificationResponse
+        end
     end
     API-->>B: MFA step result (server decides)
 ```
@@ -270,6 +315,13 @@ EAR/MAR/yaw, hand-gesture challenges scored from landmarks), tracks the session,
 and on success issues a short-lived **HS256 JWT verification token** (TTL 300s,
 UUID `jti`). 23 micro-challenges exist in the web registry: **14 face + 9 hand**.
 
+> The two flows below are the standalone liveness mechanisms. The **PUZZLE
+> auth-flow layer** (a server-issued, single-use, anti-replay session that an admin
+> can compose into a login flow, optionally identity-bound to a face embedding) is
+> the newer converged design — see **§7** below. It is flag-gated
+> (`app.auth.puzzle-layer`, default OFF) and supersedes the legacy stateless
+> GeneratePuzzle/VerifyPuzzle variant shown in the third subgraph here.
+
 ```mermaid
 flowchart TB
     subgraph PASSIVE["PASSIVE — single frame"]
@@ -397,4 +449,126 @@ flowchart LR
 
     NOTE["NO embedding · NO pgvector · NO bio-processor call.<br/>Server-side SHA-256 'fingerprint' path was REMOVED (P1.4).<br/>AuthMethodType.FINGERPRINT is retained ONLY for WebAuthn."]
     SERVER -.-> NOTE
+```
+
+---
+
+## 7. PUZZLE auth-flow layer — server-authoritative, anti-replay session
+
+**Flag-gated** (`app.auth.puzzle-layer`, default OFF). The Biometric Puzzle is a
+**first-class auth-flow layer**, not a FACE sub-component: a tenant admin composes it
+into a login flow (allowed challenge types, count, difficulty) the same way they pick
+any other factor. Liveness is proven by a **server-issued, server-randomized, single-use
+session**: the browser runs MediaPipe detection locally and uploads only landmark/gesture
+**traces** (no frames), and the server (`biometric-processor`) re-scores those traces
+against the challenges it issued. The browser never sends a "passed" boolean the server
+trusts; bio is the sole authority and **consumes** the session at verdict.
+
+Because the biometric-processor has **no public route**, the browser talks to Identity
+Core, which proxies to bio over the internal Docker network with `X-API-Key`. Contract:
+`docs/superpowers/plans/2026-06-12-puzzle-session-convergence.md` (canonical, snake_case).
+
+**Trust properties (all hold):** challenges are randomized per attempt; `session_id` is
+server-generated, single-use (consumed on verdict), short-TTL (300s), and bound to
+`user_id` + `tenant_id`; a captured valid trace cannot be replayed (replay needs a fresh
+server-issued session with its own random challenges).
+
+**Optional identity-binding (default-secure):** when the layer has
+`alsoMatchFaceIdentity` AND `app.auth.client-side-embedding` is ON, the browser grabs a
+best frontal frame from the **same live puzzle session**, computes the Facenet512 vector
+(SP-A `embedCapturedFace`, raw image never transmitted), and submits it with the verdict
+request. The handler passes ONLY if **both** liveness AND the server-side pgvector identity
+match succeed — double-gated, fail-closed, single-capture (defeats split-capture, where an
+attacker presents a photo for the match and a live face for the liveness separately).
+
+### 7a. Session lifecycle — CREATE → SUBMIT(s) → VERDICT (sequence)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser (PuzzleStep · MediaPipe)
+    participant API as identity-core-api<br/>(/auth/mfa/puzzle/session* + PuzzleVerifyMfaStepHandler)
+    participant BIO as bio (PuzzleSessionManager)<br/>/api/v1/liveness/puzzle-session*
+    participant DB as PostgreSQL + pgvector
+
+    Note over B,BIO: bio has NO public route — Identity Core proxies with X-API-Key
+
+    rect rgb(235,245,255)
+    Note over B,BIO: 1 · CREATE (authorized by the in-progress MFA session token)
+    B->>API: POST /auth/mfa/puzzle/session<br/>(allowed_challenge_types, count, difficulty)
+    API->>BIO: POST /api/v1/liveness/puzzle-session<br/>(tenant_id, user_id, allowed_challenge_types, count, difficulty)
+    BIO->>BIO: randomly select N challenges —<br/>store session (session_id, issued challenges,<br/>status pending, TTL 300s, single-use,<br/>owner = user_id + tenant_id)
+    BIO-->>API: session_id + challenges (action, params)
+    API-->>B: session_id + challenges (owner stamped from MFA session, not client)
+    end
+
+    rect rgb(245,245,235)
+    Note over B,BIO: 2 · SUBMIT per challenge (UX feedback only — NOT the gate)
+    loop each issued challenge
+        B->>B: perform action —<br/>MediaPipe FaceLandmarker 478 / HandLandmarker 21 IN-BROWSER
+        B->>API: POST /auth/mfa/puzzle/session/SID/challenge<br/>(action, metrics, start_ts_ms, end_ts_ms, confidence)
+        API->>BIO: POST /api/v1/liveness/puzzle-session/SID/challenge
+        BIO->>BIO: score traces vs issued challenge<br/>(metric REQUIRED — absent/empty ⇒ fail) —<br/>mark challenge complete
+        BIO-->>API: verified, action, reason_code?
+        API-->>B: per-challenge UX result (advisory)
+    end
+    end
+
+    rect rgb(235,245,235)
+    Note over B,BIO: 3 · VERDICT (the auth gate) — optional identity-binding
+    B->>B: if alsoMatchFaceIdentity AND client-side-embedding ON:<br/>grab best frontal frame → Facenet512 in-browser<br/>(raw image NOT sent)
+    B->>API: verifyStep PUZZLE (puzzle_session_id, optional embedding)<br/>— NO metrics, NO client verdicts
+    API->>BIO: POST /api/v1/liveness/puzzle-session/SID/verdict<br/>(user_id, tenant_id)
+    BIO->>BIO: verified = all issued challenges validated<br/>AND owner == user_id+tenant_id<br/>AND not expired AND not already consumed
+    BIO->>BIO: CONSUME session (single-use)
+    BIO-->>API: verified (bool)
+    opt identity-binding (embedding present)
+        API->>BIO: POST /api/v1/verify-embedding<br/>(tenant_id, user_id, embedding 512)
+        BIO->>DB: pgvector cosine match vs stored template
+        DB-->>BIO: distance
+        BIO-->>API: verified (identity)
+    end
+    API->>API: PASS only if liveness == true<br/>(AND identity == true when bound) —<br/>HARD-FAIL on missing field / error / 404 / false
+    API-->>B: MFA step result (server decides)
+    end
+```
+
+### 7b. Why the session is anti-replay + the layer composition (flowchart)
+
+```mermaid
+flowchart TB
+    subgraph ADMIN["Tenant admin — composes the flow (web AuthFlowBuilder)"]
+        AB["PUZZLE layer config (auth_flow_steps.config JSONB):<br/>allowed challenge types (checkbox) · count · difficulty<br/>· alsoMatchFaceIdentity (default ON)"]
+    end
+
+    subgraph FLOW["Example composed login flow"]
+        L1["L1 identifier<br/>{email · QR · passkey}"]
+        L2["L2 PUZZLE layer<br/>(liveness ± identity-binding)"]
+        L3["L3 other factor<br/>(fingerprint / OTP / …)"]
+        L1 --> L2 --> L3
+    end
+    AB -.configures.-> L2
+
+    subgraph SESSION["Server-authoritative session (bio PuzzleSessionManager)"]
+        R["server-RANDOMIZED challenges<br/>per attempt"]
+        SID["session_id: server-generated,<br/>unguessable, single-use, TTL 300s"]
+        OWN["bound to user_id + tenant_id<br/>(owner stamped from MFA session)"]
+        STATE["all scoring state in bio;<br/>client sends traces, never a trusted 'passed'"]
+        CONS["CONSUMED on verdict"]
+    end
+    L2 --> SESSION
+
+    subgraph REPLAY["Replay / forgery attempts → REJECTED"]
+        X1["captured valid traces replayed →<br/>need a FRESH session with NEW random challenges"]
+        X2["session reused →<br/>already consumed (single-use)"]
+        X3["session issued for A used by B →<br/>owner mismatch"]
+        X4["expired (> TTL) → rejected"]
+        X5["photo for match + live face for liveness<br/>(split-capture) → embedding taken from the SAME<br/>live session frames; mismatch → fail-closed"]
+    end
+    SESSION --> REPLAY
+
+    classDef ok fill:#bbf7d0,stroke:#15803d,color:#1f2937;
+    classDef bad fill:#fecaca,stroke:#b91c1c,color:#1f2937;
+    class R,SID,OWN,STATE,CONS ok;
+    class X1,X2,X3,X4,X5 bad;
 ```
