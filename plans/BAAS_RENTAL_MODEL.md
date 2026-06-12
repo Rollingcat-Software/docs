@@ -28,7 +28,7 @@
 
 ## 1. Executive Summary
 
-FIVUCSAS has evolved from a university project into a production-grade biometric platform with 10 authentication methods, identity verification, and an embeddable auth widget. The next commercial step is offering individual biometric capabilities as rentable APIs -- Biometrics as a Service (BaaS). Developers should be able to sign up, get an API key, and call `POST /v1/face/verify` without deploying any infrastructure. This document defines the pricing tiers (Free/Developer/Enterprise), API gateway architecture with per-key rate limiting, feature isolation model, usage metering pipeline, SDK distribution strategy (npm, Maven Central, CocoaPods), and developer portal experience. The target is to make FIVUCSAS as easy to integrate as Stripe is for payments.
+FIVUCSAS, a university capstone biometric platform with 10 authentication methods, identity verification, and an embeddable auth widget, could be extended commercially by offering individual biometric capabilities as rentable APIs -- Biometrics as a Service (BaaS). Developers should be able to sign up, get an API key, and call `POST /v1/face/verify` without deploying any infrastructure. This document defines the pricing tiers (Free/Developer/Enterprise), API gateway architecture with per-key rate limiting, feature isolation model, usage metering pipeline, SDK distribution strategy (npm, Maven Central, CocoaPods), and developer portal experience. The target is to make FIVUCSAS as easy to integrate as Stripe is for payments.
 
 ---
 
