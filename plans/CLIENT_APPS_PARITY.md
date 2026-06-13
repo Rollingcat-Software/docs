@@ -4,13 +4,13 @@
 
 > Last updated: 2026-04-26 — iOS / macOS scope dropped. Android is **10/13** hosted-first (legacy password/MFA path still supported in-app), Desktop **2/13**. §2 matrix below now matches §0a honest audit numbers.
 > Owner: client-apps workstream
-> Cross-refs: `../../ROADMAP.md` (Phase I Android **partial**, not 13/13 — see §0a below; Phase J Desktop hosted-first active), `../audits/AUDIT_2026-04-19.md` (Audit 4, MO-C1/C2).
+> Cross-refs: parent-repo roadmap (Phase I Android **partial**, not 13/13 — see §0a below; Phase J Desktop hosted-first active). Originally informed by the 2026-04-19 five-team audit (Audit 4, MO-C1/C2; since superseded by the 2026-06 review wave).
 
 ---
 
 ## 0a. 2026-04-19 audit correction — what the "13/13" claim actually meant
 
-The 2026-04-19 five-team audit (`../audits/AUDIT_2026-04-19.md`, Audit 4, MO-C1)
+The 2026-04-19 five-team audit (Audit 4, MO-C1)
 found that `androidApp/` has **no OAuth code at all**: no `net.openid:appauth`
 dependency, no Chrome Custom Tabs intent, no `https://verify.fivucsas.com/callback`
 App Link, no `authorize`/`code_challenge` anywhere. Grep returns zero hits. The

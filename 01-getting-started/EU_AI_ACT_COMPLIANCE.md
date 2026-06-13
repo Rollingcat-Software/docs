@@ -566,7 +566,7 @@ Complete API documentation is maintained and publicly accessible:
 | Identity Core API | http://116.203.222.213:8080/swagger-ui.html | OpenAPI 3.0 / Swagger UI |
 | Biometric Processor API | https://bio.fivucsas.com/docs | FastAPI auto-generated OpenAPI |
 | Architecture Documentation | `docs/02-architecture/` | Markdown, C4 model diagrams |
-| API Services Overview | `docs/04-api/SERVICES_OVERVIEW.md` | Markdown |
+| API Services Overview | `docs/04-api/README.md` | Markdown |
 
 ### 10.3 Architecture Documentation
 
@@ -727,7 +727,7 @@ The current deployment at `116.203.222.213:8080` processes biometric data in a *
 |---------|------|
 | Implementation Status Report | `docs/07-status/README.md` |
 | Architecture Analysis | `docs/02-architecture/ARCHITECTURE_ANALYSIS.md` |
-| API Services Overview | `docs/04-api/SERVICES_OVERVIEW.md` |
+| API Services Overview | `docs/04-api/README.md` |
 | Database Schema — Biometric Tables | `identity-core-api/src/main/resources/db/migration/V4__create_biometric_tables.sql` |
 | Database Schema — Audit Tables | `identity-core-api/src/main/resources/db/migration/V5__create_audit_and_session_tables.sql` |
 | Database Schema — Rate Limiting | `identity-core-api/src/main/resources/db/migration/V9__add_rate_limiting_table.sql` |

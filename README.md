@@ -77,8 +77,6 @@
 - **OpenAPI JSON:** [http://localhost:8001/openapi.json](http://localhost:8001/openapi.json)
 
 #### Reference Documentation
-- [SERVICES_OVERVIEW.md](archive/2026-05-28/SERVICES_OVERVIEW.md) - Service capabilities overview (archived Nov-2025 snapshot)
-- BACKEND_REVIEW.md - Backend code review
 - [Backend SpringDoc Setup](04-api/backend-api/SPRINGDOC_SETUP.md) - SpringDoc OpenAPI implementation
 - [Biometric FastAPI Setup](04-api/biometric-service/FASTAPI_SETUP.md) - FastAPI documentation setup
 
@@ -86,7 +84,7 @@
 **Testing guides and test reports**
 - [TESTING_GUIDE.md](05-testing/TESTING_GUIDE.md) - Complete testing guide (908 lines)
 - [MOBILE_TESTING_GUIDE.md](05-testing/MOBILE_TESTING_GUIDE.md) - Mobile app testing
-- [baseline-results.md](05-testing/baseline-results.md) / [integration-testing.md](05-testing/integration-testing.md) / [load-testing.md](05-testing/load-testing.md) / [test-report.md](archive/2026-05-28/test-report.md) (archived Jan-2025 synthetic)
+- [baseline-results.md](05-testing/baseline-results.md) / [integration-testing.md](05-testing/integration-testing.md) / [load-testing.md](05-testing/load-testing.md)
 
 ### 6️⃣ [Deployment](06-deployment/)
 **Deployment and operations guides**
@@ -97,8 +95,7 @@
 ### 7️⃣ [Project Status](07-status/)
 **Current project status and roadmaps**
 - [07-status/README.md](07-status/README.md) - ⭐ **Authoritative project status**
-- Historical reports archived in [archive/2026-04-16/](archive/2026-04-16/) (FINAL_COMPLETION_REPORT, KMP_IMPLEMENTATION_STATUS, MOBILE_APP_STATUS, IMPLEMENTATION_STATUS_REPORT)
-- [archive/LOGIN_SURFACES_COMPARISON_2026-04-26.md](archive/LOGIN_SURFACES_COMPARISON_2026-04-26.md) - Login surfaces comparison (dated snapshot)
+- Design specs, ADRs, and diagram sources are archived in [archive/2026-04-16/](archive/2026-04-16/)
 
 ### 8️⃣ [Website & Marketing](08-website/)
 **Landing website documentation for fivucsas.com**
@@ -251,7 +248,7 @@ cd client-apps && ./gradlew :shared:test
 **For API Integration:**
 1. [Backend API Docs](http://localhost:8080/swagger-ui.html)
 2. [Biometric Service Docs](http://localhost:8001/docs)
-3. [Services Overview](archive/2026-05-28/SERVICES_OVERVIEW.md) (archived Nov-2025 snapshot)
+3. [API Integration Quickstart](01-getting-started/API_INTEGRATION_QUICKSTART.md)
 
 **For Testing:**
 1. [Testing Guide](05-testing/TESTING_GUIDE.md)
@@ -279,9 +276,7 @@ This documentation follows professional software engineering principles:
 - **Automation** - API docs auto-generated from code (always accurate, zero maintenance)
 
 See design documentation:
-- Design Analysis (DOCS_MODULE_DESIGN_ANALYSIS.md)
-- Professional Design (DOCS_MODULE_PROFESSIONAL_DESIGN.md)
-- Implementation Plan (DOCS_MODULE_IMPLEMENTATION_PLAN.md)
+- [Professional Design](archive/2026-04-16/DOCS_MODULE_PROFESSIONAL_DESIGN.md)
 
 ---
 

@@ -301,10 +301,9 @@ client-apps/
 ## 📚 Additional Resources
 
 ### **Documentation:**
-- `FINAL_COMPLETION_REPORT.md` - Complete project overview
-- `CODE_REVIEW_AND_REFACTORING.md` - Architecture details
-- `TESTING_GUIDE.md` - Comprehensive testing guide
-- `MOBILE_APP_COMPLETE.md` - Mobile development guide
+- `../05-testing/TESTING_GUIDE.md` - Comprehensive testing guide
+- `../03-development/KOTLIN_MULTIPLATFORM_GUIDE.md` - Mobile/desktop development guide
+- `../02-architecture/ARCHITECTURE_ANALYSIS.md` - Architecture details
 
 ### **Code Examples:**
 

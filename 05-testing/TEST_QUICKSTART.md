@@ -457,15 +457,13 @@ You have a **working Kotlin Multiplatform project** with:
 - ✅ Proper state management
 - ✅ Platform abstraction
 
-**Next steps**: See `IMPLEMENTATION_ROADMAP.md` for what to build next.
+**Next steps**: See the parent repository roadmap for what to build next.
 
 ---
 
 **Need Help?**
-1. Check `PROJECT_SUMMARY.md` for overview
-2. Check `HOW_TO_TEST_APPS.md` for detailed testing guide  
-3. Check `ARCHITECTURE_REVIEW_AND_FIXES.md` for code quality analysis
-4. Check `IMPLEMENTATION_ROADMAP.md` for next tasks
+1. Check `HOW_TO_TEST_APPS.md` for the detailed testing guide
+2. Check `TESTING_GUIDE.md` for the complete testing reference
 
 **Happy Coding!** 🚀
 
