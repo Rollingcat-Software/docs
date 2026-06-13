@@ -24,8 +24,6 @@ allowed_root_files:
   - "README.md"
   - "SECURITY.md"
   - "SECURITY_INCIDENTS.md"
-  - "gantt_fall.png"
-  - "gantt_spring.png"
 
 allowed_root_dirs:
   - ".github"
