@@ -5,8 +5,6 @@ Deployment and operations guides for FIVUCSAS.
 ## Local Development
 
 - **[START_ALL_SERVICES.md](START_ALL_SERVICES.md)** - How to start all services locally
-- **BACKEND_DAY_1_PLAN.md** - Backend setup plan
-- **BACKEND_NEXT_STEPS.md** - Backend next steps
 
 ## Quick Start All Services
 

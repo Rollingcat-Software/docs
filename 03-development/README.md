@@ -21,11 +21,9 @@ Guides for developers working on the FIVUCSAS platform.
 | [CLAUDE.md](CLAUDE.md) | Main developer guide - START HERE |
 | [KOTLIN_MULTIPLATFORM_GUIDE.md](KOTLIN_MULTIPLATFORM_GUIDE.md) | Mobile/desktop app development |
 | [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) | Complete implementation details |
-| [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) | Implementation roadmap |
-| [CODE_ANALYSIS.md](CODE_ANALYSIS.md) | Code analysis and fixes |
-| [IMPROVEMENT_RECOMMENDATIONS.md](IMPROVEMENT_RECOMMENDATIONS.md) | Improvement recommendations |
-| [MOBILE_APP_REFACTORING_PLAN.md](MOBILE_APP_REFACTORING_PLAN.md) | Mobile app refactoring plan |
 | [TECHNOLOGY_DECISIONS.md](TECHNOLOGY_DECISIONS.md) | Technology stack decisions |
+| [UX_DESIGN_GUIDE.md](UX_DESIGN_GUIDE.md) | UX design guidelines |
+| [PRECOMMIT_HOOKS.md](PRECOMMIT_HOOKS.md) | Pre-commit hook setup |
 
 ## Development Principles
 

@@ -4,16 +4,12 @@ Documentation about documentation and project artifacts.
 
 ## Contents
 
-### [Module Design](module-design/)
-Documentation module design, analysis, and implementation plans.
+### Module Design
+The documentation-module design spec.
 
 | File | Description |
 |------|-------------|
-| [DOCS_MODULE_DESIGN_ANALYSIS.md](module-design/DOCS_MODULE_DESIGN_ANALYSIS.md) | Analysis of original vs professional design |
-| [DOCS_MODULE_PROFESSIONAL_DESIGN.md](module-design/DOCS_MODULE_PROFESSIONAL_DESIGN.md) | Professional design following SOLID/DRY/KISS/YAGNI |
-| [DOCS_MODULE_IMPLEMENTATION_PLAN.md](module-design/DOCS_MODULE_IMPLEMENTATION_PLAN.md) | Step-by-step implementation plan |
-| [DOCS_MODULE_IMPLEMENTATION_SUMMARY.md](module-design/DOCS_MODULE_IMPLEMENTATION_SUMMARY.md) | Implementation summary and metrics |
-| [DOCS_MODULE_FINAL_COMPLETION_REPORT.md](module-design/DOCS_MODULE_FINAL_COMPLETION_REPORT.md) | Final completion report |
+| [DOCS_MODULE_PROFESSIONAL_DESIGN.md](../archive/2026-04-16/DOCS_MODULE_PROFESSIONAL_DESIGN.md) | Professional design following SOLID/DRY/KISS/YAGNI |
 
 ### [Project Artifacts](project-artifacts/)
 Original project documents and specifications.

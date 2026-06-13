@@ -2,28 +2,21 @@
 
 Historical docs preserved for git history. Content here is **not current** — see top-level `README.md` and the numbered module folders (`01-getting-started/` … `09-auth-flows/`) for authoritative docs.
 
-## 2026-04-16
+> **Cleanup note (2026-06):** A tracking-doc sweep hard-removed the disposable report/analysis/status/critique/fix-plan/progress/test-report files from this archive — their content is superseded by current code, the numbered reference sections, and GitHub issues. The genuine design specs, ADR-like decision records, diagram sources, research investigations, content artifacts, and templates listed below were **kept**.
 
-Bulk cleanup. Moved ~45 files out of the public docs tree because they were:
+## 2026-04-16 (kept after the sweep)
 
-- **`ADD_*` drafts** — `ADD_CRITIQUE_REPORT`, `ADD_FIVUCSAS`, `ADD_FIX_PLAN`, `ADD_FIX_PROGRESS`, `ADD_CRITICAL_ANALYSIS_AND_RECOMMENDATIONS`, `ADD_GAP_ANALYSIS`, `ADD_REAL_ANALYSIS`, `ADD_LANDING_WEBSITE` — scratch "architecture design document" drafts, superseded by the numbered module folders.
-- **`DOCS_MODULE_*` meta-docs** — 5 files about the docs system itself, kept in git history but no longer at the top of the navigation.
-- **Dated status reports** — `FINAL_COMPLETION_REPORT`, `IMPLEMENTATION_STATUS_REPORT` (two copies), `KMP_IMPLEMENTATION_STATUS`, `MOBILE_APP_STATUS`, `MOBILE_APP_INVESTIGATION_2026`, `PROJECT_PROGRESS_PRESENTATION` — superseded by `ROADMAP.md`.
-- **Duplicated PlantUML drafts** — `PLANTUML_DIAGRAMS_PART2` and the original pre-fix `PLANTUML_DIAGRAMS`; the `_FIXED` version was promoted to the canonical `PLANTUML_DIAGRAMS.md` name.
-- **pgvector setup drafts** — 4 files (`PGVECTOR_SETUP`, `PGVECTOR_IMPLEMENTATION_CHECKLIST`, `QUICK_START_PGVECTOR`, `IMPLEMENTATION_SUMMARY_PGVECTOR`) superseded by production deployment.
-- **Analysis / review drafts** — `API_CONTRACT_*`, `AUTH_METHOD_AUDIT`, `AUTH_TEST_VS_WEBAPP_ANALYSIS`, `BIOMETRIC_FLOW_RESEARCH`, `BACKEND_REVIEW`, `BACKEND_TEST_REPORT`, `CODE_ANALYSIS`, `IMPROVEMENT_RECOMMENDATIONS`, `MOBILE_APP_REFACTORING_PLAN`, `IDENTITY_CORE_API_ANALYSIS`, `SYSTEM_DESIGN_ANALYSIS_AND_DECISION`, `BACKEND_DAY_1_PLAN`, `BACKEND_NEXT_STEPS` — one-shot reviews, no longer action-bearing.
-- **Presentation / prep** — `PRESENTATION_COMPLETE_GUIDE`, `PRESENTATION_SPEECHES`, `SCREENSHOTS_NEEDED`, `TASK_LOG_TEMPLATE`, `ANALYTICS_PLAN` (root; lives at `docs/plans/ANALYTICS_PLAN.md`).
+Durable artifacts that remain in `archive/2026-04-16/`:
 
-All moves via `git mv` — authorship and timestamps preserved.
+- **Architecture Design Document** — `ADD_FIVUCSAS.md` (full ADD), `ADD_LANDING_WEBSITE.md` (landing-site Analysis & Design Document).
+- **Decision records** — `SYSTEM_DESIGN_ANALYSIS_AND_DECISION.md`, `IDENTITY_CORE_API_ANALYSIS.md` (keep-both-services verdict), `DOCS_MODULE_PROFESSIONAL_DESIGN.md`.
+- **Diagram sources** — `PLANTUML_DIAGRAMS.md`, `PLANTUML_DIAGRAMS_PART2.md`.
+- **Research** — `BIOMETRIC_FLOW_RESEARCH.md` (end-to-end flow trace).
+- **Setup guides** — `PGVECTOR_SETUP.md`, `QUICK_START_PGVECTOR.md`.
+- **Content artifacts / templates** — `PRESENTATION_COMPLETE_GUIDE.md`, `PRESENTATION_SPEECHES.md`, `TASK_LOG_TEMPLATE.md`, `ANALYTICS_PLAN.md` (live copy at `docs/plans/ANALYTICS_PLAN.md`).
 
-## 2026-05-28
+Removed in the sweep: the disposable `ADD_*` critiques/fix-plans/progress/gap-analyses, the `DOCS_MODULE_*` analysis/plan/summary/completion reports, the dated status reports (`FINAL_COMPLETION_REPORT`, `IMPLEMENTATION_STATUS_REPORT` ×2, `KMP_IMPLEMENTATION_STATUS`, `MOBILE_APP_STATUS`, `MOBILE_APP_INVESTIGATION_2026`, `PROJECT_PROGRESS_PRESENTATION`), the pgvector checklist/summary, the one-shot review/analysis drafts (`API_CONTRACT_*`, `AUTH_METHOD_AUDIT`, `AUTH_TEST_VS_WEBAPP_ANALYSIS`, `BACKEND_REVIEW`, `BACKEND_TEST_REPORT`, `CODE_ANALYSIS`, `IMPROVEMENT_RECOMMENDATIONS`, `MOBILE_APP_REFACTORING_PLAN`, `BACKEND_DAY_1_PLAN`, `BACKEND_NEXT_STEPS`), and the `SCREENSHOTS_NEEDED` checklist.
 
-Freshness audit. Moved 7 files that were pre-implementation planning docs contradicted by current repo state:
+## 2026-05-28 (removed in the sweep)
 
-- **`SERVICES_OVERVIEW.md`** (from `04-api/`) — Nov-2025 snapshot, called Java API "Kotlin", used H2 in-memory DB.
-- **`test-report.md`** (from `05-testing/`) — Jan-2025 synthetic static-analysis report, cited HS256 JWT which has since been superseded by RS256 default.
-- **`modules/biometric-processor.md`** — Pre-implementation plan, status "NOT STARTED"; service is live.
-- **`modules/identity-core-api.md`** — Pre-implementation plan, status "Basic CRUD only"; superseded by MODULE_STRUCTURE.md.
-- **`modules/client-apps.md`** — Pre-implementation plan, superseded by MODULE_STRUCTURE.md.
-- **`modules/web-app.md`** — Pre-implementation plan, superseded by MODULE_STRUCTURE.md.
-- **`modules/documentation.md`** — Pre-implementation plan, superseded by MODULE_STRUCTURE.md.
+The 7 dated per-service planning/status snapshots were removed — all contradicted current repo state and are superseded by `02-architecture/MODULE_STRUCTURE.md` and the live numbered reference sections: `SERVICES_OVERVIEW.md` (Nov-2025 snapshot), `test-report.md` (Jan-2025 synthetic static-analysis report), and the per-module implementation plans `biometric-processor.md`, `identity-core-api.md`, `client-apps.md`, `web-app.md`, `documentation.md`.
