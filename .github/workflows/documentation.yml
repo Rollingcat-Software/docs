@@ -72,7 +72,6 @@ jobs:
             "05-testing"
             "06-deployment"
             "07-status"
-            "archive"
           )
 
           MISSING=0
